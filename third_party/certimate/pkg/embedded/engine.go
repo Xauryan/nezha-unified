@@ -14,17 +14,26 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
+	"github.com/certimate-go/certimate/internal/embedcrypto"
+	"github.com/certimate-go/certimate/internal/embeddedhooks"
 	_ "github.com/certimate-go/certimate/migrations"
 	"github.com/pocketbase/pocketbase/core"
 )
 
 type Engine struct {
-	app    core.App
-	aead   cipher.AEAD
-	mu     sync.RWMutex
-	closed bool
+	app                 core.App
+	aead                cipher.AEAD
+	mu                  sync.RWMutex
+	closed              bool
+	closing             atomic.Bool
+	runtimeMu           sync.Mutex
+	runtime             *runtimeState
+	authorizeCredential CredentialAuthorizer
+	authorizerVersion   uint64
+	effects             sync.WaitGroup
 }
 
 // Open uses a dedicated directory. A missing key on an existing database is a
@@ -87,7 +96,13 @@ func Open(dir string) (*Engine, error) {
 		return cleanup(err)
 	}
 	e := &Engine{app: pb, aead: aead}
+	embedcrypto.Configure(pb, &embedcrypto.Hooks{Seal: e.seal, Open: e.unseal, ResolveAccess: func(ctx context.Context, id string) (map[string]any, error) {
+		return embeddedhooks.Credential(ctx, id, "workflow")
+	}})
 	if err := e.verifyRecoveryKey(); err != nil {
+		return cleanup(err)
+	}
+	if err := embedcrypto.Migrate(pb); err != nil {
 		return cleanup(err)
 	}
 	return e, nil
@@ -97,7 +112,7 @@ func Open(dir string) (*Engine, error) {
 // This detects restoring the DB and key from unrelated installations.
 func (e *Engine) verifyRecoveryKey() error {
 	for collection, field := range map[string]string{"access": "unified_envelope", "certificate": "unified_private_key"} {
-		records, err := e.app.FindRecordsByFilter(collection, field+" != ''", "id", 1, 0)
+		records, err := e.app.FindRecordsByFilter(collection, field+" != ''", "id", 0, 0)
 		if err != nil {
 			return err
 		}
@@ -121,17 +136,24 @@ func (e *Engine) verifyRecoveryKey() error {
 
 // Close waits for current service calls; the host shuts down HTTP before Close.
 func (e *Engine) Close() error {
+	e.closing.Store(true)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := e.StopRuntime(ctx); err != nil {
+		return err
+	}
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if e.closed {
 		return nil
 	}
+	e.effects.Wait()
 	e.closed = true
 	return e.app.ResetBootstrapState()
 }
 
 func (e *Engine) check(ctx context.Context) error {
-	if e.closed {
+	if e.closed || e.closing.Load() {
 		return errors.New("Certimate storage is closed")
 	}
 	return ctx.Err()
@@ -148,8 +170,10 @@ func (e *Engine) seal(id string, data []byte) string {
 func migrateUnified(app core.App) error {
 	return app.RunInTransaction(func(tx core.App) error {
 		for name, fields := range map[string][]core.Field{
-			"access":      {&core.TextField{Name: "unified_envelope", Hidden: true}, &core.BoolField{Name: "unified_enabled"}, &core.NumberField{Name: "unified_version", OnlyInt: true}},
-			"certificate": {&core.TextField{Name: "unified_private_key", Hidden: true}},
+			"access":        {&core.TextField{Name: "unified_envelope", Hidden: true}, &core.BoolField{Name: "unified_enabled"}, &core.NumberField{Name: "unified_version", OnlyInt: true}},
+			"certificate":   {&core.TextField{Name: "unified_private_key", Hidden: true}},
+			"workflow":      {},
+			"acme_accounts": {},
 		} {
 			c, err := tx.FindCollectionByNameOrId(name)
 			if err != nil {
@@ -169,9 +193,31 @@ func migrateUnified(app core.App) error {
 					changed = true
 				}
 			}
+			if name == "acme_accounts" {
+				if f, ok := c.Fields.GetByName("privateKey").(*core.TextField); ok && !f.Hidden {
+					f.Hidden = true
+					changed = true
+				}
+			}
+			if name == "access" || name == "workflow" || name == "certificate" {
+				fields = append(fields, &core.TextField{Name: "unified_operation_id", Hidden: true}, &core.BoolField{Name: "unified_active", Hidden: true})
+			}
 			for _, f := range fields {
 				if c.Fields.GetByName(f.GetName()) == nil {
 					c.Fields.Add(f)
+					changed = true
+				}
+			}
+			if name == "access" || name == "workflow" || name == "certificate" {
+				index := "CREATE UNIQUE INDEX idx_" + name + "_unified_operation ON " + name + " (unified_operation_id) WHERE unified_operation_id != ''"
+				found := false
+				for _, existing := range c.Indexes {
+					if existing == index {
+						found = true
+					}
+				}
+				if !found {
+					c.Indexes = append(c.Indexes, index)
 					changed = true
 				}
 			}

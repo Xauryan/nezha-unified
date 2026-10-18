@@ -6,10 +6,12 @@ import i18n from "@/lib/i18n"
 import { InjectContext } from "@/lib/inject"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
 
 export default function Root() {
     const { t } = useTranslation()
+    const location = useLocation()
+    const wide = location.pathname.includes("/certificates/workflows/")
     const { data: settingData, error } = useSetting()
 
     useEffect(() => {
@@ -41,7 +43,7 @@ export default function Root() {
             <section className="text-sm mx-auto h-full flex flex-col justify-between">
                 <div>
                     <Header />
-                    <div className="max-w-5xl mx-auto">
+                    <div className={wide ? "max-w-[1600px] mx-auto" : "max-w-5xl mx-auto"}>
                         <Outlet />
                     </div>
                 </div>

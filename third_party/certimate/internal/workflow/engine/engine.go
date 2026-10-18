@@ -13,6 +13,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embeddedhooks"
 	"github.com/certimate-go/certimate/internal/repository"
 	"github.com/certimate-go/certimate/pkg/logging"
 )
@@ -58,9 +59,25 @@ type workflowEngine struct {
 
 var _ WorkflowEngine = (*workflowEngine)(nil)
 
-func (we *workflowEngine) Invoke(ctx context.Context, execution WorkflowExecution) error {
+func (we *workflowEngine) Invoke(ctx context.Context, execution WorkflowExecution) (invokeErr error) {
+	ctx = embeddedhooks.Bind(ctx)
+	digest, err := embeddedhooks.GraphDigest(execution.Graph)
+	if err != nil {
+		return embeddedhooks.SafeError(ctx, err)
+	}
+	ctx = embeddedhooks.WithOperation(ctx, embeddedhooks.Operation{WorkflowID: execution.WorkflowId, RunID: execution.RunId, GraphDigest: digest})
+	if err := embeddedhooks.Check(ctx, embeddedhooks.Operation{Action: "workflow.run", ResourceKind: "workflow", ResourceID: execution.WorkflowId}); err != nil {
+		return err
+	}
+
 	defer func() {
 		if r := recover(); r != nil {
+			invokeErr = embeddedhooks.SafeError(ctx, fmt.Errorf("workflow engine panic: %v", r))
+			if embeddedhooks.EnabledFor(ctx) {
+				we.fireOnErrorHooks(ctx, invokeErr)
+				we.syslog.Error("workflow engine panic", slog.String("workflowId", execution.WorkflowId), slog.String("runId", execution.RunId))
+				return
+			}
 			we.fireOnErrorHooks(ctx, fmt.Errorf("workflow engine panic: %v", r))
 			we.syslog.Error(fmt.Sprintf("workflow engine panic: %v", r), slog.String("workflowId", execution.WorkflowId), slog.String("runId", execution.RunId))
 			slog.Error(fmt.Sprintf("workflow engine panic: %v, stack trace: %s", r, string(debug.Stack())), slog.String("workflowId", execution.WorkflowId), slog.String("runId", execution.RunId))
@@ -89,6 +106,7 @@ func (we *workflowEngine) Invoke(ctx context.Context, execution WorkflowExecutio
 		SetContext(ctx)
 	if err := we.executeBlocks(wfCtx, execution.Graph.Nodes); err != nil {
 		if !errors.Is(err, ErrTerminated) {
+			err = embeddedhooks.SafeError(ctx, err)
 			we.fireOnErrorHooks(ctx, err)
 			return err
 		}
@@ -145,12 +163,15 @@ func (we *workflowEngine) executeNode(wfCtx *WorkflowContext, node *Node) error 
 	executor, ok := we.executors[node.Type]
 	if !ok {
 		err := fmt.Errorf("workflow engine: no executor registered for node type: '%s'", node.Type)
-		return err
+		return embeddedhooks.SafeError(wfCtx.ctx, err)
 	} else {
 		logger := slog.New(logging.NewHookHandler(nil, &logging.HookHandlerOptions{
 			Level: slog.LevelDebug,
 			WriteFunc: func(ctx context.Context, record logging.Record) error {
-				we.fireOnNodeLoggingHooks(ctx, node, record)
+				if embeddedhooks.EnabledFor(wfCtx.ctx) {
+					record = logging.Record{Record: slog.NewRecord(record.Time, record.Level, "workflow node diagnostic", 0)}
+				}
+				we.fireOnNodeLoggingHooks(wfCtx.ctx, node, record)
 				return nil
 			},
 		}))
@@ -165,11 +186,24 @@ func (we *workflowEngine) executeNode(wfCtx *WorkflowContext, node *Node) error 
 		return nil
 	}
 
+	if err := embeddedhooks.Check(wfCtx.ctx, embeddedhooks.Operation{WorkflowID: wfCtx.WorkflowId, RunID: wfCtx.RunId, NodeID: node.Id, Action: "node.execute", ResourceKind: "workflow", ResourceID: wfCtx.WorkflowId}); err != nil {
+		return err
+	}
 	we.fireOnNodeStartHooks(wfCtx.ctx, node)
 
 	execCtx := newNodeExecutionContext(wfCtx, node)
+	digest, digestErr := embeddedhooks.GraphDigest(wfCtx.RunGraph)
+	if digestErr != nil {
+		return embeddedhooks.SafeError(wfCtx.ctx, digestErr)
+	}
+	execCtx.SetContext(embeddedhooks.WithOperation(wfCtx.ctx, embeddedhooks.Operation{WorkflowID: wfCtx.WorkflowId, RunID: wfCtx.RunId, NodeID: node.Id, GraphDigest: digest}))
 	execRes, err := executor.Execute(execCtx)
 	if err != nil && !errors.Is(err, ErrTerminated) {
+		if !errors.Is(err, ErrBlocksException) {
+			err = embeddedhooks.SafeError(wfCtx.ctx, err)
+		} else if embeddedhooks.EnabledFor(wfCtx.ctx) {
+			err = fmt.Errorf("%w: %w", ErrBlocksException, embeddedhooks.SafeError(wfCtx.ctx, err))
+		}
 		if !errors.Is(err, ErrBlocksException) {
 			wfCtx.variables.Set(stateVarKeyErrorNodeId, node.Id, stateValTypeString)
 			wfCtx.variables.Set(stateVarKeyErrorNodeName, node.Data.Name, stateValTypeString)
@@ -215,7 +249,7 @@ func (we *workflowEngine) executeNode(wfCtx *WorkflowContext, node *Node) error 
 				})
 			}
 			if _, err := we.wfoutputRepo.Save(execCtx.Context(), output); err != nil {
-				we.syslog.Error("failed to save node output", slog.Any("error", err))
+				we.syslog.Error("failed to save node output", slog.Any("error", embeddedhooks.SafeError(execCtx.Context(), err)))
 			}
 		}
 
@@ -270,7 +304,7 @@ func (we *workflowEngine) fireOnStartHooks(ctx context.Context) {
 	defer we.hooksMtx.RUnlock()
 	for _, cb := range we.onStartHooks {
 		if cbErr := cb(ctx); cbErr != nil {
-			we.syslog.Error("workflow engine: error in onStart hook", slog.Any("error", cbErr))
+			we.syslog.Error("workflow engine: error in onStart hook", slog.Any("error", embeddedhooks.SafeError(ctx, cbErr)))
 		}
 	}
 }
@@ -280,7 +314,7 @@ func (we *workflowEngine) fireOnEndHooks(ctx context.Context) {
 	defer we.hooksMtx.RUnlock()
 	for _, cb := range we.onEndHooks {
 		if cbErr := cb(ctx); cbErr != nil {
-			we.syslog.Error("workflow engine: error in onEnd hook", slog.Any("error", cbErr))
+			we.syslog.Error("workflow engine: error in onEnd hook", slog.Any("error", embeddedhooks.SafeError(ctx, cbErr)))
 		}
 	}
 }
@@ -290,7 +324,7 @@ func (we *workflowEngine) fireOnErrorHooks(ctx context.Context, err error) {
 	defer we.hooksMtx.RUnlock()
 	for _, cb := range we.onErrorHooks {
 		if cbErr := cb(ctx, err); cbErr != nil {
-			we.syslog.Error("workflow engine: error in onError hook", slog.Any("error", cbErr))
+			we.syslog.Error("workflow engine: error in onError hook", slog.Any("error", embeddedhooks.SafeError(ctx, cbErr)))
 		}
 	}
 }
@@ -300,7 +334,7 @@ func (we *workflowEngine) fireOnNodeStartHooks(ctx context.Context, node *Node) 
 	defer we.hooksMtx.RUnlock()
 	for _, cb := range we.onNodeStartHooks {
 		if cbErr := cb(ctx, node); cbErr != nil {
-			we.syslog.Error("workflow engine: error in onNodeStart hook", slog.Any("error", cbErr))
+			we.syslog.Error("workflow engine: error in onNodeStart hook", slog.Any("error", embeddedhooks.SafeError(ctx, cbErr)))
 		}
 	}
 }
@@ -310,7 +344,7 @@ func (we *workflowEngine) fireOnNodeEndHooks(ctx context.Context, node *Node, re
 	defer we.hooksMtx.RUnlock()
 	for _, cb := range we.onNodeEndHooks {
 		if cbErr := cb(ctx, node, result); cbErr != nil {
-			we.syslog.Error("workflow engine: error in onNodeEnd hook", slog.Any("error", cbErr))
+			we.syslog.Error("workflow engine: error in onNodeEnd hook", slog.Any("error", embeddedhooks.SafeError(ctx, cbErr)))
 		}
 	}
 }
@@ -320,7 +354,7 @@ func (we *workflowEngine) fireOnNodeErrorHooks(ctx context.Context, node *Node, 
 	defer we.hooksMtx.RUnlock()
 	for _, cb := range we.onNodeErrorHooks {
 		if cbErr := cb(ctx, node, err); cbErr != nil {
-			we.syslog.Error("workflow engine: error in onNodeError hook", slog.Any("error", cbErr))
+			we.syslog.Error("workflow engine: error in onNodeError hook", slog.Any("error", embeddedhooks.SafeError(ctx, cbErr)))
 		}
 	}
 }
@@ -330,7 +364,7 @@ func (we *workflowEngine) fireOnNodeLoggingHooks(ctx context.Context, node *Node
 	defer we.hooksMtx.RUnlock()
 	for _, cb := range we.onNodeLoggingHooks {
 		if cbErr := cb(ctx, node, log); cbErr != nil {
-			we.syslog.Error("workflow engine: error in onNodeLogging hook", slog.Any("error", cbErr))
+			we.syslog.Error("workflow engine: error in onNodeLogging hook", slog.Any("error", embeddedhooks.SafeError(ctx, cbErr)))
 		}
 	}
 }

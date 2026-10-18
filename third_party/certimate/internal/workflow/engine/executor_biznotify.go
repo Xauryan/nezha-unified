@@ -33,7 +33,7 @@ func (ne *bizNotifyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 	// 读取部署提供商授权
 	providerAccessConfig := make(map[string]any)
 	if nodeCfg.ProviderAccessId != "" {
-		if access, err := ne.accessRepo.GetById(execCtx.Context(), nodeCfg.ProviderAccessId); err != nil {
+		if access, err := resolveAccess(execCtx, ne.accessRepo, nodeCfg.ProviderAccessId, "notify"); err != nil {
 			return nil, fmt.Errorf("failed to get access #%s record: %w", nodeCfg.ProviderAccessId, err)
 		} else {
 			providerAccessConfig = access.Config
@@ -73,6 +73,9 @@ func (ne *bizNotifyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		ProviderExtendedConfig: nodeCfg.ProviderConfig,
 		Subject:                subject,
 		Message:                message,
+	}
+	if err := authorizeEffect(execCtx, "notification.send", "credential", nodeCfg.ProviderAccessId, nil); err != nil {
+		return execRes, err
 	}
 	if _, err := notifier.SendNotification(execCtx.Context(), notifyReq); err != nil {
 		ne.logger.Warn("could not send notification")

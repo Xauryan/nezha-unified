@@ -32,7 +32,14 @@ import UserPage from "./routes/user"
 import WAFPage from "./routes/waf"
 import ApiTokensPage from "./routes/api-tokens"
 
-import UnifiedResources, { UnifiedPermissions } from "./routes/unified"
+import { UnifiedPermissions } from "./routes/unified"
+
+import DNSPage from "./routes/dns"
+import TargetsPage from "./routes/targets"
+import IdentitiesPage from "./routes/identities"
+import RunsPage from "./routes/runs"
+
+import { certificateRoutes } from "./certimate/routes"
 
 const router = createBrowserRouter([
     {
@@ -46,9 +53,11 @@ const router = createBrowserRouter([
         ),
         errorElement: <ErrorPage />,
         children: [
-            { path: "/dashboard/credentials", element: <UnifiedResources key="credentials" kind="credentials" /> },
-            { path: "/dashboard/certificates", element: <UnifiedResources key="certificates" kind="certificates" /> },
-            { path: "/dashboard/certificates/workflows", element: <UnifiedResources key="workflows" kind="workflows" /> },
+            ...certificateRoutes,
+            {path:"/dashboard/dns",element:<DNSPage />},
+            {path:"/dashboard/targets",element:<TargetsPage />},
+            {path:"/dashboard/identities",element:<IdentitiesPage />},
+            {path:"/dashboard/runs",element:<RunsPage />},
             { path: "/dashboard/permissions", element: <UnifiedPermissions /> },
             {
                 path: "/dashboard/login",

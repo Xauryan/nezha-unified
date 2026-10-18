@@ -315,5 +315,10 @@
     "CopiedToClipboard": "已複製到剪貼簿",
     "ClipboardWriteFailed": "寫入剪貼簿失敗",
     "PastedFromClipboard": "已從剪貼簿貼上",
-    "ClipboardReadFailed": "讀取剪貼簿失敗"
+    "ClipboardReadFailed": "讀取剪貼簿失敗",
+    "Unified": {
+        "DeploymentTargets": "部署目標",
+        "Identities": "執行身份與權杖",
+        "RunHistory": "執行記錄"
+    }
 }

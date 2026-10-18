@@ -6,14 +6,9 @@ import (
 	"log"
 	"slices"
 
-	"github.com/libdns/cloudflare"
-	"github.com/libdns/he"
-	tencentcloud "github.com/nezhahq/libdns-tencentcloud"
-
 	"github.com/nezhahq/nezha/model"
 	ddns2 "github.com/nezhahq/nezha/pkg/ddns"
 	"github.com/nezhahq/nezha/pkg/ddns/dummy"
-	"github.com/nezhahq/nezha/pkg/ddns/webhook"
 	"github.com/nezhahq/nezha/pkg/utils"
 )
 
@@ -69,7 +64,7 @@ func profileOwnedByRealAdmin(uid uint64) bool {
 // GHSA-39g2-8x68-pmx8: bind-time CheckPermission 对「不存在的 profile ID」放行，
 // 攻击者可预绑定将来才会被受害者创建的自增 ID。worker 解析时必须按 ownerUID
 // 重新校验归属，跳过非 server owner（且非管理员）所有的 profile。
-func (c *DDNSClass) GetDDNSProvidersFromProfiles(profileId []uint64, ip *model.IP, ownerUID uint64) ([]*ddns2.Provider, error) {
+func (c *DDNSClass) GetDDNSProvidersFromProfiles(profileId []uint64, ip *model.IP, ownerUID uint64, hostIDs ...uint64) ([]*ddns2.Provider, error) {
 	profiles := make([]*model.DDNSProfile, 0, len(profileId))
 
 	c.listMu.RLock()
@@ -89,6 +84,10 @@ func (c *DDNSClass) GetDDNSProvidersFromProfiles(profileId []uint64, ip *model.I
 	}
 	c.listMu.RUnlock()
 
+	var hostID uint64
+	if len(hostIDs) > 0 {
+		hostID = hostIDs[0]
+	}
 	providers := make([]*ddns2.Provider, 0, len(profiles))
 	for _, profile := range profiles {
 		provider := &ddns2.Provider{DDNSProfile: profile, IPAddrs: ip}
@@ -96,17 +95,8 @@ func (c *DDNSClass) GetDDNSProvidersFromProfiles(profileId []uint64, ip *model.I
 		case model.ProviderDummy:
 			provider.Setter = &dummy.Provider{}
 			providers = append(providers, provider)
-		case model.ProviderWebHook:
-			provider.Setter = &webhook.Provider{DDNSProfile: profile}
-			providers = append(providers, provider)
-		case model.ProviderCloudflare:
-			provider.Setter = &cloudflare.Provider{APIToken: profile.AccessSecret}
-			providers = append(providers, provider)
-		case model.ProviderTencentCloud:
-			provider.Setter = &tencentcloud.Provider{SecretId: profile.AccessID, SecretKey: profile.AccessSecret}
-			providers = append(providers, provider)
-		case model.ProviderHE:
-			provider.Setter = &he.Provider{APIKey: profile.AccessSecret}
+		case model.ProviderWebHook, model.ProviderCloudflare, model.ProviderTencentCloud, model.ProviderHE:
+			provider.Setter = &legacyDDNSSetter{actor: ownerUID, hostID: hostID, profileID: profile.ID, version: profile.ConfigVersion}
 			providers = append(providers, provider)
 		default:
 			return nil, fmt.Errorf("cannot find DDNS provider %s", profile.Provider)

@@ -1,3 +1,4 @@
+import DDNSBindings from "@/components/unified/ddns-bindings"
 import { swrFetcher } from "@/api/api"
 import { deleteDDNSProfiles, getDDNSProviders } from "@/api/ddns"
 import { ActionButtonGroup } from "@/components/action-button-group"
@@ -205,6 +206,7 @@ export default function DDNSPage() {
                     )}
                 </TableBody>
             </Table>
+            <DDNSBindings />
         </div>
     )
 }

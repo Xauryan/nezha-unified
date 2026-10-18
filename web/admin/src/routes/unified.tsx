@@ -10,11 +10,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { UnifiedNav } from "@/components/unified/common"
+import ExecutionPolicies from "@/components/unified/policies"
 import { useMainStore } from "@/hooks/useMainStore"
 import { Download, KeyRound, RefreshCw, ShieldCheck } from "lucide-react"
 import { type FormEvent, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { NavLink } from "react-router-dom"
 import useSWR from "swr"
 
 type Resource = {
@@ -29,33 +30,6 @@ type Resource = {
 type ResourcePage = { items: Resource[]; total: number; page: number; per_page: number }
 type Grant = { id: number; user_id: number; kind: string; resource_id: string; action: string }
 type ResourceKind = "credentials" | "certificates" | "workflows"
-
-const links = [
-    ["/dashboard/certificates", "Certificates"],
-    ["/dashboard/credentials", "Credentials"],
-    ["/dashboard/certificates/workflows", "Workflows"],
-    ["/dashboard/permissions", "Permissions"],
-]
-
-function ResourceNav() {
-    const { t } = useTranslation()
-    return (
-        <nav aria-label={t("Unified.Navigation")} className="flex flex-wrap gap-2 border-b pb-4">
-            {links.map(([path, label]) => (
-                <NavLink
-                    key={path}
-                    to={path}
-                    end
-                    className={({ isActive }) =>
-                        `inline-flex min-h-11 items-center rounded-md px-3 font-medium transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring ${isActive ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-muted-foreground"}`
-                    }
-                >
-                    {t(`Unified.${label}`)}
-                </NavLink>
-            ))}
-        </nav>
-    )
-}
 
 function ResourceForm({
     kind,
@@ -262,7 +236,7 @@ export default function UnifiedResources({ kind }: { kind: ResourceKind }) {
     }
     return (
         <main className="space-y-6 px-4 py-8">
-            <ResourceNav />
+            <UnifiedNav />
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <div className="mb-2 flex items-center gap-2 text-muted-foreground">
@@ -466,7 +440,7 @@ export function UnifiedPermissions() {
     }
     return (
         <main className="space-y-6 px-4 py-8">
-            <ResourceNav />
+            <UnifiedNav />
             <div>
                 <h1 className="text-2xl font-semibold">{t("Unified.Permissions")}</h1>
                 <p className="mt-2 text-muted-foreground">{t("Unified.PermissionsDescription")}</p>
@@ -504,6 +478,9 @@ export function UnifiedPermissions() {
                             <option value="certificate">{t("Unified.Certificates")}</option>
                             <option value="credential">{t("Unified.Credentials")}</option>
                             <option value="workflow">{t("Unified.Workflows")}</option>
+                            <option value="deployment_target">
+                                {t("Unified.DeploymentTargets", "Deployment targets")}
+                            </option>
                         </select>
                     </div>
                     <div className="space-y-2">
@@ -524,9 +501,38 @@ export function UnifiedPermissions() {
                             onChange={(e) => setAction(e.target.value)}
                         >
                             <option value="read">{t("Unified.ReadMetadata")}</option>
-                            {kind === "certificate" && (
-                                <option value="download">{t("Unified.Download")}</option>
-                            )}
+                            {(
+                                {
+                                    certificate: [
+                                        "write",
+                                        "delete",
+                                        "download",
+                                        "download_key",
+                                        "use",
+                                        "revoke",
+                                    ],
+                                    credential: [
+                                        "write",
+                                        "delete",
+                                        "use",
+                                        "export",
+                                        "rotate",
+                                        "clone",
+                                    ],
+                                    workflow: ["write", "delete", "execute"],
+                                    deployment_target: [
+                                        "write",
+                                        "delete",
+                                        "use",
+                                        "deploy",
+                                        "cancel",
+                                    ],
+                                }[kind] || []
+                            ).map((value) => (
+                                <option key={value} value={value}>
+                                    {value}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <Button className="min-h-11 sm:col-span-2" disabled={busy} type="submit">
@@ -569,6 +575,7 @@ export function UnifiedPermissions() {
                     ))}
                 </ul>
             )}
+            {admin && <ExecutionPolicies />}
         </main>
     )
 }

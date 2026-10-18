@@ -2,7 +2,10 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"github.com/certimate-go/certimate/pkg/embedded"
+	"github.com/nezhahq/nezha/service/unified"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -129,7 +132,7 @@ func TestListDDNS_RedactsCredentials(t *testing.T) {
 	require.Empty(t, out[0].WebhookURL, "webhook_url must be redacted in list response")
 	require.Empty(t, out[0].WebhookRequestBody, "webhook_request_body must be redacted in list response")
 	require.Empty(t, out[0].WebhookHeaders, "webhook_headers must be redacted in list response")
-	require.Equal(t, "id", out[0].AccessID, "non-secret fields must be preserved")
+	require.Empty(t, out[0].AccessID, "credential identifiers must be redacted")
 
 	var stored model.DDNSProfile
 	require.NoError(t, singleton.DB.First(&stored, p.ID).Error)
@@ -170,6 +173,7 @@ func TestListNotification_RedactsCredentials(t *testing.T) {
 
 func TestUpdateDDNS_EmptySecretPreservesStored(t *testing.T) {
 	defer setupTenancyTest(t)()
+	defer setupUnifiedDDNSRedactionTest(t)()
 
 	existing := model.DDNSProfile{
 		Common:             model.Common{UserID: 10},
@@ -203,6 +207,11 @@ func TestUpdateDDNS_EmptySecretPreservesStored(t *testing.T) {
 
 	var after model.DDNSProfile
 	require.NoError(t, singleton.DB.First(&after, existing.ID).Error)
+	require.Empty(t, after.AccessSecret)
+	require.Empty(t, after.WebhookURL)
+	require.NotEmpty(t, after.CredentialID)
+	after, err = singleton.Unified.LegacyDDNSProfile(context.Background(), 10, after.ID, after.ConfigVersion)
+	require.NoError(t, err)
 	require.Equal(t, "cf-renamed", after.Name, "non-secret edits must apply")
 	require.Equal(t, "keep-me", after.AccessSecret, "empty submitted secret must preserve stored value")
 	require.Equal(t, `{"X-Token":"keep-header"}`, after.WebhookHeaders,
@@ -215,6 +224,7 @@ func TestUpdateDDNS_EmptySecretPreservesStored(t *testing.T) {
 
 func TestUpdateDDNS_NonEmptySecretOverwrites(t *testing.T) {
 	defer setupTenancyTest(t)()
+	defer setupUnifiedDDNSRedactionTest(t)()
 
 	existing := model.DDNSProfile{
 		Common:        model.Common{UserID: 10},
@@ -242,6 +252,11 @@ func TestUpdateDDNS_NonEmptySecretOverwrites(t *testing.T) {
 
 	var after model.DDNSProfile
 	require.NoError(t, singleton.DB.First(&after, existing.ID).Error)
+	require.Empty(t, after.AccessSecret)
+	require.Empty(t, after.WebhookURL)
+	require.NotEmpty(t, after.CredentialID)
+	after, err = singleton.Unified.LegacyDDNSProfile(context.Background(), 10, after.ID, after.ConfigVersion)
+	require.NoError(t, err)
 	require.Equal(t, "new-secret", after.AccessSecret, "non-empty submitted secret must overwrite")
 }
 
@@ -280,4 +295,15 @@ func TestUpdateNotification_EmptyFieldsPreserveStored(t *testing.T) {
 		"empty submitted url must preserve stored value")
 	require.Equal(t, `{"Authorization":"keep"}`, after.RequestHeader,
 		"empty submitted request_header must preserve stored value")
+}
+
+func setupUnifiedDDNSRedactionTest(t *testing.T) func() {
+	t.Helper()
+	previous := singleton.Unified
+	require.NoError(t, singleton.DB.Create(&model.User{Common: model.Common{ID: 10}, Username: "synthetic-ddns-owner", Role: model.RoleMember}).Error)
+	engine, err := embedded.Open(t.TempDir())
+	require.NoError(t, err)
+	singleton.Unified, err = unified.New(singleton.DB, engine)
+	require.NoError(t, err)
+	return func() { singleton.Unified = previous; require.NoError(t, engine.Close()) }
 }

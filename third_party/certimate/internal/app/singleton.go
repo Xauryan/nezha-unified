@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"log/slog"
 	"sync"
 
@@ -10,12 +11,15 @@ import (
 )
 
 var (
-	instance    core.App
-	intanceOnce sync.Once
+	instance      core.App
+	instanceMu    sync.Mutex
+	embeddedOwner core.App
 )
 
 func GetApp() core.App {
-	intanceOnce.Do(func() {
+	instanceMu.Lock()
+	defer instanceMu.Unlock()
+	if instance == nil {
 		pb := pocketbase.NewWithConfig(pocketbase.Config{
 			HideStartBanner: true,
 		})
@@ -24,7 +28,7 @@ func GetApp() core.App {
 		pb.RootCmd.Flags().MarkHidden("queryTimeout")
 
 		instance = pb
-	})
+	}
 
 	return instance
 }
@@ -40,4 +44,26 @@ func GetLogger() *slog.Logger {
 	}
 
 	return app.Logger()
+}
+
+// BindEmbedded installs the host-owned database without bootstrapping a server.
+// Exactly one engine may own the original process-global Certimate services.
+func BindEmbedded(pb core.App) error {
+	instanceMu.Lock()
+	defer instanceMu.Unlock()
+	if embeddedOwner != nil && embeddedOwner != pb {
+		return errors.New("another Certimate runtime is already active")
+	}
+	if instance != nil && instance != pb && instance.IsBootstrapped() {
+		return errors.New("another Certimate application is already active")
+	}
+	instance, embeddedOwner = pb, pb
+	return nil
+}
+func ReleaseEmbedded(pb core.App) {
+	instanceMu.Lock()
+	defer instanceMu.Unlock()
+	if embeddedOwner == pb {
+		instance, embeddedOwner = nil, nil
+	}
 }

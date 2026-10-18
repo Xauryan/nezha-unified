@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/certimate-go/certimate/pkg/embedded"
+	"github.com/nezhahq/nezha/model"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -24,6 +25,14 @@ func TestResourceGrantsRevokeAndAdminPATRestrictions(t *testing.T) {
 	}
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
+	if err := db.AutoMigrate(&model.User{}); err != nil {
+		t.Fatal(err)
+	}
+	for _, user := range []model.User{{Common: model.Common{ID: 1}, Username: "admin", Role: model.RoleAdmin}, {Common: model.Common{ID: 2}, Username: "member", Role: model.RoleMember}, {Common: model.Common{ID: 3}, Username: "other", Role: model.RoleMember}} {
+		if err := db.Create(&user).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
 	s, err := New(db, engine)
 	if err != nil {
 		t.Fatal(err)

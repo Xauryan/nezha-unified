@@ -11,10 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/samber/lo"
-
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embeddedhooks"
 	"github.com/certimate-go/certimate/internal/repository"
 	"github.com/certimate-go/certimate/internal/workflow/engine"
 	"github.com/certimate-go/certimate/pkg/logging"
@@ -46,8 +45,10 @@ type Statistics struct {
 }
 
 type workflowDispatcher struct {
-	booted      bool
-	concurrency int
+	booted       bool
+	concurrency  int
+	taskWG       sync.WaitGroup
+	shutdownDone chan struct{}
 
 	taskMtx         sync.RWMutex
 	pendingRunQueue []string
@@ -82,58 +83,76 @@ func (wd *workflowDispatcher) GetStatistics() Statistics {
 }
 
 func (wd *workflowDispatcher) Bootup(ctx context.Context) error {
-	if wd.booted {
-		return fmt.Errorf("could not re-bootup")
-	}
-
 	wd.taskMtx.Lock()
 	defer wd.taskMtx.Unlock()
-
+	if wd.booted {
+		return fmt.Errorf("dispatcher is already running")
+	}
+	if wd.shutdownDone != nil {
+		select {
+		case <-wd.shutdownDone:
+		default:
+			return fmt.Errorf("dispatcher is still stopping")
+		}
+	}
 	if err := wd.workflowRunRepo.ResetStatusIfHanging(ctx); err != nil {
 		return err
 	}
-
+	wd.shutdownDone = make(chan struct{})
 	wd.booted = true
-
 	return nil
 }
 
 func (wd *workflowDispatcher) Shutdown(ctx context.Context) error {
-	if !wd.booted {
-		return fmt.Errorf("could not re-shutdown")
-	}
-
 	wd.taskMtx.Lock()
-	defer wd.taskMtx.Unlock()
-
-	for runId, task := range wd.processingTasks {
-		task.cancel()
-		delete(wd.processingTasks, runId)
+	done := wd.shutdownDone
+	if wd.booted {
+		wd.booted = false
+		for _, task := range wd.processingTasks {
+			task.cancel()
+		}
+		for _, id := range wd.pendingRunQueue {
+			if run, err := wd.workflowRunRepo.GetById(context.Background(), id); err == nil {
+				run.Status = domain.WorkflowRunStatusTypeCanceled
+				run.EndedAt = time.Now()
+				_, _ = wd.workflowRunRepo.SaveWithCascading(context.Background(), run)
+			}
+		}
+		wd.pendingRunQueue = nil
+		// No Add can occur once booted is false under taskMtx.
+		go func() { wd.taskWG.Wait(); close(done) }()
 	}
-
-	wd.booted = false
-	wd.pendingRunQueue = make([]string, 0)
-	wd.processingTasks = make(map[string]*taskInfo)
-	return nil
+	wd.taskMtx.Unlock()
+	if done == nil {
+		return nil
+	}
+	select {
+	case <-done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 func (wd *workflowDispatcher) Start(ctx context.Context, runId string) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	wd.taskMtx.Lock()
 	defer wd.taskMtx.Unlock()
-
-	if _, exists := wd.processingTasks[runId]; exists {
-		return fmt.Errorf("workflow run %s is already processing", runId)
+	if !wd.booted {
+		return fmt.Errorf("dispatcher is not running")
 	}
-
-	for _, pendingRunId := range wd.pendingRunQueue {
-		if pendingRunId == runId {
-			return fmt.Errorf("workflow run %s is already in the queue", runId)
+	if _, exists := wd.processingTasks[runId]; exists {
+		return fmt.Errorf("workflow run is already processing")
+	}
+	for _, id := range wd.pendingRunQueue {
+		if id == runId {
+			return fmt.Errorf("workflow run is already queued")
 		}
 	}
-
 	wd.pendingRunQueue = append(wd.pendingRunQueue, runId)
-	go func() { wd.tryNextAsync() }()
-
+	wd.tryNextLocked()
 	return nil
 }
 
@@ -154,6 +173,7 @@ func (wd *workflowDispatcher) Cancel(ctx context.Context, runId string) error {
 	}
 
 	workflowRun.Status = domain.WorkflowRunStatusTypeCanceled
+	workflowRun.EndedAt = time.Now()
 	if workflow.LastRunId == workflowRun.Id {
 		_, err := wd.workflowRunRepo.SaveWithCascading(ctx, workflowRun)
 		if err != nil {
@@ -168,7 +188,6 @@ func (wd *workflowDispatcher) Cancel(ctx context.Context, runId string) error {
 
 	if task, exists := wd.processingTasks[runId]; exists {
 		task.cancel()
-		delete(wd.processingTasks, runId)
 
 		wd.syslog.Info(fmt.Sprintf("workrun #%s was canceled", task.RunId))
 	}
@@ -180,40 +199,44 @@ func (wd *workflowDispatcher) Cancel(ctx context.Context, runId string) error {
 		}
 	}
 
-	go func() { wd.tryNextAsync() }()
+	wd.tryNextLocked()
 
 	return nil
 }
 
 func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
+	defer wd.taskWG.Done()
 	var workflow *domain.Workflow
 	var workflowRun *domain.WorkflowRun
 	var err error
-
-	// 捕获 panic
-	defer func() {
-		if r := recover(); r != nil {
-			wd.syslog.Error(fmt.Sprintf("workflow dispatcher panic: %v", r), slog.String("workflowId", task.WorkflowId), slog.String("runId", task.RunId))
-			slog.Error(fmt.Sprintf("workflow dispatcher panic: %v, stack trace: %s", r, string(debug.Stack())), slog.String("workflowId", task.WorkflowId), slog.String("runId", task.RunId))
-
-			if workflowRun != nil {
-				workflowRun.Status = domain.WorkflowRunStatusTypeFailed
-				workflowRun.EndedAt = time.Now()
-				workflowRun.Error = fmt.Sprintf("workflow dispatcher panic: %v", r)
-				if _, err := wd.workflowRunRepo.SaveWithCascading(context.Background(), workflowRun); err != nil {
-					log.Default().Println("failed to save workflow run after panic", slog.Any("error", err))
-				}
-			}
-		}
-	}()
 
 	// 尝试继续执行等待队列中的任务
 	defer func() {
 		wd.taskMtx.Lock()
 		delete(wd.processingTasks, task.RunId)
+		wd.tryNextLocked()
 		wd.taskMtx.Unlock()
+	}()
 
-		go func() { wd.tryNextAsync() }()
+	// 捕获 panic
+	defer func() {
+		if r := recover(); r != nil {
+			if embeddedhooks.EnabledFor(task.ctx) {
+				wd.syslog.Error("workflow dispatcher panic", slog.String("workflowId", task.WorkflowId), slog.String("runId", task.RunId))
+			} else {
+				wd.syslog.Error(fmt.Sprintf("workflow dispatcher panic: %v", r), slog.String("workflowId", task.WorkflowId), slog.String("runId", task.RunId))
+				slog.Error(fmt.Sprintf("workflow dispatcher panic: %v, stack trace: %s", r, string(debug.Stack())), slog.String("workflowId", task.WorkflowId), slog.String("runId", task.RunId))
+			}
+
+			if workflowRun != nil {
+				workflowRun.Status = domain.WorkflowRunStatusTypeFailed
+				workflowRun.EndedAt = time.Now()
+				workflowRun.Error = embeddedhooks.SafeError(task.ctx, fmt.Errorf("workflow dispatcher panic: %v", r)).Error()
+				if _, err := wd.workflowRunRepo.SaveWithCascading(context.Background(), workflowRun); err != nil {
+					log.Default().Println("failed to save workflow run after panic", slog.Any("error", err))
+				}
+			}
+		}
 	}()
 
 	// 查询运行实体，并级联更新状态
@@ -225,7 +248,7 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 	} else {
 		if workflowRun.Status == domain.WorkflowRunStatusTypePending {
 			workflowRun.Status = domain.WorkflowRunStatusTypeProcessing
-			wd.workflowRunRepo.SaveWithCascading(task.ctx, workflowRun)
+			wd.workflowRunRepo.SaveWithCascading(context.Background(), workflowRun)
 		} else {
 			// WTF? That should be impossible!
 			return
@@ -241,9 +264,18 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 
 	// 初始化工作流引擎
 	logsBuf := make(domain.WorkflowLogs, 0)
+	var logsMu sync.Mutex
 	we := engine.NewWorkflowEngine()
+	terminal := false
 	we.OnEnd(func(ctx context.Context) error {
-		if errmsg := logsBuf.ErrorString(); errmsg == "" {
+		terminal = true
+		logsMu.Lock()
+		errmsg := logsBuf.ErrorString()
+		logsMu.Unlock()
+		if task.ctx.Err() != nil {
+			workflowRun.Status = domain.WorkflowRunStatusTypeCanceled
+			workflowRun.EndedAt = time.Now()
+		} else if errmsg == "" {
 			workflowRun.Status = domain.WorkflowRunStatusTypeSucceeded
 			workflowRun.EndedAt = time.Now()
 		} else {
@@ -251,19 +283,21 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 			workflowRun.EndedAt = time.Now()
 			workflowRun.Error = errmsg
 		}
-		wd.workflowRunRepo.SaveWithCascading(task.ctx, workflowRun)
+		wd.workflowRunRepo.SaveWithCascading(context.Background(), workflowRun)
 
 		return nil
 	})
 	we.OnError(func(ctx context.Context, err error) error {
+		terminal = true
 		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 			workflowRun.Status = domain.WorkflowRunStatusTypeCanceled
+			workflowRun.EndedAt = time.Now()
 			wd.workflowRunRepo.SaveWithCascading(context.Background(), workflowRun)
 		} else {
 			workflowRun.Status = domain.WorkflowRunStatusTypeFailed
 			workflowRun.EndedAt = time.Now()
 			workflowRun.Error = err.Error()
-			wd.workflowRunRepo.SaveWithCascading(task.ctx, workflowRun)
+			wd.workflowRunRepo.SaveWithCascading(context.Background(), workflowRun)
 		}
 
 		return nil
@@ -282,7 +316,9 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 		log.Level = int32(slog.LevelError)
 		log.Message = err.Error()
 		log.CreatedAt = time.Now()
+		logsMu.Lock()
 		logsBuf = append(logsBuf, log)
+		logsMu.Unlock()
 
 		if _, err := wd.workflowLogRepo.Save(ctx, &log); err != nil {
 			wd.syslog.Error(err.Error())
@@ -301,7 +337,9 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 		log.Message = record.Message
 		log.Data = record.Data()
 		log.CreatedAt = time.Now()
+		logsMu.Lock()
 		logsBuf = append(logsBuf, log)
+		logsMu.Unlock()
 
 		if _, err := wd.workflowLogRepo.Save(ctx, &log); err != nil {
 			wd.syslog.Error(err.Error())
@@ -312,7 +350,7 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 
 	// 执行工作流
 	wd.syslog.Info(fmt.Sprintf("workflow #%s's run #%s started", task.WorkflowId, task.RunId))
-	we.Invoke(task.ctx, engine.WorkflowExecution{
+	invokeErr := we.Invoke(task.ctx, engine.WorkflowExecution{
 		WorkflowId:          workflow.Id,
 		WorkflowName:        workflow.Name,
 		WorkflowDescription: workflow.Description,
@@ -321,49 +359,61 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 		RunAt:               workflowRun.StartedAt,
 		Graph:               workflowRun.Graph,
 	})
+	if !terminal {
+		workflowRun.Status = domain.WorkflowRunStatusTypeFailed
+		if task.ctx.Err() != nil {
+			workflowRun.Status = domain.WorkflowRunStatusTypeCanceled
+		}
+		workflowRun.EndedAt = time.Now()
+		if invokeErr != nil {
+			workflowRun.Error = embeddedhooks.SafeError(task.ctx, invokeErr).Error()
+		} else {
+			workflowRun.Error = "workflow did not reach a terminal state"
+		}
+		_, _ = wd.workflowRunRepo.SaveWithCascading(context.Background(), workflowRun)
+	}
+
 	wd.syslog.Info(fmt.Sprintf("workflow #%s's run #%s stopped", task.WorkflowId, task.RunId))
 }
 
-func (wd *workflowDispatcher) tryNextAsync() {
-	wd.taskMtx.RLock()
-
-	for _, pendingRunId := range wd.pendingRunQueue {
-		workflowRun, err := wd.workflowRunRepo.GetById(context.Background(), pendingRunId)
-		if err != nil {
-			wd.syslog.Error(fmt.Sprintf("failed to get workrun #%s record", pendingRunId), slog.Any("error", err))
+// tryNextLocked reserves each run atomically. Canceled tasks retain their
+// workflow slot until their goroutine exits, so successors cannot overlap.
+func (wd *workflowDispatcher) tryNextLocked() {
+	if !wd.booted {
+		return
+	}
+	for i := 0; i < len(wd.pendingRunQueue); {
+		if wd.concurrency > 0 && len(wd.processingTasks) >= wd.concurrency {
+			return
+		}
+		id := wd.pendingRunQueue[i]
+		run, err := wd.workflowRunRepo.GetById(context.Background(), id)
+		if err != nil || run.Status != domain.WorkflowRunStatusTypePending {
+			wd.pendingRunQueue = append(wd.pendingRunQueue[:i], wd.pendingRunQueue[i+1:]...)
 			continue
 		}
-
-		var hasSameWorkflowTask bool // 相同 Workflow 的任务同一时间只能有一个 Run 在执行
-		for _, processingTask := range wd.processingTasks {
-			if processingTask.WorkflowId == workflowRun.WorkflowId {
-				hasSameWorkflowTask = true
+		busy := false
+		for _, task := range wd.processingTasks {
+			if task.WorkflowId == run.WorkflowId {
+				busy = true
 				break
 			}
 		}
-
-		if hasSameWorkflowTask {
-			wd.syslog.Warn(fmt.Sprintf("workflow #%s's run #%s is pending, because tasks that belonging to the same workflow already exists", workflowRun.WorkflowId, workflowRun.Id))
-		} else if len(wd.processingTasks) >= wd.concurrency && wd.concurrency > 0 {
-			wd.syslog.Warn(fmt.Sprintf("workflow #%s's run #%s is pending, because the maximum concurrency (limit: %d) has been reached", workflowRun.WorkflowId, workflowRun.Id, wd.concurrency))
-		} else {
-			wd.taskMtx.RUnlock()
-
-			wd.taskMtx.Lock()
-			ctxRun, ctxCancel := context.WithCancel(context.Background())
-			task := &taskInfo{WorkflowId: workflowRun.WorkflowId, RunId: workflowRun.Id, ctx: ctxRun, cancel: ctxCancel}
-			wd.pendingRunQueue = lo.Filter(wd.pendingRunQueue, func(s string, _ int) bool { return s != pendingRunId })
-			wd.processingTasks[pendingRunId] = task
-			wd.syslog.Info(fmt.Sprintf("workflow #%s's run #%s is being dispatched ...", task.WorkflowId, task.RunId))
-			wd.taskMtx.Unlock()
-
-			go func() { wd.tryExecuteAsync(task) }()
-			return
+		if busy {
+			i++
+			continue
 		}
+		ctx, cancel := context.WithCancel(embeddedhooks.Bind(context.Background()))
+		task := &taskInfo{WorkflowId: run.WorkflowId, RunId: run.Id, ctx: ctx, cancel: cancel}
+		wd.pendingRunQueue = append(wd.pendingRunQueue[:i], wd.pendingRunQueue[i+1:]...)
+		wd.processingTasks[id] = task
+		wd.taskWG.Add(1)
+		go wd.tryExecuteAsync(task)
 	}
-
-	wd.taskMtx.RUnlock()
 }
+
+// New creates a dispatcher scoped to the currently bound application.
+func New() WorkflowDispatcher { return newWorkflowDispatcher() }
 
 func newWorkflowDispatcher() WorkflowDispatcher {
 	return &workflowDispatcher{

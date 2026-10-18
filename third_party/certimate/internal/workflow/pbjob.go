@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/pocketbase/pocketbase/tools/cron"
-	"github.com/samber/lo"
-
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/internal/domain/dtos"
@@ -17,21 +14,16 @@ func registerWorkflowJob(workflowSrv *WorkflowService, workflowId string, trigge
 	scheduler := app.GetScheduler()
 
 	jobKey := buildPbJobKey(workflowId)
-	job, _ := lo.Find(scheduler.Jobs(), func(j *cron.Job) bool { return j.Id() == jobKey })
-	if job != nil && job.Expression() == triggerCron {
-		return nil
-	}
-
+	// Always replace the callback: the same embedded database can restart with a
+	// fresh service while preserving the job expression.
 	err := scheduler.Add(jobKey, triggerCron, func() {
-		app.GetLogger().Info(fmt.Sprintf("workflow #%s is triggered ...", workflowId))
-
-		_, err := workflowSrv.StartRun(context.Background(), &dtos.WorkflowStartRunReq{
+		// StartRun checks lifecycle state under its mutex before accessing the app.
+		// A cron callback already queued during shutdown must not touch a released
+		// global application or log through its closed database.
+		_, _ = workflowSrv.StartRun(context.Background(), &dtos.WorkflowStartRunReq{
 			WorkflowId: workflowId,
 			RunTrigger: domain.WorkflowTriggerTypeScheduled,
 		})
-		if err != nil {
-			app.GetLogger().Warn(fmt.Sprintf("failed to start scheduled run for workflow #%s", workflowId), slog.Any("error", err))
-		}
 	})
 	if err != nil {
 		app.GetLogger().Error(fmt.Sprintf("failed to register cron job for workflow #%s", workflowId), slog.Any("error", err))

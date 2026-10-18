@@ -106,7 +106,16 @@ func (s *NezhaHandler) RequestTask(stream pb.NezhaService_RequestTaskServer) err
 	if !ok {
 		return nil
 	}
-	defer clearRequestTaskStream(clientID, server, stream)
+	notifyUnifiedHost(clientID)
+	if singleton.Unified != nil {
+		go func() {
+			_, _ = UnifiedAgentCalls.Capabilities(stream.Context(), clientID, func(context.Context) error { _, err := currentRequestTaskServer(clientID, stream); return err })
+		}()
+	}
+	defer func(captured *model.Server) {
+		clearRequestTaskStream(clientID, captured, stream)
+		notifyUnifiedHost(clientID)
+	}(server)
 	// If a transfer is mid-flight for this server, the agent has just brought
 	// up a fresh bidi stream — this is the moment to (re)deliver the
 	// ApplyConfig task carrying the new owner's AgentSecret. Pushes from
@@ -125,6 +134,9 @@ func (s *NezhaHandler) RequestTask(stream pb.NezhaService_RequestTaskServer) err
 		server, err = currentRequestTaskServer(clientID, stream)
 		if err != nil {
 			return err
+		}
+		if deliverUnifiedResult(clientID, result) {
+			continue
 		}
 		switch result.GetType() {
 		case model.TaskTypeCommand:

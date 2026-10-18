@@ -62,6 +62,9 @@ func (ne *bizUploadNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		}
 
 		if lastCertificate != nil {
+			if err := authorizeCertificate(execCtx, "certificate.use", lastCertificate); err != nil {
+				return execRes, err
+			}
 			ne.setOuputsOfResult(execCtx, execRes, lastCertificate, false)
 			ne.setVariablesOfResult(execCtx, execRes, lastCertificate)
 			ne.logger.Info(fmt.Sprintf("found last certificate #%s record", lastCertificate.Id))
@@ -82,6 +85,9 @@ func (ne *bizUploadNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		ne.logger.Info("try to upload")
 	}
 
+	if err := authorizeEffect(execCtx, "certificate.import", "workflow", execCtx.WorkflowId, nil); err != nil {
+		return execRes, err
+	}
 	// 获取证书及私钥
 	var certPEM, privkeyPEM string
 	switch nodeCfg.Source {
@@ -181,6 +187,9 @@ func (ne *bizUploadNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		WorkflowNodeId: execCtx.Node.Id,
 	}
 	certificate.PopulateFromPEM(certPEM, privkeyPEM)
+	if err := authorizeCertificate(execCtx, "certificate.import", certificate); err != nil {
+		return execRes, err
+	}
 	if certificate, err := ne.certificateRepo.Save(execCtx.Context(), certificate); err != nil {
 		ne.logger.Warn("could not save certificate")
 		return execRes, err

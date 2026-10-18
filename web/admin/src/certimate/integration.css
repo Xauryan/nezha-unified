@@ -1,0 +1,30 @@
+/* Reuse the host reset and Tailwind build; confine certificate-specific rules. */
+@theme inline {
+ --color-info: var(--cert-info);
+ --color-success: var(--cert-success);
+ --color-warning: var(--cert-warning);
+ --color-error: var(--cert-error);
+}
+@source inline("gap-{0,{1..96}}");
+@source inline("grid-cols-{0,{1..12}}");
+.certimate-module {
+ --primary: 24 94% 53%;
+ --primary-foreground: 0 0% 100%;
+ --cert-info: #0969da;
+ --cert-success: #1a7f37;
+ --cert-warning: #9a6700;
+ --cert-error: #cf222e;
+ min-height: 60dvh;
+ font-size: 14px;
+}
+.dark .certimate-module {--cert-info:#478be6;--cert-success:#57ab5a;--cert-warning:#daaa3f;--cert-error:#e5534b;}
+.certimate-module .container {margin-inline:auto;max-width:80rem;}
+.certimate-module h1 {font-size:1.5rem;font-weight:600;line-height:1.5;margin-block:0.5rem 1rem;}
+.certimate-module h2 {font-size:1.125rem;font-weight:600;line-height:1.5;margin-block:0.5rem 1rem;}
+.certimate-module .ant-btn > .ant-btn-icon,.certimate-module svg.tabler-icon,.certimate-module svg.icon {line-height:1;}
+.certimate-module .ant-drawer .ant-drawer-title {overflow:hidden;}
+
+.certimate-module .workflow-design-surface { min-height: max(600px, calc(100dvh - 280px)); height: max(600px, calc(100dvh - 280px)); }
+.certimate-module .ant-btn { min-height: 36px; }
+@media (max-width: 640px) { .certimate-module .ant-btn { min-height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .certimate-module *, .certimate-module *::before, .certimate-module *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }

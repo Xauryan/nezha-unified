@@ -12,6 +12,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embedcrypto"
 )
 
 type ACMEAccountRepository struct{}
@@ -73,7 +74,18 @@ func (r *ACMEAccountRepository) Save(ctx context.Context, acmeAccount *domain.AC
 
 	record.Set("ca", acmeAccount.CA)
 	record.Set("email", acmeAccount.Email)
-	record.Set("privateKey", acmeAccount.PrivateKey)
+	if embedcrypto.Enabled(app.GetApp()) {
+		if err := embedcrypto.EnsureID(record); err != nil {
+			return acmeAccount, err
+		}
+		envelope, err := embedcrypto.Seal(app.GetApp(), "acme_account:"+record.Id, []byte(acmeAccount.PrivateKey))
+		if err != nil {
+			return acmeAccount, err
+		}
+		record.Set("privateKey", envelope)
+	} else {
+		record.Set("privateKey", acmeAccount.PrivateKey)
+	}
 	record.Set("acmeDirUrl", acmeAccount.ACMEDirectoryUrl)
 	record.Set("acmeAcctUrl", acmeAccount.ACMEAccountUrl)
 	record.Set("resourceObj", acmeAccount.ResourceObject)
@@ -97,6 +109,15 @@ func (r *ACMEAccountRepository) castRecordToModel(record *core.Record) (*domain.
 		return nil, fmt.Errorf("field 'resourceObj' is malformed")
 	}
 
+	privateKey := record.GetString("privateKey")
+	if embedcrypto.Enabled(app.GetApp()) {
+		plain, err := embedcrypto.Open(app.GetApp(), "acme_account:"+record.Id, record.GetString("privateKey"))
+		if err != nil {
+			return nil, err
+		}
+		privateKey = string(plain)
+	}
+
 	acmeAccount := &domain.ACMEAccount{
 		Meta: domain.Meta{
 			Id:        record.Id,
@@ -105,7 +126,7 @@ func (r *ACMEAccountRepository) castRecordToModel(record *core.Record) (*domain.
 		},
 		CA:               record.GetString("ca"),
 		Email:            record.GetString("email"),
-		PrivateKey:       record.GetString("privateKey"),
+		PrivateKey:       privateKey,
 		ACMEDirectoryUrl: record.GetString("acmeDirUrl"),
 		ACMEAccountUrl:   record.GetString("acmeAcctUrl"),
 		ResourceObject:   resourceObj,

@@ -315,6 +315,10 @@ export interface ModelDDNSForm {
 }
 
 export interface ModelDDNSProfile {
+    credential_id?: string
+    credential_version?: number
+    credential_state?: string
+    config_version?: number
     access_id: string
     access_secret: string
     created_at: string

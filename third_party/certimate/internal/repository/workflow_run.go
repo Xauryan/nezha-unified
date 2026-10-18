@@ -8,6 +8,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embedcrypto"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -54,8 +55,10 @@ func (r *WorkflowRunRepository) Save(ctx context.Context, workflowRun *domain.Wo
 	record.Set("status", workflowRun.Status.String())
 	record.Set("startedAt", workflowRun.StartedAt)
 	record.Set("endedAt", workflowRun.EndedAt)
-	record.Set("graph", workflowRun.Graph)
-	record.Set("error", workflowRun.Error)
+	if err := embedcrypto.SetJSON(app.GetApp(), record, "graph", workflowRun.Graph); err != nil {
+		return workflowRun, err
+	}
+	record.Set("error", embedcrypto.SafeError(app.GetApp(), workflowRun.Error))
 	err = app.GetApp().Save(record)
 	if err != nil {
 		return workflowRun, err
@@ -92,8 +95,10 @@ func (r *WorkflowRunRepository) SaveWithCascading(ctx context.Context, workflowR
 		record.Set("status", workflowRun.Status.String())
 		record.Set("startedAt", workflowRun.StartedAt)
 		record.Set("endedAt", workflowRun.EndedAt)
-		record.Set("graph", workflowRun.Graph)
-		record.Set("error", workflowRun.Error)
+		if err := embedcrypto.SetJSON(app.GetApp(), record, "graph", workflowRun.Graph); err != nil {
+			return err
+		}
+		record.Set("error", embedcrypto.SafeError(app.GetApp(), workflowRun.Error))
 		err = txApp.Save(record)
 		if err != nil {
 			return err
@@ -195,7 +200,7 @@ func (r *WorkflowRunRepository) castRecordToModel(record *core.Record) (*domain.
 	}
 
 	graph := &domain.WorkflowGraph{}
-	if err := record.UnmarshalJSONField("graph", &graph); err != nil {
+	if err := embedcrypto.ReadJSON(app.GetApp(), record, "graph", &graph); err != nil {
 		return nil, fmt.Errorf("field 'graph' is malformed")
 	}
 

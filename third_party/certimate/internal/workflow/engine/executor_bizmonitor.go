@@ -68,6 +68,9 @@ func (ne *bizMonitorNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeE
 			}
 		}
 
+		if err := authorizeEffect(execCtx, "certificate.monitor", "workflow", execCtx.WorkflowId, []string{targetDomain}); err != nil {
+			return execRes, err
+		}
 		certs, err = ne.execRetrieveCertificates(execCtx, targetAddr, targetDomain, nodeCfg.RequestPath)
 		if err == nil {
 			break

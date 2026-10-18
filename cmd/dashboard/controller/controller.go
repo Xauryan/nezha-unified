@@ -75,6 +75,8 @@ func routers(r *gin.Engine, frontendDist fs.FS) {
 	registerAgentcompatRoutes(r)
 
 	api := r.Group("api/v1")
+	bindUnifiedDDNSDeviceRoute(api)
+	bindUnifiedScopedRoutes(api)
 	api.POST("/login", authMiddleware.LoginHandler)
 	api.GET("/oauth2/:provider", commonHandler(oauth2redirect))
 
@@ -409,7 +411,7 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 
 	frontendPageUrlRegistry := []*regexp.Regexp{
 		// Native integrated resource pages.
-		regexp.MustCompile(`^/dashboard/(credentials|certificates|certificates/workflows|permissions)$`),
+		regexp.MustCompile(`^/dashboard/(dns|targets|identities|runs|permissions|credentials(?:/new)?|certificates(?:/overview|/presets|/workflows(?:/new|/[^/]+(?:/design|/runs)?)?)?|settings/certificates(?:/ssl-provider|/persistence|/diagnostics|/about)?)$`),
 		// official user frontend
 		regexp.MustCompile(`^/$`),
 		regexp.MustCompile(`^/server/\d*$`),

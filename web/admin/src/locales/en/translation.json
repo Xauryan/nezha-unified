@@ -361,6 +361,9 @@
         "ReadMetadata": "Read metadata",
         "CreateGrant": "Grant access",
         "NoGrants": "No resource grants",
-        "Revoke": "Revoke"
+        "Revoke": "Revoke",
+        "DeploymentTargets": "Deployment targets",
+        "Identities": "Identities & tokens",
+        "RunHistory": "Run history"
     }
 }

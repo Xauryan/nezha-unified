@@ -17,6 +17,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/certacme"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embeddedhooks"
 	"github.com/certimate-go/certimate/internal/repository"
 	"github.com/certimate-go/certimate/internal/settings"
 	"github.com/certimate-go/certimate/internal/tools/mproc"
@@ -63,6 +64,9 @@ func (ne *bizApplyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 	execRes := newNodeExecutionResult(execCtx.Node)
 
 	nodeCfg := execCtx.Node.Data.Config.AsBizApply()
+	if err := authorizeEffect(execCtx, "certificate.issue", "workflow", execCtx.WorkflowId, lo.Concat(nodeCfg.Domains, nodeCfg.IPAddrs)); err != nil {
+		return execRes, err
+	}
 	ne.logger.Info("ready to request certificate ...", slog.Any("config", nodeCfg))
 
 	// 查询上次执行结果
@@ -75,6 +79,9 @@ func (ne *bizApplyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 		}
 
 		if lastCertificate != nil {
+			if err := authorizeCertificate(execCtx, "certificate.use", lastCertificate); err != nil {
+				return execRes, err
+			}
 			ne.setOuputsOfResult(execCtx, execRes, lastCertificate, false)
 			ne.setVariablesOfResult(execCtx, execRes, lastCertificate)
 			ne.logger.Info(fmt.Sprintf("found last certificate #%s record", lastCertificate.Id))
@@ -117,6 +124,9 @@ func (ne *bizApplyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 		WorkflowNodeId:     execCtx.Node.Id,
 	}
 	certificate.PopulateFromPEM(obtainResp.FullChainCertificate, obtainResp.PrivateKey)
+	if err := authorizeCertificate(execCtx, "certificate.issue", certificate); err != nil {
+		return execRes, err
+	}
 	if certificate, err := ne.certificateRepo.Save(execCtx.Context(), certificate); err != nil {
 		ne.logger.Warn("could not save certificate")
 		return execRes, err
@@ -264,7 +274,7 @@ func (ne *bizApplyNodeExecutor) execObtainCertificate(execCtx *NodeExecutionCont
 	// 读取质询提供商授权
 	providerAccessConfig := make(map[string]any)
 	if nodeCfg.ProviderAccessId != "" {
-		if access, err := ne.accessRepo.GetById(execCtx.Context(), nodeCfg.ProviderAccessId); err != nil {
+		if access, err := resolveAccess(execCtx, ne.accessRepo, nodeCfg.ProviderAccessId, "dns"); err != nil {
 			return nil, fmt.Errorf("failed to get access #%s record: %w", nodeCfg.ProviderAccessId, err)
 		} else {
 			providerAccessConfig = access.Config
@@ -275,7 +285,7 @@ func (ne *bizApplyNodeExecutor) execObtainCertificate(execCtx *NodeExecutionCont
 	caAccessConfig := make(map[string]any)
 	var caAccess *domain.Access
 	if nodeCfg.CAProviderAccessId != "" {
-		access, err := ne.accessRepo.GetById(execCtx.Context(), nodeCfg.CAProviderAccessId)
+		access, err := resolveAccess(execCtx, ne.accessRepo, nodeCfg.CAProviderAccessId, "ca")
 		if err != nil {
 			return nil, fmt.Errorf("failed to get access #%s record: %w", nodeCfg.CAProviderAccessId, err)
 		}
@@ -314,6 +324,9 @@ func (ne *bizApplyNodeExecutor) execObtainCertificate(execCtx *NodeExecutionCont
 		ne.logger.Info("acme config initialized", slog.String("acmeDirUrl", acmeCfg.CADirUrl))
 	}
 
+	if err := authorizeEffect(execCtx, "certificate.issue", "workflow", execCtx.WorkflowId, lo.Concat(nodeCfg.Domains, nodeCfg.IPAddrs)); err != nil {
+		return nil, err
+	}
 	// 初始化 ACME 账户
 	// 注意此步骤仍需在主进程中进行，以保证并发安全
 	acmeAcct, err := certacme.CreateACMEAccountWithSingleFlight(execCtx.Context(), acmeCfg, nodeCfg.ContactEmail)
@@ -328,8 +341,13 @@ func (ne *bizApplyNodeExecutor) execObtainCertificate(execCtx *NodeExecutionCont
 		if caAccess != nil && !caAccessHadEAB {
 			caAccess.Config["eabKid"] = acmeCfg.EABKid
 			caAccess.Config["eabHmacKey"] = acmeCfg.EABHmacKey
-			if _, err := ne.accessRepo.Save(execCtx.Context(), caAccess); err != nil {
-				ne.logger.Warn("could not persist the acquired acme eab credentials to the access record")
+			// Native host credentials are versioned independently. Registration
+			// already persists the encrypted ACME account; never mutate a host
+			// credential through a synthetic upstream access record.
+			if !embeddedhooks.EnabledFor(execCtx.Context()) {
+				if _, err := ne.accessRepo.Save(execCtx.Context(), caAccess); err != nil {
+					ne.logger.Warn("could not persist the acquired acme eab credentials to the access record")
+				}
 			}
 		} else if nodeCfg.CAProvider == "" && !globalHadEAB {
 			globalSettingsForSSLProvider := settings.GetGlobalSettingsForSSLProvider()
@@ -375,6 +393,7 @@ func (ne *bizApplyNodeExecutor) execObtainCertificate(execCtx *NodeExecutionCont
 		NoCommonName:           nodeCfg.DisableCommonName,
 		ChallengeType:          nodeCfg.ChallengeType,
 		Provider:               domain.ACMEChallengeProviderType(nodeCfg.Provider),
+		ProviderAccessID:       nodeCfg.ProviderAccessId,
 		ProviderAccessConfig:   providerAccessConfig,
 		ProviderExtendedConfig: nodeCfg.ProviderConfig,
 		DisableFollowCNAME:     nodeCfg.DisableFollowCNAME,
@@ -426,7 +445,7 @@ func (ne *bizApplyNodeExecutor) execObtainCertificate(execCtx *NodeExecutionCont
 	}
 
 	// 如果启用多进程模式，发送指令
-	if envMultiProc {
+	if envMultiProc && !embeddedhooks.EnabledFor(execCtx.Context()) {
 		type InData struct {
 			Request *certacme.ObtainCertificateRequest `json:"request,omitempty"`
 
@@ -467,6 +486,9 @@ func (ne *bizApplyNodeExecutor) execObtainCertificate(execCtx *NodeExecutionCont
 		return nil, err
 	}
 
+	if err := authorizeEffect(execCtx, "certificate.issue", "workflow", execCtx.WorkflowId, obtainReq.DomainOrIPs); err != nil {
+		return nil, err
+	}
 	// 执行申请证书请求
 	obtainResp, err := acmeClient.ObtainCertificate(execCtx.Context(), obtainReq)
 	if err != nil {

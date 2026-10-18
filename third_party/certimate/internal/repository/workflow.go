@@ -8,6 +8,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embedcrypto"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -32,6 +33,9 @@ func (r *WorkflowRepository) ListEnabledScheduled(ctx context.Context) ([]*domai
 
 	workflows := make([]*domain.Workflow, 0)
 	for _, record := range records {
+		if embedcrypto.Enabled(app.GetApp()) && record.GetString("unified_operation_id") != "" && !record.GetBool("unified_active") {
+			continue
+		}
 		workflow, err := r.castRecordToModel(record)
 		if err != nil {
 			return nil, err
@@ -79,8 +83,12 @@ func (r *WorkflowRepository) Save(ctx context.Context, workflow *domain.Workflow
 	record.Set("trigger", workflow.Trigger.String())
 	record.Set("triggerCron", workflow.TriggerCron)
 	record.Set("enabled", workflow.Enabled)
-	record.Set("graphDraft", workflow.GraphDraft)
-	record.Set("graphContent", workflow.GraphContent)
+	if err := embedcrypto.SetJSON(app.GetApp(), record, "graphDraft", workflow.GraphDraft); err != nil {
+		return workflow, err
+	}
+	if err := embedcrypto.SetJSON(app.GetApp(), record, "graphContent", workflow.GraphContent); err != nil {
+		return workflow, err
+	}
 	record.Set("hasDraft", workflow.HasDraft)
 	record.Set("hasContent", workflow.HasContent)
 	record.Set("lastRunRef", workflow.LastRunId)
@@ -101,13 +109,17 @@ func (r *WorkflowRepository) castRecordToModel(record *core.Record) (*domain.Wor
 		return nil, fmt.Errorf("the record is nil")
 	}
 
+	if embedcrypto.Enabled(app.GetApp()) && record.GetString("unified_operation_id") != "" && !record.GetBool("unified_active") {
+		return nil, domain.ErrRecordNotFound
+	}
+
 	graphDraft := &domain.WorkflowGraph{}
-	if err := record.UnmarshalJSONField("graphDraft", graphDraft); err != nil {
+	if err := embedcrypto.ReadJSON(app.GetApp(), record, "graphDraft", graphDraft); err != nil {
 		return nil, fmt.Errorf("field 'graphDraft' is malformed")
 	}
 
 	graphContent := &domain.WorkflowGraph{}
-	if err := record.UnmarshalJSONField("graphContent", graphContent); err != nil {
+	if err := embedcrypto.ReadJSON(app.GetApp(), record, "graphContent", graphContent); err != nil {
 		return nil, fmt.Errorf("field 'graphContent' is malformed")
 	}
 

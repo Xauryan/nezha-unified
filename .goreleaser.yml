@@ -1,7 +1,9 @@
 version: 2
+env:
+  - GOTOOLCHAIN=go1.26.6
 before:
   hooks:
-    - go mod tidy -v
+    - make prepare frontend themes
 builds:
   - id: linux_arm64
     env:
@@ -16,6 +18,7 @@ builds:
       - -buildvcs=false
     tags:
       - go_json
+      - certimate_full
     goos:
       - linux
     goarch:
@@ -35,6 +38,7 @@ builds:
       - -buildvcs=false
     tags:
       - go_json
+      - certimate_full
     goos:
       - linux
     goarch:
@@ -52,9 +56,9 @@ builds:
     flags:
       - -trimpath
       - -buildvcs=false
-      - -mod=vendor
     tags:
       - go_json
+      - certimate_full
     goos:
       - linux
     goarch:
@@ -74,6 +78,7 @@ builds:
       - -buildvcs=false
     tags:
       - go_json
+      - certimate_full
     goos:
       - windows
     goarch:

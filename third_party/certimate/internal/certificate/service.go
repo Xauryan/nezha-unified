@@ -256,6 +256,12 @@ func (s *CertificateService) RevokeCertificate(ctx context.Context, req *dtos.Ce
 	return &dtos.CertificateRevokeResp{}, nil
 }
 
+// CleanupExpired lets an embedding host schedule retention under its own
+// lifecycle lock without retaining standalone process-global cron callbacks.
+func (s *CertificateService) CleanupExpired(ctx context.Context) error {
+	return s.cleanupExpiredCertificates(ctx)
+}
+
 func (s *CertificateService) cleanupExpiredCertificates(ctx context.Context) error {
 	globalSettingsForPersistence := settings.GetGlobalSettingsForPersistence()
 	if globalSettingsForPersistence.CertificatesRetentionMaxDays != 0 {

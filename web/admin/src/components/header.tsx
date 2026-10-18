@@ -42,6 +42,7 @@ import { IconButton } from "./xui/icon-button"
 import { NzNavigationMenuLink } from "./xui/navigation-menu"
 
 const pages = [
+    { href: "/dashboard/dns", label: "DNS" },
     { href: "/dashboard/certificates", label: i18next.t("Unified.Certificates") },
     { href: "/dashboard", label: i18next.t("Server") },
     { href: "/dashboard/service", label: i18next.t("Service") },
@@ -233,6 +234,15 @@ export default function Header() {
                                     <Link to="/dashboard/certificates">
                                         {t("Unified.Certificates")}
                                     </Link>
+                                </NzNavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NzNavigationMenuLink
+                                    asChild
+                                    active={location.pathname === "/dashboard/dns"}
+                                    className={navigationMenuTriggerStyle()}
+                                >
+                                    <Link to="/dashboard/dns">DNS</Link>
                                 </NzNavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>

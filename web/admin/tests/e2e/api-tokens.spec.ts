@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test"
 
-import { csrfHeaders, defaultAdmin, loginAs, test } from "./fixtures"
+import { csrfHeaders, csrfRequest, defaultAdmin, loginAs, test } from "./fixtures"
 
 test("admin can create and reveal an API token via UI", async ({ page }) => {
     await loginAs(page, defaultAdmin)
@@ -81,13 +81,12 @@ test("an API token can authenticate /mcp", async ({ page }) => {
         site_name: settingBefore?.site_name || "Nezha",
         user_template: settingBefore?.user_template || "user-dist",
     }
-    const enableResp = await page.request.patch("/api/v1/setting", {
-        headers: await csrfHeaders(page),
+    const enableResp = await csrfRequest(page, "patch", "/api/v1/setting", {
         data: { ...baseSettings, enable_mcp: true },
     })
     expect(
         enableResp.ok(),
-        "PATCH /api/v1/setting must succeed to enable MCP for the test",
+        `PATCH /api/v1/setting must succeed to enable MCP for the test (HTTP ${enableResp.status()})`,
     ).toBeTruthy()
 
     try {
@@ -131,8 +130,7 @@ test("an API token can authenticate /mcp", async ({ page }) => {
         })
         expect(delResp.ok()).toBeTruthy()
     } finally {
-        await page.request.patch("/api/v1/setting", {
-            headers: await csrfHeaders(page),
+        await csrfRequest(page, "patch", "/api/v1/setting", {
             data: { ...baseSettings, enable_mcp: !!settingBefore?.enable_mcp },
         })
     }

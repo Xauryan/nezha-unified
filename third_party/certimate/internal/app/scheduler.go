@@ -1,27 +1,15 @@
 package app
 
 import (
-	"sync"
+	"github.com/pocketbase/pocketbase/tools/cron"
 	"time"
 	_ "time/tzdata"
-
-	"github.com/pocketbase/pocketbase/tools/cron"
 )
 
-var scheduler *cron.Cron
-
-var schedulerOnce sync.Once
-
+// The scheduler belongs to the current app, avoiding a stale global scheduler
+// after an embedded engine is shut down and reopened in the same process.
 func GetScheduler() *cron.Cron {
-	scheduler = GetApp().Cron()
-	schedulerOnce.Do(func() {
-		location, err := time.LoadLocation("Local")
-		if err == nil {
-			scheduler.Stop()
-			scheduler.SetTimezone(location)
-			scheduler.Start()
-		}
-	})
-
+	scheduler := GetApp().Cron()
+	scheduler.SetTimezone(time.Local)
 	return scheduler
 }

@@ -23,7 +23,7 @@ func (dashboard *Dashboard) prepareFixture(ctx context.Context, config StartConf
 		return err
 	}
 	dashboard.databasePath = filepath.Join(dashboard.workspace.Root(), "dashboard.sqlite")
-	dashboard.binaryPath, err = dashboard.workspace.Build(ctx, workspace.BuildSpec{Name: "dashboard", SourceDir: config.SourceDir, Package: "./cmd/dashboard", Tags: []string{"agentcompat"}})
+	dashboard.binaryPath, err = dashboard.workspace.Build(ctx, workspace.BuildSpec{Name: "dashboard", SourceDir: config.SourceDir, Package: "./cmd/dashboard", Tags: []string{"agentcompat", "certimate_full"}, Ldflags: []string{"-s", "-w"}})
 	if err != nil {
 		return err
 	}
