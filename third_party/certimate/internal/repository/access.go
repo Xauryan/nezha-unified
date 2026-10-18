@@ -10,6 +10,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embedcrypto"
 )
 
 type AccessRepository struct{}
@@ -31,16 +32,26 @@ func (r *AccessRepository) GetById(ctx context.Context, id string) (*domain.Acce
 		return nil, domain.ErrRecordNotFound
 	}
 
-	return r.castRecordToModel(record)
+	return r.castRecordToModel(ctx, record)
 }
 
-func (r *AccessRepository) castRecordToModel(record *core.Record) (*domain.Access, error) {
+func (r *AccessRepository) castRecordToModel(ctx context.Context, record *core.Record) (*domain.Access, error) {
 	if record == nil {
 		return nil, fmt.Errorf("the record is nil")
 	}
 
+	if embedcrypto.Enabled(app.GetApp()) && record.GetString("unified_operation_id") != "" && !record.GetBool("unified_active") {
+		return nil, domain.ErrRecordNotFound
+	}
+
 	config := make(map[string]any)
-	if err := record.UnmarshalJSONField("config", &config); err != nil {
+	if embedcrypto.Enabled(app.GetApp()) {
+		var err error
+		config, err = embedcrypto.ResolveAccess(app.GetApp(), ctx, record.Id)
+		if err != nil {
+			return nil, err
+		}
+	} else if err := record.UnmarshalJSONField("config", &config); err != nil {
 		return nil, fmt.Errorf("field 'config' is malformed")
 	}
 
@@ -78,7 +89,13 @@ func (r *AccessRepository) Save(ctx context.Context, access *domain.Access) (*do
 
 	record.Set("name", access.Name)
 	record.Set("provider", access.Provider)
-	record.Set("config", access.Config)
+	if embedcrypto.Enabled(app.GetApp()) && record.GetString("unified_envelope") != "" {
+		// Rotation is owned by the versioned native credential service. An
+		// upstream metadata save must never copy a resolved secret to config.
+		record.Set("config", map[string]any{})
+	} else if err := embedcrypto.SetJSON(app.GetApp(), record, "config", access.Config); err != nil {
+		return access, err
+	}
 	record.Set("reserve", access.Reserve)
 	if access.DeletedAt != nil {
 		record.Set("deleted", access.DeletedAt)

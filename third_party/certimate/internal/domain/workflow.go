@@ -52,9 +52,36 @@ func (g *WorkflowGraph) getNodeInBlocksById(blocks []*WorkflowNode, nodeId strin
 }
 
 func (g *WorkflowGraph) Verify() error {
-	if len(g.Nodes) < 2 {
+	if g == nil || len(g.Nodes) < 2 {
 		return fmt.Errorf("invalid nodes length of graph")
-	} else if g.Nodes[0].Type != WorkflowNodeTypeStart {
+	}
+	seen := make(map[string]struct{})
+	var visit func([]*WorkflowNode, int) error
+	visit = func(nodes []*WorkflowNode, depth int) error {
+		if depth > 64 {
+			return fmt.Errorf("workflow graph nesting is too deep")
+		}
+		for _, node := range nodes {
+			if node == nil || node.Id == "" {
+				return fmt.Errorf("workflow graph contains an invalid node")
+			}
+			if _, exists := seen[node.Id]; exists {
+				return fmt.Errorf("workflow graph contains duplicate node IDs")
+			}
+			seen[node.Id] = struct{}{}
+			if len(seen) > 10000 {
+				return fmt.Errorf("workflow graph contains too many nodes")
+			}
+			if err := visit(node.Blocks, depth+1); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if err := visit(g.Nodes, 0); err != nil {
+		return err
+	}
+	if g.Nodes[0].Type != WorkflowNodeTypeStart {
 		return fmt.Errorf("the first node is not a start node")
 	} else if g.Nodes[len(g.Nodes)-1].Type != WorkflowNodeTypeEnd {
 		return fmt.Errorf("the last node is not an end node")

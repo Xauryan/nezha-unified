@@ -14,6 +14,9 @@ export default defineConfig({
         trace: "on-first-retry",
         screenshot: "only-on-failure",
         video: process.env.CI ? "retain-on-failure" : "off",
+        launchOptions: process.env.E2E_CHROMIUM_EXECUTABLE
+            ? { executablePath: process.env.E2E_CHROMIUM_EXECUTABLE }
+            : undefined,
     },
     projects: [
         {

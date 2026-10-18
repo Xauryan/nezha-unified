@@ -8,6 +8,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embedcrypto"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -95,7 +96,19 @@ func (r *CertificateRepository) Save(ctx context.Context, certificate *domain.Ce
 
 	record.Set("source", certificate.Source.String())
 	record.Set("certificate", certificate.Certificate)
-	record.Set("privateKey", certificate.PrivateKey)
+	if embedcrypto.Enabled(app.GetApp()) {
+		if err := embedcrypto.EnsureID(record); err != nil {
+			return certificate, err
+		}
+		envelope, err := embedcrypto.Seal(app.GetApp(), "certificate:"+record.Id, []byte(certificate.PrivateKey))
+		if err != nil {
+			return certificate, err
+		}
+		record.Set("unified_private_key", envelope)
+		record.Set("privateKey", "")
+	} else {
+		record.Set("privateKey", certificate.PrivateKey)
+	}
 	record.Set("serialNumber", certificate.SerialNumber)
 	record.Set("subjectName", certificate.SubjectName)
 	record.Set("subjectAltNames", certificate.SubjectAltNames)
@@ -153,6 +166,19 @@ func (r *CertificateRepository) castRecordToModel(record *core.Record) (*domain.
 		return nil, fmt.Errorf("the record is nil")
 	}
 
+	if embedcrypto.Enabled(app.GetApp()) && record.GetString("unified_operation_id") != "" && !record.GetBool("unified_active") {
+		return nil, domain.ErrRecordNotFound
+	}
+
+	privateKey := record.GetString("privateKey")
+	if embedcrypto.Enabled(app.GetApp()) {
+		plain, err := embedcrypto.Open(app.GetApp(), "certificate:"+record.Id, record.GetString("unified_private_key"))
+		if err != nil {
+			return nil, err
+		}
+		privateKey = string(plain)
+	}
+
 	certificate := &domain.Certificate{
 		Meta: domain.Meta{
 			Id:        record.Id,
@@ -161,7 +187,7 @@ func (r *CertificateRepository) castRecordToModel(record *core.Record) (*domain.
 		},
 		Source:             domain.CertificateSourceType(record.GetString("source")),
 		Certificate:        record.GetString("certificate"),
-		PrivateKey:         record.GetString("privateKey"),
+		PrivateKey:         privateKey,
 		SerialNumber:       record.GetString("serialNumber"),
 		SubjectName:        record.GetString("subjectName"),
 		SubjectAltNames:    record.GetString("subjectAltNames"),

@@ -62,6 +62,9 @@ func (ne *bizDeployNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		return execRes, fmt.Errorf("invalid input certificate")
 	}
 
+	if err := authorizeCertificate(execCtx, "certificate.deploy", inputCertificate); err != nil {
+		return execRes, err
+	}
 	// 检测是否可以跳过本次执行
 	if lastOutput != nil && inputCertificate.CreatedAt.Before(lastOutput.UpdatedAt) {
 		if skippable, reason := ne.checkCanSkip(execCtx, lastOutput); skippable {
@@ -78,10 +81,18 @@ func (ne *bizDeployNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyNodeSkipped, false, stateValTypeBoolean)
 	}
 
+	if nodeCfg.Provider == "nezha-agent" {
+		if err := deployNezhaTarget(execCtx, nodeCfg, inputCertificate); err != nil {
+			return execRes, err
+		}
+		execRes.outputForced = true
+		ne.logger.Info("deployment completed")
+		return execRes, nil
+	}
 	// 读取部署提供商授权
 	providerAccessConfig := make(map[string]any)
 	if nodeCfg.ProviderAccessId != "" {
-		if access, err := ne.accessRepo.GetById(execCtx.Context(), nodeCfg.ProviderAccessId); err != nil {
+		if access, err := resolveAccess(execCtx, ne.accessRepo, nodeCfg.ProviderAccessId, "deploy"); err != nil {
 			return nil, fmt.Errorf("failed to get access #%s record: %w", nodeCfg.ProviderAccessId, err)
 		} else {
 			providerAccessConfig = access.Config
@@ -96,6 +107,12 @@ func (ne *bizDeployNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		ProviderExtendedConfig: nodeCfg.ProviderConfig,
 		CertificatePEM:         inputCertificate.Certificate,
 		PrivateKeyPEM:          inputCertificate.PrivateKey,
+	}
+	if err := authorizeCertificate(execCtx, "certificate.deploy", inputCertificate); err != nil {
+		return execRes, err
+	}
+	if err := authorizeEffect(execCtx, "deployment.execute", "credential", nodeCfg.ProviderAccessId, nil); err != nil {
+		return execRes, err
 	}
 	if _, err := deployer.DeployCertificate(execCtx.Context(), deployReq); err != nil {
 		ne.logger.Warn("could not deploy certificate")

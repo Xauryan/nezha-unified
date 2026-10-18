@@ -23728,5 +23728,1570 @@
     "source": "dnsmgr",
     "path": "reference/dnsmgr/think",
     "sha256": "0b7023b11c17d7ea8815844fe8848af6e83748845263bb36b64779d72d9b075c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/ISSUE_TEMPLATE/bug_report.yml",
+    "sha256": "23b5cbfb07315368b20765c0c5361b9e106c7b7de88be7601d6d951cdd9ea357"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/ISSUE_TEMPLATE/bug_report_zh.yml",
+    "sha256": "a6bbc4f3cb32ac1dd59a7053cb615020cfb07b569156ef82dd2c67a940e7ae91"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/dependabot.yml",
+    "sha256": "d6f8ba5785b4c6c26e446fdf96324fe65c179d0b2125450e5c5b5e1ceb1ff577"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/agent.yml",
+    "sha256": "7f3afc2ac10c561eaba62ad016fbb0a1c1fe82442fa18de4fffe832baa4c0cb0"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/codeql-analysis.yml",
+    "sha256": "456d15c5364f8daab7297bafb5cd60d7da7ac8a5840af9c2444707f1f9d3d2bf"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/contributors.yml",
+    "sha256": "7eb69291f9a435c0d0eb47e8d85c71fb53e287e0cbe93bfb5e8f9cda247945be"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/sync-code-atomgit.yml",
+    "sha256": "baca9f25212675393284f4677142e5926d042b55eaf8a8fab8741a83f0fc5e75"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/sync-code.yml",
+    "sha256": "b2b9f34850c12a7f9b52d0959431b6a33ca57cb4369d8bde0002b8bc7b4f8c0f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/sync-release-atomgit.yml",
+    "sha256": "a016bfdf4cee518b002adaf1dfce07c80e871d9a8c379f6f86bb76436968ea27"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/sync-release.yml",
+    "sha256": "bbd17ff00911e847f8ca6abdbcf998bb8cc3ea3f59aca7cb81726f9b9008edca"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/sync.py",
+    "sha256": "a0f690db4bff77d25ceee52a2a82e50d08a4b64483050c52ebc786a82dbea924"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/sync_atomgit.py",
+    "sha256": "1d9e40a0a5dce9d9904a0046fccef02f48f4c3fc42aba62b32b99082def55265"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.github/workflows/test.yml",
+    "sha256": "ffa4fb4df718e6fed74a94e2a515668f7fb89f8bb37b742ccb4877ea3d67165b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.gitignore",
+    "sha256": "e8c7801a704f28484aa0a45d3908242fed917b07d9ae60f6d111f2efce2f69b5"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/.goreleaser.yml",
+    "sha256": "30ee614e6555a443b47c04b469e82a5a6cc892e38248e0215c59228f5a1b9d8a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/LICENSE",
+    "sha256": "6cf8a2db4540d6a60b71039d8b4342b89c43853f0dc13d69c4f322e01e03bf1b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/README.md",
+    "sha256": "2f6bd4b564247848e09319abb652334bd098c9abfacc7dbab6a4cc501b430fa0"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/agent_config_access_audit_test.go",
+    "sha256": "281499562b89c293c83b22582993e4dcc49859f77279d99fd83356eba92080f2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/agent_credentials_test.go",
+    "sha256": "f2c8fca8dd35ce1b361cb9a6b3bbbfabc28b5117f30f1b071488df11bf9a9b31"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/apply_config_test.go",
+    "sha256": "e1fc226a67d3acdde160b8e2b6d2aef231b222dca73fc115448aa498641bd215"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/apply_pending_reload_test.go",
+    "sha256": "5ea8132ec686937637736ba0292b0a2abf3828a7dd8be2024c2fcccc22aeb6d1"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/bufconn_stream_fixture_self_test.go",
+    "sha256": "05915bf2aabb3db147601378452b6f7067024a0c14707477d442ea9305a3951b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/bufconn_stream_fixture_test.go",
+    "sha256": "7f1b600754f83433f83a3d0023571292fedbe1f8952051d12cc2a40a3ec8a27f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/commands/edit.go",
+    "sha256": "77ef3d0466ce2237214b8517ed82ea8717b4aea813829367f844701bb6d6663d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/commands/service.go",
+    "sha256": "6e57a40821526c37d84752919537abe37ecbc9e479860fcade2b3ec9811e55d8"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/connection_config.go",
+    "sha256": "44241fe6fa63c3b34bb73b94244df438ec637c6311428913573a6cdb6317ead8"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/connection_long_lived_registry_test.go",
+    "sha256": "28281ec1f37dd8f413dd1dc6f6440153aefe5c6339f7e9e0d87c664a0089365f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/connection_session.go",
+    "sha256": "aef58e67fef4906d84d374577ac44ad6d68395eb1985c219782450cc85b5bef9"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/connection_session_test.go",
+    "sha256": "faa9e15f699a7a884155923220eaf94e7cd103cf2a2b77dfbac1e59bb3d5627d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/connection_shutdown_order_test.go",
+    "sha256": "315ce436ef9a7a3e1e70fdf1277641b10045f26c92ae2efc7670854926c55ea5"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/connection_stale_task_lifecycle_test.go",
+    "sha256": "126bcdc21142a3b58ad874c127323250ca462a1ddf452d5029ed699681fda841"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_observer_agentcompat.go",
+    "sha256": "a5617290a68abac2d9ee0aef7782793eccefcca3941ccba0af25c505a9b9fc7a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_observer_default.go",
+    "sha256": "2c9ec831fd65373b74db0011a1cc142f9f81e247f0d5811fa8de1569b9860a66"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_producer_binding_agentcompat.go",
+    "sha256": "cf44a9e6a591b743fed2e04185c6daddc532823c7049984c831f007d361d72e1"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_producer_binding_default.go",
+    "sha256": "df33b61cc5e1e28e7cdc3fa72832f6bb5b81cab76361f89614fa5b254c8d7c21"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_session.go",
+    "sha256": "3ceab7ba28195e5f6b481c1ea4442f09f8415e7fa791c5b21d3eccd4f063888d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_session_test_helpers_test.go",
+    "sha256": "f4bce474c58bf5785d2dcb5090be2a278187d890e4bda57145fe2f890cc59247"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_shutdown_test.go",
+    "sha256": "f926818b4ac661140838238ed31f1d4053132f3c5e5f64db016954dd987370ce"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_stream_ownership_test.go",
+    "sha256": "3dd8379cb87c755789e0504d1ba55717271c4c273f267540550fa7d9cbb4d42e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/fm_upload_recv_cancellation_test.go",
+    "sha256": "414ae983e0e5780ea49e059b8ef83aded262bd0c8a54b18a97ea20b07a5f3cbe"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/grpc_tcp_fixture_test.go",
+    "sha256": "e74a14460e94dd92c6495e4a082de24b8128367fd933ad8b55ccfbaacc6c930a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/grpc_tcp_fs_terminal_test.go",
+    "sha256": "f4b0a3611e0371b693f8cdfedd2e5e0cdbe82f1d2fbd54887eb473a45cdd5e36"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/grpc_tcp_iostream_helpers_test.go",
+    "sha256": "901c9c136684d4633bdcd3892393ee9a1431421397f35306b3b68683b81aa91e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/grpc_tcp_nat_fm_test.go",
+    "sha256": "eada56ef637459d37f90c0a957fa2ab976e28ae533aad63df84c75c185c85979"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/grpc_tcp_report_stop_test.go",
+    "sha256": "d2d741e138b3604df05746435976667ab36fdabef6dfe6dec7dd4c17bf2fc9e9"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/grpc_tcp_request_report_test.go",
+    "sha256": "fe34e6d43f2740da7f76f0b30849994991b0fa46e45d1b8501580087239baff0"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/handle_command_leak_test.go",
+    "sha256": "b83aea124dd7c46113a747f1ebf09f18cc691d215a35a4d8e654c2ed8c01535c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/handle_report_config_race_test.go",
+    "sha256": "0b6b1ef264d140de64e6f3c18ebf59bf2263bf9c6b0d57738ebf2624e4f84e70"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/iostream_wire_golden_test.go",
+    "sha256": "df97081dc1d24f5f5a826bb62ca1b34355d675f2d940c9e0660f4bbb8ea3fa3b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/iostream_write_owner.go",
+    "sha256": "b67fe17cd65af97b3efc0b1c2bc7d918e21ce2cf358bad49de06366543755ff4"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/iostream_write_owner_graceful_close.go",
+    "sha256": "ac31600124f5355421d494eff075f40cccfe14be684cef1478f3fc00276b4bf7"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/iostream_write_owner_graceful_close_test.go",
+    "sha256": "56829d99c304aa183d88750f2d2736c13d291501a13e1e9ce993c84a2baff0dd"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/iostream_write_owner_test.go",
+    "sha256": "7cc603b487aaf1b76c37f2cf5b0dee94ba0faf3ea02e008416e7b00bcf9abebd"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/main.go",
+    "sha256": "c3454538b50ec1afdc0ff9aa0bd7786939217f5a022bc65de4413c28e0804a47"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/main_test.go",
+    "sha256": "6790e75634ebc37d9e32e3f2d88fb0e09b0a67d266e49f0ccc3e186429c01b0f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_error_sanitize.go",
+    "sha256": "7820dde37a44d18a9a44e8f62520952d0fc81594c0024ffd14b5baa28a0dac26"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_error_sanitize_test.go",
+    "sha256": "43258aef51d4c164b5669ca5ea713093d702eb9a9b6e85177920a00bc24b864c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec.go",
+    "sha256": "6fd52b2afc354a8d6616a0e0b1da583c75154cf725e6c402e4120d4c5fbf4740"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_cleanup_order_test.go",
+    "sha256": "ec9da83b8909cb0cdb77fba6e0cd624c2b3afd5ac03ffbbe8b73df881a03aff7"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_kill_unix.go",
+    "sha256": "58321a3f6f32d9da4c0994ea23f54b9d057eec84d52424119bec2e397e44fb13"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_kill_windows.go",
+    "sha256": "0e99e4d339a6ac96985c2d38a8a6aac05d659f93fd777009dc18ab378998e5b0"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_orphan_test.go",
+    "sha256": "9f348d55801f1ad05c02ffa33c44c109eb13d8b0467e09603f20bd019ae48f55"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_output_drain_helpers_test.go",
+    "sha256": "7fae9c053219808bfc9a90d1f8e782f2c05a249d1350b26062f549ffeb3cf707"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_output_drain_test.go",
+    "sha256": "0e32154f40ff259888ef4feece1bc219efbc1a2b8e5eb84bf08a5ff846682870"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_output_race_test.go",
+    "sha256": "cf3a35cb66bf14d688cd9fffd4d93975ea0eb67da7205081d2fa14d01429b8b2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_pgid_unix.go",
+    "sha256": "80c099286430ffc27584ecf003717fbd2e5a7fed39960f4f36fea068af5bf173"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_pgid_windows.go",
+    "sha256": "19a93f3a9516146ee1f042bcace3afc24bb1a596b7d874f51de5f4710a7c0f11"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_pipe_test.go",
+    "sha256": "63c9403c66be59b04f759a12a30659c5dadd5348255e60a4f82fee7d2ebf39aa"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_setsid_contract_test.go",
+    "sha256": "31684dea2598fa491a353b0e464732bcbd3296968c471075c137082ebd4f9a06"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_start_failure_reap_test.go",
+    "sha256": "fbec10186716a62b3ce989096c87cffa4bdce437be7a2c68fa34a0955f933311"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_support.go",
+    "sha256": "b6fca90ab560f1dd1f4799aa41d023ca9747402d5d53324c321713ab372d532c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_exec_timeout_test.go",
+    "sha256": "ec7cee2b213afc77c4e9e57f089588981c4352a91859ba05d2c84595effb0861"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_ads_guard_test.go",
+    "sha256": "522c586a9932727ee154f441028bfb03b0714e49b3cdc5c8594553258f904233"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_adversarial_fixture_helpers_test.go",
+    "sha256": "164dd401ab0c0632b33b9489da5e4f4f12da7a9de90e0c285161a6857e9c8d7f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_adversarial_fixture_helpers_unix_test.go",
+    "sha256": "3878ae61b2ebdd33a1c4a768b751d830e6bd7e3a4e999740d73efbb4154ceed2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_adversarial_fixture_helpers_windows_test.go",
+    "sha256": "63f932f70a0eae56b2fb8b42bdda9c82626d49f57be3473fe71e3e00b18f36b1"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_adversarial_fixture_test.go",
+    "sha256": "fce9322f3518debdc6b4d464aeb3adc4b1e85fcea69e239633bdef63f8d02043"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_adversarial_fixture_unix_test.go",
+    "sha256": "eda52bfb712fe042fe6b02f1685a6054bf51c55fc9736d4579976ad97e61f544"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_adversarial_fixture_windows_test.go",
+    "sha256": "dee89262b0c818418f053a4850c3e64860d44e3e4fb342cab9653c4de66cd96c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_anchor_test.go",
+    "sha256": "c963984d1bea7e419adf73391d780ce6962d3d9c22884f26b68da875d25caf57"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_anchored_commit.go",
+    "sha256": "8c849b53e6ac55c0b67b83d74b5795c590ae678aee74f3d054c1328e9a28545d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_anchored_commit_test.go",
+    "sha256": "3d2bce68767e856c5950334b7af9574f74869e3720709cb42d128e7ccb622838"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_anchored_final_unix_test.go",
+    "sha256": "8c50986f70d340557c87bb0791e64a47bf3049414224404105f73238fe774373"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_anchored_final_windows_test.go",
+    "sha256": "38bb25e4d06db13331829cff39dc4c786c7a5752164e281e6f25c030f8686b04"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_dir_fsync.go",
+    "sha256": "58c9af34e0b3be6c18592a21ec5f47019d6ec7c4debb8366297c9984482e6f08"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_dir_fsync_test.go",
+    "sha256": "4b0254f386adf49a976f565442d9f677cd93b6d41379ad829508a5f1043aa218"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_list_fifo_test.go",
+    "sha256": "6ee7a6f8d773268e2c36be28fc7b0f000ab487343ed0620d1588b4936f3fc23c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_list_nofollow_unix_test.go",
+    "sha256": "720b41efec4783798c3337d8ec93aa447938ca9ebb46e78308976765291da7fb"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_nofollow_other.go",
+    "sha256": "6e0462304cc4fc69b1c150a7b814479f48a9ccf4a9a954e3a79d561f48866715"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_nofollow_unix.go",
+    "sha256": "0bfda35c14b27153a2c37206b4d9aefbac84d1f28c7c9cb687f9254f285213bc"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_nofollow_unix_test.go",
+    "sha256": "a505a247b8f6e94be872489deea620ae2094e9dd8435cde34c552e4cdd276481"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_nofollow_windows.go",
+    "sha256": "ca54e9d27f06ccb87091e23d12a5f72463fee286c31540c95ff06b5eef194535"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_nofollow_windows_test.go",
+    "sha256": "bc449549b0df2f2d37fdf85905004ffc8ba04f8638e708a519fa70733559529a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_path_contract_test.go",
+    "sha256": "2b2772982bb0532c267183be0b5051893cd63d452b4860328774706011b5a433"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_path_lock.go",
+    "sha256": "0b4976d801eddca741675e6bbee59353d3020ec277ab7c02b355e3fac69ac187"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_path_lock_bounded_test.go",
+    "sha256": "27c81837b8e67c75ec8b7f17f4518448f6ced65b75b994bd4d596546ad48ba71"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_path_lock_contention_test.go",
+    "sha256": "b1bf0161af2143edf0350d392f6e5099d988e3d74dbf830505ff5eb0c700d75f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_path_lock_test.go",
+    "sha256": "7c09aeea23e7261b4c896315411fb9db9991128ae7e9a9288ee816eff2f397ba"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_root_guard.go",
+    "sha256": "a6d22bf4287032f7b083ddc1df19eeffe2402ca92c3c03e8854288e26edf8b6a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_root_guard_test.go",
+    "sha256": "0c09331e4dc5fee441bf0b7703f3f7e845a00f4aab67b6af0f8d5faf7fe69ba3"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer.go",
+    "sha256": "424da1b0a82ba884f02aeceaca7e89c68559371f9d6c860c8207567884f8e171"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_close_drain_test.go",
+    "sha256": "ba370932a0250731037fe2addba6bd01055ac03dc657827977f8a82613e4161d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_download.go",
+    "sha256": "0f65196674d0c931687d5049796c6156b8a6434202afa7f36a2fef2fd7f436f4"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_download_empty_test.go",
+    "sha256": "c8635e5d9b2cfffc1a9108fa79d0d98dcc0628e37dbe54ca9369ca72efdd1e6b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_errmsg_sanitize_test.go",
+    "sha256": "8c73ec2f335b14365288cfe3a2f0d78fc0909f802ee9774ae4731cb9fafbfa63"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_failure_paths_test.go",
+    "sha256": "287f25d25b2bf1e68fd920469b5ca7e779e8ad1cfeaa80a76ccbbf90108a2765"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_graceful_characterization_test.go",
+    "sha256": "b54b8ba0915982d885c10f360e51f067daeba7082decf8deb407c52188044b13"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_lock_window_test.go",
+    "sha256": "0e1b8d7840161ff0aa898ba2336222279a9fa2fd7fa2705e17b1a08351354a5b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_oversend_test.go",
+    "sha256": "a241e1cc047a36420ffa2c17d371939b31b53560575fc95becebad156a9a9d9b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_parent_context_test.go",
+    "sha256": "440f60e0caf4318875c25c612fcf7639e3732e2ef451dcfce5228b23fadd12d3"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_pre_iostream_test.go",
+    "sha256": "276e4eb2aee3ef2e7d183b0cbcecaa54db3d83f992da86f1c9f3e1da409b3698"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_root_guard_test.go",
+    "sha256": "052a90b86b3d9f52979b45545a48866ed8f4b76d91b9091fca7e0975b7b4eef6"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_send_serial_test.go",
+    "sha256": "a0c3840584b44b64817e368868d5a28faca6270399677fe77a57ac892c726d2e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_truncate_test.go",
+    "sha256": "903c714b112b61d21265ba018f8d31ce31fd5256cbfee8c55971e850d26ddd7f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_upload.go",
+    "sha256": "bac8366b02188600ca68af88dab6bf13eedfadd364351d13f4fb8a5d38d6ca71"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_transfer_upload_body_test.go",
+    "sha256": "4f10b06f8743043ec9bb8e54c8a4569b2be3e53f21f0f463a9222ae74d399bdc"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_write_data_agentcompat.go",
+    "sha256": "3d9f828962621d0bb63d478a8963877b6d69b170763a37e32a51edc2c291ac2d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_write_data_default.go",
+    "sha256": "a7e979f23b13f1684476f56789d9df90610c7408a85f9228729da47a3c06b430"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_fs_write_root_guard_test.go",
+    "sha256": "4a6fba5220f543860ec03b274995425b2cf50c3a79bcbbd861d841856f96ac58"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_handlers.go",
+    "sha256": "c5a4779ab444606889b494d404a751489a1a2cb306777b229879734f8801bd3b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/mcp_handlers_test.go",
+    "sha256": "26d9fe7e4d644498665ad5f915aa67d467f7e2243fc7153bb911cab40f0dd4d2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_half_close.go",
+    "sha256": "f4c156ce8014a170b68a8176a2b0e71bc3fffa0ea46a8e68694bb32a8a694145"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_half_close_failure_test.go",
+    "sha256": "2a7540650b85be5fc15ca9df895b3fb05c6d7b455da386a69e2f98513bf92d94"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_half_close_lifecycle_test.go",
+    "sha256": "c7bec605e65adeaf1dbf7f198d012acd89863f596b9500916dbb95569a1ee63a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_half_close_test.go",
+    "sha256": "1f890bb316908773caca52383bb10b2f10b31b1fc9b4e4096da60b5f11f350d5"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_session.go",
+    "sha256": "03294be0d4424bd09a4deda9d5dc0a3c7881e36424669f4ebddd1b7c34b0631d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_session_test_helpers_test.go",
+    "sha256": "6bd684e7031066d18cc304dc7bad7c78ea391ede9569ea8e88eb69ee12c4d409"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_shutdown_test.go",
+    "sha256": "b80494f10427fa959b46db19779687b509024a5654b15ad7f54a98d5ca113c8f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_startup_failure_test.go",
+    "sha256": "fde1508d2e0c674a9edec77a461dbe33f44c0ad3f800cffe7d43dd1089a2ae2b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_stream_ownership_test.go",
+    "sha256": "07f5fef80c3a0fce9443be02da4ef2ac9b947bb8ce6f5a5c37fdba49026e3617"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/nat_wire_golden_test.go",
+    "sha256": "4aac5a47de4148d150fed3169dab4a981d7c5431ab0a3a6a378c241ab2b115b4"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/receive_tasks_daemon_test.go",
+    "sha256": "065a7de2e911c01e6ad19571850443f9a79ab1adf43bc8c8e9f493fc811db2a3"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/reload_commit_characterization_test.go",
+    "sha256": "e4163f499152149c28cf9fdfc18edca45e306fc5989008c9460c7d0b2efd182e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_monitor_dependencies.go",
+    "sha256": "5fd2a7e0bb0f5c743cfc99275418388b07294d6d2b608744bd32e6a340133b4c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_characterization_test.go",
+    "sha256": "7d59c580baea52e37d642e1254cd7559236d1da93c0ad727ef3b280db6f6b3dc"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_construction_failure_test.go",
+    "sha256": "c7714211bddff41cc7f5e863376270d7094f9851e57e2ec5a0f4d0eb41b7e704"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_forced_shutdown_test.go",
+    "sha256": "d3bc96ccca2234b045600fe51f5d27e327bbb8b0eb6d2242a6b48ec070ec36e2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_graceful_shutdown_test.go",
+    "sha256": "27dd14968c93181ef1189f2db482a148bb0327e4119de9732161c6ea9fbb4fff"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_lifecycle_test.go",
+    "sha256": "73a96a457e6d28f0fd6ce5996d52765c672ed46ce108fcea5bd552009404d353"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_session.go",
+    "sha256": "07b07205c3160a82bb25d2120dc155c1e6abfeca661de98cec2c3e35103e0a44"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_terminal_priority_test.go",
+    "sha256": "38e771377b46abc3a74759eac527c5a5584690e4d0e30fa854435a22f19da264"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_worker_shutdown_test.go",
+    "sha256": "5213fc5b1b6bc7d2e21c024e3a04a039d147412ff2388785e992ec8b68ef4957"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_state_write_owner.go",
+    "sha256": "01a13f894a3d74821e0a4f0634b09d686360425ab439635262f7686d2ceb2c35"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/report_unary_context_test.go",
+    "sha256": "03e32272fed1149e461ab169de0010047c672d69912966a4ebe642d3b301f2c3"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/request_task_session.go",
+    "sha256": "1f402e692cae0c61b5ba9a1839497127dc279ccaa7d1034ee3a389b84f9f04a2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/request_task_session_test.go",
+    "sha256": "f85bc9396d3cb1911429ecebb751def40d4a9cb6467a42a8f1df578de51dd4d3"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config.go",
+    "sha256": "fda033c569b628d8314aac59426a0ee4a509ea2bc5b2e05a6d5b27efc24258dd"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_consumer_barrier_test.go",
+    "sha256": "f9b9eaffcd202644ca52a61717e49b9c584f4f435b0e10b1049e95c39bbd46c2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_consumer_characterization_test.go",
+    "sha256": "3ea2f834f184f2d4afc6e0c44abef18f0c2db328a3c283f830e59bb9425a3210"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_consumer_test_adapters_test.go",
+    "sha256": "c96887ecc297dc9f74b21a788f29be1464eb13867d7f081dbad1394bb4340894"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_consumers.go",
+    "sha256": "825b7dbe303bdb8522a47624e4cfe22f55a6681fb65f3b07e0bf3058e84c9a85"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_integrated_race_fixture_test.go",
+    "sha256": "af069e78e263456f7d565c3751845084786e0845cde698d2d08977a619010500"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_integrated_race_helpers_test.go",
+    "sha256": "b5eee065eff5c75fe8e270245a7079cf9c7e6e7b90b7568598d9b783e296d447"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_integrated_race_test.go",
+    "sha256": "8f85b6cb566c24dc200a37acdf0b29d4de55975df24802d4958542f61c7656f5"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_integrated_timer_isolation_test.go",
+    "sha256": "187575ddd0e3c50358bfaec1090c6acfa96a1a6ac8fc8e626c41c3f28411a014"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_config_monitor_barrier_test.go",
+    "sha256": "892a7a5edae17a5d5f99e537ac74a51acee7ab9d84ffc542c2883ce605005e90"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_connection_generation_test.go",
+    "sha256": "dcb937a4e11e826378d525a4e74d50cd3f5167eeefa1fcead956c343a22f90f1"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/runtime_reload_publication_test.go",
+    "sha256": "0181a7d868fafae38760f7d9fd5d27915b5ba925ab6f4bc5d531d0bf878abd0e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/stream_test_fixtures_self_test.go",
+    "sha256": "605b12e009a2e132ed96d5d8205052072a5e92bd4031da38f36420d70bca9602"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/stream_test_fixtures_test.go",
+    "sha256": "93ce0fb5e33248c6eb0a666d804c48cb400358166dea0e58b26681e413af5ce2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/stream_test_synchronization_test.go",
+    "sha256": "e9d1d2c0aea9ebdf0e8d7f09b4906c42893d847b0ca48aa3d243ed87900a237b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/task_dispatch.go",
+    "sha256": "3487e0d23fdca7e569cb10692748f1f40ebab24b88efd0b1ba2c80f8aec4656c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/task_result_characterization_test.go",
+    "sha256": "5e78838d2a5decfbd417d1494835b3432838f015b46580ab69217b1a765f4a46"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/task_result_send_serial_test.go",
+    "sha256": "409f28ccd0e73508a8c482b15adb50e99a77dca7178cc85160ad2042e89faa18"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/terminal_attach_failure_test.go",
+    "sha256": "f90d924d2ed9ef36aeb9bae0258c445e5e35760967b7501a4a191b28a1c6c0f5"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/terminal_connection_session_integration_test.go",
+    "sha256": "588c4b63b6ab4cb76402910a16812b278a5a9d92fa762c17645713014c4c690c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/terminal_session.go",
+    "sha256": "32a108d3ff67a6aaf6f5c72f9431e29418395e4b805567e4d22c8725ebc529f9"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/terminal_session_test_helpers_test.go",
+    "sha256": "1ed48c546488eeb74bef7622199efa31f4d84b796bb48d84e4569793f04b2f40"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/terminal_shutdown_test.go",
+    "sha256": "f99cdced0d7e3d096f438285275aaf36c5db3cfd2665fccbfb4f5775a6ea3a1d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/terminal_startup_failure_test.go",
+    "sha256": "2e086941735cb10ef8e1e54d1e74b6f1ae30f187ebb3402ad7693a9524191e1c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/terminal_stream_ownership_test.go",
+    "sha256": "d28d981fd628f36bbc6db18592507cd76b5282804e4f12fde27d840de1d71dd0"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/cmd/agent/terminal_wire_golden_test.go",
+    "sha256": "24d1cb2fbaf85e1fa0c0c32f9f6769f9dab8e9b1dae2c6fd561906f8a6277a34"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/go.mod",
+    "sha256": "5a381a1ecafc769cfc478e83e64bb04201447baacc22a5b27cd1cf55e8be7d95"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/go.sum",
+    "sha256": "22edbd9d01b92d22ffab6e1991a7d0d0c0154dd6596bfdab99b192c7beca89c2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/model/auth.go",
+    "sha256": "152f7368739a4959ddeae1a69f95b3692f942aee3f01810f3bd5e777ecb1ee09"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/model/auth_test.go",
+    "sha256": "eb5317561dfddaa2d69834e522325066a40f058df95ef267244090fb30f63af4"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/model/config.go",
+    "sha256": "94dcc1551cfa20c70fd10e9ec7b7d7d5305116936410a4140a09b1cacaeb7a05"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/model/config_clone_test.go",
+    "sha256": "fac8894a61a07d43fa4e5b1d036defdadaae3f82423f06af1080d58996a7c07d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/model/config_test.go",
+    "sha256": "ca1238be8a4704d766dbef3f3da9fddbfb16f5db7f02d2591a5aced1c174d62f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/model/host.go",
+    "sha256": "e1629471eb3ce052ec7ebcba533e8d6b37c890ea7bb38b767ec301be4be9e6e7"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/model/task.go",
+    "sha256": "59b606c870597680bba168fb998f2dfa7c40c5f2a7a67a57827dc076fe198a15"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/binary.go",
+    "sha256": "d4e9367f7b375bef84b901532392c89f4bd9b5a6d862de7580bce3ddcc46785d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/download_open.go",
+    "sha256": "bacbe2e921d28e0b521fd04ac641d0e3a9f00322901b7aff57f1d65f6f9c7b0e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/download_open_other.go",
+    "sha256": "303d2c37408dcd44d0df50dccff391813c38fc540f3a47e0676101482d3901b8"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/download_open_unix.go",
+    "sha256": "f81a6a418b8df30db49fd47a2d317ade52b7062c12be4d861edf9b115cb39fa1"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/download_open_unix_test.go",
+    "sha256": "91cd06bf64f0df107b116d30a26b8dcb09e99a68820750d5bc53e64954baed11"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/operations.go",
+    "sha256": "a59d5653c82484ede03237ed3435b328a2e15302cd171ecad27aeccf3df6ff3a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/producer_observer_agentcompat.go",
+    "sha256": "2ae55958afb6d86f8c4d0f13b0dcf701cf762d144c43be045d79a3763c06b3ba"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/producer_observer_default.go",
+    "sha256": "d9ab2a8154ce2e5cc1a34e0d0cc68aca90bbe8d3411696e52f11eb9245b92f89"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/production_api_test.go",
+    "sha256": "5062d00285be7fa86092e3b45897216cb5f43aba0d45a718812ac8ae9d34f058"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/task_command_parser_test.go",
+    "sha256": "1dc9277dc7ccc110c512f5a5eaef5be14dcdca1e96cd688a268402373fc92fc0"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/task_concurrent_send_test.go",
+    "sha256": "5977040621f67cec94ef9cf3fdccf7cb9054b5a517fe15c0db2cfd52659a8d80"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/task_fifo_shutdown_unix_test.go",
+    "sha256": "4208cf627047a13b393a8bb349d8175a4588a9f5377f66b6efb5cdbf9efd22c7"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/task_frame_parsing_test.go",
+    "sha256": "59e113156addb1d9aa2fb3089c98ab11693ee027f86ad1f16254c904b2793649"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/task_isolation_test.go",
+    "sha256": "d9c86a90a4f37de81c034a062b4a37856917ac88c0c68e6b0640f87cc1c429ea"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/task_shutdown_test.go",
+    "sha256": "fffd763918afcc7e054504537ad1d5867a249b80044ae08b15c73472001157af"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/tasks.go",
+    "sha256": "501557d850b52622f7a7e732906e54462c52cdde2961927f27166bd88f0dc064"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/upload_legacy_semantics_test.go",
+    "sha256": "e35bb7464b190b632a05b58955b13fb62d259736c80c338d820d07f425aedc3f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fm/wire_golden_test.go",
+    "sha256": "9723d7ff3f116d2493ec3fdfba4966837162a04089ac13293ad66f15728a6854"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/fsnotifyx/fsnotifyx.go",
+    "sha256": "2dd0c3456adc60b0d9f4adfc63ca757ff23d0acefe44a4c51d1421d45335ea66"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/anchor.go",
+    "sha256": "dc95bd13b2873b0491b43739ac71b6d7f78f5a96fd62c0e2e1645d8d73cbc0fe"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/anchor_retry_test.go",
+    "sha256": "cc25e8c146ec6f517b53e05a3a6009e591163028d1c5c331d58b19624555b36a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/anchor_test.go",
+    "sha256": "688b9b5fc2f882d15687951fbe0feeb2cd6afebd0441bbccedcd0a284614c775"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/anchor_windows_test.go",
+    "sha256": "8c9667696a795c4ec3202ddf6891d636a8a05f39a77c65f71e5469354254542a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace.go",
+    "sha256": "f8022f34fc22588a5d721c97be1f215106340a111083fa3dfbddeb10a7b6f7ac"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_barrier_unix_test.go",
+    "sha256": "4057c6fe84ed5f2f1cf264da93579b726f8bc85abc4c7cf895979ce7156cc3a9"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_cleanup_failure_test.go",
+    "sha256": "982181d85f9e518c856ba27812f002330ac2e056fed89840eeed7bc901d2c36d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_cleanup_safety_test.go",
+    "sha256": "f623c6f7c5e9299a62a21935294e5e4a459d190076fbe96d197724eb8f08f18b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_close_ownership_test.go",
+    "sha256": "62dd69649eea88977ef3ffac675793b0c9e8f35a4b8063fce704651ace484093"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_commit_boundary_test.go",
+    "sha256": "876d2be32ebefb4f7c7d700cda7708ba02815c082396015ae5bbe7b6a0618d9a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_creation_failure_test.go",
+    "sha256": "69e6bf33a894506e0189c244acafef905918f0e5366e60d869c41fb838691c6c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_failure_test.go",
+    "sha256": "d30d783acadb5cfb0ed13133dcb24ff85d62c96a538e82bb4b8bd1adb664c817"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_mode_unix_test.go",
+    "sha256": "81c8d20b9253c458b4a15de1b31ec7b14549f80cadbf6fce6d4ada6922c6cffb"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_observer_unix_test.go",
+    "sha256": "84c73f85f2cfb41056f887d52a544aaa95882cee305df02dcb89a9251f1c4bc3"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_result_other_test.go",
+    "sha256": "ca06f045caad5aced4299a2965895e599c99352b71d66e72453a2b8e45365c13"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_result_unix_test.go",
+    "sha256": "7c7bc112418af8c68d41832110df060306847f9dec801be53e6965ac1e3e3341"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_result_windows_test.go",
+    "sha256": "ff816074e46560b01743d5bddfdfdd13a0aa16549255ae0320d2d712b0909261"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_test.go",
+    "sha256": "045c7856468a1df90195668584a013650fc94c92e3a7ad7396cac21e2113ac87"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_replace_unix_test.go",
+    "sha256": "6b4261a70fcf262ff006f9b523efb8433b9ab75812823cc151d4519d0bbe181b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/atomic_revalidate.go",
+    "sha256": "bc5eb3f0cef3f6acbf34b636ba90a187807c3545c34865c2ebed72dfc17d2851"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/directory_sync_other.go",
+    "sha256": "64a3039e7152a851bde542088a4a0bce677215ac7b95360ac5331b9df47aa3ee"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/directory_sync_unix.go",
+    "sha256": "629218c28b28fb943f6f2a75109f59aacae6d908a50ee0ffdd47197f30a8610b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/directory_sync_windows.go",
+    "sha256": "c2684fdecde01e406a6a696a25167aa47463f1534fcb4e434d342f05abf7d657"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/directory_sync_windows_test.go",
+    "sha256": "e19e4d90781f2b497983cde8db01367dd107d93e252b311df4e718eec3d884af"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/errors.go",
+    "sha256": "374fd9eea0309d527ee334e847ac521a3e9fb2a5d44c14c8120dc806e611b1e8"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_cleanup.go",
+    "sha256": "d47f13d4d54ad6ce95e43b64afcd3b753e00a783cdf8f7c5f79b2003f24dc82c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_cleanup_test.go",
+    "sha256": "ef423440f7698c2dca6767f71940189bd693112405efaac922967fd055ad3b6e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_native_other.go",
+    "sha256": "0887b6a8a0e9dd7610003e5ccfefca5df03ed654f86bba9cec7e00d01f4f272c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_native_unix.go",
+    "sha256": "91748719f018b7b9481865cbc01993f8f18d5d42fd31797f4f65a375f08b70d6"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_native_windows.go",
+    "sha256": "e09879d3a58882b491f2ef642944ad8da58e6ad9687c21817dbc1106e2c5146e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_target.go",
+    "sha256": "2c3882cb8e50b464338cc51251225c081c7949c51d1cb3b2603ed4799c6c9540"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_target_retry_test.go",
+    "sha256": "1e12f106ea6f8a6ea0b10b1af5a832d0c58abee65eb059d1786df4becf006bd0"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_target_test.go",
+    "sha256": "176e8ceaf10a84f0492fa9f39e7fd87a4525a813469a5b48788ced7732239265"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_target_unix_test.go",
+    "sha256": "1f539e49a81c708d2dea4161da7e3a9293fd19649ea26b1ad3b55ea5c6a5d4be"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/final_target_windows_test.go",
+    "sha256": "592f34967b5f1a81458137ed1f8f8e79e616b66127523433c00ed1a2168fb99c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/hash_change_test.go",
+    "sha256": "2c8bca043f92e4ab99f50491d95c30ce53a6ff020b13bb0dcfcfa85a59f6fe42"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/hash_sync.go",
+    "sha256": "d277eaa20c45334e47e4ac3290457a6edf3bc95aae29c00a512fc8853c96db9c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/hash_sync_test.go",
+    "sha256": "76a9976c9fbb434c4d10705e77fd82348772f63f2a3bc34ac75d3d1717ae286b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/hash_sync_unix_test.go",
+    "sha256": "85e59b2ee86f535e477b38e490d1e05e8d53afe2884b7da65a58fa3970b87358"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/hash_sync_windows_test.go",
+    "sha256": "d626a7586183d68724d3b43379b600cffd1eb84ed2eb70cd4f87ff11e1a0c268"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/native_child_other.go",
+    "sha256": "c817a5e92c52cd7d2445794a0579f4d1d3b25b171665255c7f59576c6fee97cc"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/native_child_unix.go",
+    "sha256": "d5a9426edac0da18f5de80589596a0966a55659c8b1a5d67149222be5cb64c7a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/native_child_windows.go",
+    "sha256": "c17987c4394f116df5b94c2f466649d06c031413988f8bf54d31aef20b4ceb0f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/native_other.go",
+    "sha256": "4f4fb2a42523f5bdd76a439031a11b26d79c4abedbe20d3d173d2bad0cb5fb6f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/native_unix.go",
+    "sha256": "9226ac7da99dcd4a8f3bd4fe88bbe7355c2df3c51ff43924d65ccd82b8dda523"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/native_windows.go",
+    "sha256": "63c627900a7ed8b0847217fcf0dcf2652201b403448c3aa4642b402207775c3c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/parent_descent.go",
+    "sha256": "9abcd1fa1b1db6c4918e2585623121ee73b3d31d88e7576da9067fd6a13c25e9"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/parent_descent_candidate_ownership_test.go",
+    "sha256": "1d08c27c4c5a7efab42a4b395d2ea6da6ba4270ee27740f96ee6c181168cdcf3"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/parent_descent_close_test.go",
+    "sha256": "23a11c5e9298cc062e678e47d467cd8d55ebef412c425069e4f303f3c69d3f8d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/parent_descent_sync_test.go",
+    "sha256": "b52e85702c1b00786eca042030fc8015227b548c7603f10a1ccaeecf73ea814e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/parent_descent_test.go",
+    "sha256": "f3b48b5682d465c53ab6a8f7ff013cb36914361529639cfa83e68dde14ce86e8"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/parent_descent_unix_test.go",
+    "sha256": "7ca46b527e125c8c0d1c1d84c33d4455c59127a2d12ea84bff16b46bc3990960"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/parent_descent_windows_test.go",
+    "sha256": "29e0247398ff7195eeb71b64fc2f14a0e2ac9d3fbb24d226aa517c986fed8a9c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/pending_atomic_replace.go",
+    "sha256": "409eacd6ec41064806ab85a1ba28acef104301c72227368e9ff58fd8a44bdcae"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/hostfs/pending_atomic_replace_test.go",
+    "sha256": "23af3f551b709d9483add9bbb85c374dcefee22992c6e4dd77d5177079cde5c0"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/logger/logger.go",
+    "sha256": "28cbd0ffd9c6c606cc0d1bb70879f104165ebd51c0bbb5e2c65e1823c71bf358"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/logger/logger_race_test.go",
+    "sha256": "ac5db25d436a3c5e6182200f8dec074448b90e506b23cfae055a66249ba1ec3f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/logger/service_logger_wrapper.go",
+    "sha256": "d994f938e69dc35ae686807f483c44d4d78a302a70a9351132d3c8a5deb48c3f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/logger/service_logger_wrapper_darwin.go",
+    "sha256": "8aaafdfc614aced925d435609cfbc746e2bfc2ae1025058e6e6517e60061fe13"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/caller_snapshot_barrier_test.go",
+    "sha256": "741e9c82db70b79139a1851f27386606dfa93a690ef661ba264f7b994dec31fd"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/config_snapshot_test.go",
+    "sha256": "699a87de70b0a6b967dd258303e94f41abf33eb3d887a520b142d19c93948db8"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/conn/conn_fallback.go",
+    "sha256": "9bda5df565c076c32f888fe7fd01517f8b9cfd5196a5b5badb7d040bbbaa496c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/conn/conn_linux.go",
+    "sha256": "2012c86d024c4ef45775fa40858eb70530278a2619901c5b95bdcdb2c6de1677"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/cpu/cpu.go",
+    "sha256": "9ba6f79f16f0d0794fe590084016e9cf14f6ba583588fab691e311d45cbc0ccc"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/disk/disk.go",
+    "sha256": "efb6a2b2bde7c838d4383708935e5cee1bb226fdea98ba03b517eb5558f9184d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/gpu/gpu_darwin.go",
+    "sha256": "2a042087521ea786ec0afd5610dec0f28c793a1245ebc825d8418bb08c0beaaa"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/gpu/gpu_fallback.go",
+    "sha256": "6dcb2f664b5b2cb39c79636bb64ab053b6a02001b37e7270ed48036a73836c57"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/gpu/gpu_linux.go",
+    "sha256": "349bc4b4e6e863403c8b9cde08eb41d056dd978b6c27e5011355463a6832fede"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/gpu/gpu_windows.go",
+    "sha256": "f9ad87d1385c256a895b8809a46c8f6ea12d8bb26374d0c94e0200efb621d7a4"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/gpu/vendor/amd_rocm_smi.go",
+    "sha256": "e57310f5f6980d3dfc06307a463b4f274e651cfc5d8e2e4881c71b4fb387bae2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/gpu/vendor/intel_gpu_top.go",
+    "sha256": "9b59a077af9e16108fbad7b444b9809740efddee5c6e05d80d2ce183c0cf91f4"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/gpu/vendor/nvidia_smi.go",
+    "sha256": "c5a1d89fb6eb6d4bce18ec05976bc5dcc4bb62ca1aa9d6ef8e41dbc5a5f4be25"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/host.go",
+    "sha256": "c655f56c7cd7392fce1dad7f941a7e5d29529ca368a489e169ea00ddaaf9dfc6"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/load/load.go",
+    "sha256": "6c0e61a8043782c1f0994f1d34ac015a900a112ab11688bf6c673120302a3d37"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/monitor.go",
+    "sha256": "a1d9c017ca2cd7807b07e3585fd52b43426b54cf9ea5f75668e69324b42f532b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/monitor_test_state_test.go",
+    "sha256": "aeb870b50a4a7458235fb1dcd2818d578b79f4c39259369ec226c2b29058ea24"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/myip.go",
+    "sha256": "b1b3fedb7bc1e2052498aa6cc034302dac5a7d09c752e6ca5f5a3896c5b33094"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/myip_test.go",
+    "sha256": "2ab8de7b7c434cdccf1b70527761b2e4bfcf6525c2265ba4dd05b80f699185eb"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/network.go",
+    "sha256": "88afe3503fbefa71513e2d1acfa5d9ddb07d63b6f97fd6033f57f87a7af37d58"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/nic/nic.go",
+    "sha256": "4ec2d8f6ef380e35f325d6dd09d2b3281e2426addf1382d78f666af00b345d4e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/probe_cache_characterization_test.go",
+    "sha256": "7f16973b7641a2093dde75f0690c0416aea3dcbc29675b715f4d99b80952c6ba"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/state.go",
+    "sha256": "c03deec21261eb58026e4d2226c967d46ad12409ef36becf6ce514fc82af3fb1"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/monitor/temperature/temperature.go",
+    "sha256": "abe2719289b59ac316561b439314be821d3d1aa1086964df8b23eb38264be255"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/group_alias_unix_test.go",
+    "sha256": "237d193e79c765824cb00092b650585866c134aceeb0aaf8bb1c7aa1b512121b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/group_alias_windows_test.go",
+    "sha256": "22577cce023194782114677d81002f39f68f37489cae4be5c6e4249f3a0d400f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/helper_process_test.go",
+    "sha256": "99863393ba117ab857d45fffe378736217faa5e7cddd911133b20cbd57eea49b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group.go",
+    "sha256": "40d1600ba2dbfd4ea334df18b5d52397348e763458a637ff9c91a0512626ea52"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_addprocess_unix_test.go",
+    "sha256": "b2f91c5ee73707f3f77ab14c1467e340b24461942b45be43d8d3b5342a291e46"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_addprocess_windows_test.go",
+    "sha256": "a1f86f32c90fcd8cea8f2d26a322e297dd5e2a1d6dcdc0eb93b953d13d7efd7d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_close_test.go",
+    "sha256": "7d99a53b45c829adb5950710b24d2c793df43b5a4199d3ec0d55719b2b840a0a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_constructor_unix_test.go",
+    "sha256": "25a1aa11c3b355c20fa32de1c24fb0e5211305637571ed87dfea372dbda9f72c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_constructor_windows_test.go",
+    "sha256": "df765a00603177ded95bb91b1900809921b68cae9afe4a86ef6c52013b4a860d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_descendant_integration_test.go",
+    "sha256": "0c20f4f5cbc265bc9de9b1e268efdc8eb6fedf5ae9d86292543bd64a43b6db56"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_dispose_timeout_windows_test.go",
+    "sha256": "85b21e6ff197736b92f9112418b7483c83e889a0433db74ce7174c6bba2d190b"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_lifecycle_test.go",
+    "sha256": "bd2fd90b3bcd2f335a51ed5a3052e2abc2189f1675e954069560420854742e6a"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_pgid_fallback_test.go",
+    "sha256": "af55e621065d29e8aafd440b3aa89b13f0b10a449489c710756f594e38b242ae"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_suspended_test.go",
+    "sha256": "8a246cc613371c7efc679dfd517f8da7903d3e847b280ec5eeee5eb3a3833a20"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_suspended_unix.go",
+    "sha256": "33b6ccdd2244f9fbeeed39ec4c436faa98593190ee2775d1fb1feda36dcc1aa2"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_suspended_windows.go",
+    "sha256": "55b758c1a1b45b503ef11c8db8b5956ab387e897c1fe0b7a166f357a9c42e81c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/processgroup/process_group_windows.go",
+    "sha256": "8ff6634d233b4693961181b32c68562c060b2f045f0059ca447eab39bd6dc4ee"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/pty/ipty.go",
+    "sha256": "5f33831996add20f344f055fcdda31ab92705e6a507414214dc4a716654c7d1c"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/pty/pty.go",
+    "sha256": "bd64d571788789195a3f3ff30a3a11612eb58e6ba39dbdf00356ad84a5459d1e"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/pty/pty_close_cleanup_test.go",
+    "sha256": "ea75aa0cd66c1aeca56a75a067a94330688e7b5f261869e35db020f7fc7f9772"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/pty/pty_kill_test.go",
+    "sha256": "fc104657442352a98eac22e5719fff2e8f3eb24bdc2977d730692f3f3c682a39"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/pty/pty_windows.go",
+    "sha256": "40d453500e0acb4406dfd4b22ef20d28f76fd99e8774ab884e22366274c95937"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/util/http.go",
+    "sha256": "f4834561870d0005edc02ca62cb1b5a554056f91750ae7582bdbb89065377592"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/util/util.go",
+    "sha256": "ebd0cb06464fe2dac3012046b1ffef0e23a022d66fc7de4521dcf21ab5489470"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/util/util_test.go",
+    "sha256": "375461bba5e1e925041593749366aeefb86567f74b0dbe969582ea0f36bf68da"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/utls/roundtripper.go",
+    "sha256": "ffd2172b50f18800a8e6d8800f8945b32ca74ab029473dc5bf0127bd3d186705"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/pkg/utls/roundtripper_test.go",
+    "sha256": "6a2ad1021af027b13d3231ed5d4d64fe93357cead173a32991d9438e955e1855"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/proto/nezha.pb.go",
+    "sha256": "d7d6653977b4682b7940ed0facad051829839c5b0998a2541ae09ecb7d322e6d"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/proto/nezha.proto",
+    "sha256": "6f78ca916fc80c54d6c1d290237c665ad615b3ac0a7126fff5ccb26404e63c6f"
+  },
+  {
+    "source": "agent",
+    "path": "third_party/agent/proto/nezha_grpc.pb.go",
+    "sha256": "b913779c149dd09d5873b0b8c00c631de608ec3d68d9891d2246c1dc82210b11"
   }
 ]

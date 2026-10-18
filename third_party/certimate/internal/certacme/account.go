@@ -16,6 +16,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embeddedhooks"
 	"github.com/certimate-go/certimate/internal/repository"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
@@ -117,6 +118,12 @@ func acquireACMEAccount(ctx context.Context, config *ACMEConfig, email string, d
 		}
 		return result.Val.(*ACMEAccount), nil
 	case <-ctx.Done():
+		// The host must not close the database while a detached registration
+		// goroutine can still persist an account. The registration uses this
+		// canceled context; keep its worker alive until singleflight has drained.
+		if embeddedhooks.EnabledFor(ctx) {
+			<-resultCh
+		}
 		return nil, ctx.Err()
 	}
 }

@@ -10,14 +10,16 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime/debug"
 	"strings"
+	"syscall"
 	"time"
 	_ "time/tzdata"
 
+	"github.com/certimate-go/certimate/pkg/embedded"
 	"github.com/gin-gonic/gin"
-	"github.com/ory/graceful"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/nezhahq/nezha/cmd/dashboard/controller"
@@ -27,17 +29,31 @@ import (
 	"github.com/nezhahq/nezha/pkg/idcodec"
 	"github.com/nezhahq/nezha/pkg/utils"
 	"github.com/nezhahq/nezha/proto"
+	rpcService "github.com/nezhahq/nezha/service/rpc"
 	"github.com/nezhahq/nezha/service/singleton"
+	"github.com/nezhahq/nezha/service/unifiedbackup"
 )
 
 type DashboardCliParam struct {
-	Version          bool
-	ConfigFile       string
-	DatabaseLocation string
+	Version           bool
+	ConfigFile        string
+	DatabaseLocation  string
+	StorageOnly       bool
+	BackupCreate      string
+	BackupRestore     string
+	BackupDestination string
+	BackupKeyFile     string
+	BackupRehearse    string
+	BackupInspect     string
+	BackupReconcile   string
+	BackupEvidence    string
 }
 
 var (
 	dashboardCliParam DashboardCliParam
+	// The process owns this lock until exit, including any legacy goroutine that
+	// outlives HTTP shutdown. Offline maintenance must never overlap those writes.
+	dashboardDataUnlock func() error
 	//go:embed *-dist
 	frontendDist embed.FS
 )
@@ -121,13 +137,51 @@ func main() {
 	flag.BoolVar(&dashboardCliParam.Version, "v", false, "查看当前版本号")
 	flag.StringVar(&dashboardCliParam.ConfigFile, "c", "data/config.yaml", "配置文件路径")
 	flag.StringVar(&dashboardCliParam.DatabaseLocation, "db", "data/sqlite.db", "Sqlite3数据库文件路径")
+	flag.BoolVar(&dashboardCliParam.StorageOnly, "storage-only", false, "Development only: disable certificate runtime and DDNS workers")
+	registerBackupFlags()
 	flag.Parse()
 
 	if dashboardCliParam.Version {
 		fmt.Println(singleton.Version)
-		os.Exit(0)
+		return
 	}
+	if handled, err := runBackupCommand(context.Background(), dashboardCliParam); handled {
+		if err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if err := runDashboard(); err != nil {
+		log.Fatal(err)
+	}
+}
 
+func runDashboard() error {
+	if !dashboardCliParam.StorageOnly && !embedded.RuntimeAvailable() {
+		return errors.New("this Dashboard was built without certificate runtime; use the full release build or explicit --storage-only for development")
+	}
+	signalContext, stopSignals := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stopSignals()
+	dataRoot := filepath.Dir(dashboardCliParam.DatabaseLocation)
+	unlock, err := unifiedbackup.LockDataRoot(dataRoot)
+	if err != nil {
+		return err
+	}
+	dashboardDataUnlock = unlock
+	if info, err := os.Lstat(dashboardCliParam.DatabaseLocation); err == nil {
+		if !info.Mode().IsRegular() {
+			return errors.New("Dashboard database must be a regular file inside the locked data directory")
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	// Fence restored stores before migrations, schedulers or a mutating API.
+	if err := unifiedbackup.CheckReady(dataRoot); err != nil {
+		return err
+	}
+	lifetime, cancelLifetime := context.WithCancel(signalContext)
+	defer cancelLifetime()
+	shutdownAttempted := false
 	serviceSentinelDispatchBus := make(chan *model.Service)
 	if err := utils.FirstError(singleton.InitFrontendTemplates,
 		func() error { return singleton.InitConfigFromPath(dashboardCliParam.ConfigFile) },
@@ -143,21 +197,49 @@ func main() {
 		func() error { return singleton.InitDBFromPath(dashboardCliParam.DatabaseLocation) },
 		singleton.InitTSDB,
 		func() error { return initSystem(serviceSentinelDispatchBus) }); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if err := singleton.InitUnified(filepath.Join(filepath.Dir(dashboardCliParam.DatabaseLocation), "certimate")); err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer singleton.Unified.Close()
+	rpcService.SetUnifiedHostObserver(singleton.Unified.NotifyDDNSHost)
+	rpcService.SetUnifiedHostIPObserver(singleton.ReportUnifiedHostIP)
+	rpcService.SetUnifiedHostAddressesObserver(singleton.ReportUnifiedHostAddresses)
+	defer rpcService.SetUnifiedHostObserver(nil)
+	defer rpcService.SetUnifiedHostIPObserver(nil)
+	defer rpcService.SetUnifiedHostAddressesObserver(nil)
+	defer func() {
+		cancelLifetime()
+		if shutdownAttempted {
+			return
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		if err := stopUnified(ctx); err != nil {
+			log.Printf("NEZHA>> unified shutdown did not drain: %v", err)
+		}
+	}()
+	if !dashboardCliParam.StorageOnly {
+		if err := singleton.Unified.StartRuntime(lifetime); err != nil {
+			return err
+		}
+		if err := singleton.Unified.StartDDNS(lifetime, singleton.UnifiedHostSource); err != nil {
+			return err
+		}
+		singleton.Unified.SetAgentCalls(rpcService.UnifiedAgentCalls)
+	} else {
+		log.Println("NEZHA>> Development storage-only mode: certificate runtime and DDNS are disabled")
+	}
 
 	l, err := openDashboardListener("tcp", dashboardListenerAddress(singleton.Conf.ListenHost, singleton.Conf.ListenPort), dashboardHTTPListener)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	defer l.Close()
 	receiptListener, err := openReceiptGateListener()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if receiptListener != nil {
 		defer receiptListener.Close()
@@ -199,40 +281,64 @@ func main() {
 	}
 
 	errChan := make(chan error, 2)
-	errHTTPS := errors.New("error from https server")
-
-	if err := graceful.Graceful(func() error {
-		log.Printf("NEZHA>> Dashboard::START ON %s:%d", singleton.Conf.ListenHost, singleton.Conf.ListenPort)
-		if singleton.Conf.HTTPS.ListenPort != 0 {
-			go func() {
-				errChan <- serveDashboardHTTPS(muxServerHTTPS, singleton.Conf.HTTPS.TLSCertPath, singleton.Conf.HTTPS.TLSKeyPath)
-			}()
-			log.Printf("NEZHA>> Dashboard::START ON %s:%d", singleton.Conf.ListenHost, singleton.Conf.HTTPS.ListenPort)
-		}
+	log.Printf("NEZHA>> Dashboard::START ON %s:%d", singleton.Conf.ListenHost, singleton.Conf.ListenPort)
+	if muxServerHTTPS != nil {
 		go func() {
-			errChan <- muxServerHTTP.Serve(l)
+			errChan <- serveDashboardHTTPS(muxServerHTTPS, singleton.Conf.HTTPS.TLSCertPath, singleton.Conf.HTTPS.TLSKeyPath)
 		}()
-		return <-errChan
-	}, func(c context.Context) error {
-		log.Println("NEZHA>> Graceful::START")
-		rpc.CloseReceiptGate()
-		singleton.RecordTransferHourlyUsage()
-		singleton.CloseTSDB()
-		log.Println("NEZHA>> Graceful::END")
-		var err error
+	}
+	go func() { errChan <- muxServerHTTP.Serve(l) }()
+	var serveErr error
+	select {
+	case <-signalContext.Done():
+	case serveErr = <-errChan:
+	}
+	// Cancel schedulers/providers, terminate persistent RPC streams, then drain
+	// HTTP before storage. Every shutdown step shares one deadline.
+	cancelLifetime()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	log.Println("NEZHA>> Graceful::START")
+	rpc.CloseReceiptGate()
+	grpcHandler.Stop()
+	var shutdownErr error
+	if muxServerHTTPS != nil {
+		shutdownErr = muxServerHTTPS.Shutdown(ctx)
+	}
+	shutdownErr = errors.Join(shutdownErr, muxServerHTTP.Shutdown(ctx))
+	if shutdownErr != nil {
+		_ = muxServerHTTP.Close()
 		if muxServerHTTPS != nil {
-			err = muxServerHTTPS.Shutdown(c)
-		}
-		return errors.Join(muxServerHTTP.Shutdown(c), utils.IfOr(err != nil, utils.NewWrapError(errHTTPS, err), nil))
-	}); err != nil {
-		log.Printf("NEZHA>> ERROR: %v", err)
-		var wrapError *utils.WrapError
-		if errors.As(err, &wrapError) {
-			log.Printf("NEZHA>> ERROR HTTPS: %v", wrapError.Unwrap())
+			_ = muxServerHTTPS.Close()
 		}
 	}
+	shutdownAttempted = true
+	shutdownErr = errors.Join(shutdownErr, stopUnified(ctx))
+	singleton.RecordTransferHourlyUsage()
+	singleton.CloseTSDB()
+	log.Println("NEZHA>> Graceful::END")
+	if errors.Is(serveErr, http.ErrServerClosed) {
+		serveErr = nil
+	}
+	return errors.Join(serveErr, shutdownErr)
+}
 
-	close(errChan)
+// stopUnified leaves storage open after an incomplete drain so late operations
+// retain their authorization hooks and can persist their terminal state.
+func stopUnified(ctx context.Context) error {
+	if singleton.Unified == nil {
+		return nil
+	}
+	if err := singleton.Unified.StopDDNSContext(ctx); err != nil {
+		return err
+	}
+	if err := singleton.Unified.CloseDeploymentsContext(ctx); err != nil {
+		return err
+	}
+	if err := singleton.Unified.StopRuntime(ctx); err != nil {
+		return err
+	}
+	return singleton.Unified.Close()
 }
 
 // wireNATDashboardCredentialGate connects the NAT ingress to the real

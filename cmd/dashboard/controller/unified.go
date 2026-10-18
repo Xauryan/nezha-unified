@@ -14,6 +14,11 @@ import (
 )
 
 func unifiedPrincipal(c *gin.Context) unified.Principal {
+	if value, ok := c.Get(unifiedScopedPrincipalCtxKey); ok {
+		if p, ok := value.(unified.Principal); ok {
+			return p
+		}
+	}
 	u, ok := c.Get(model.CtxKeyAuthorizedUser)
 	if !ok {
 		return unified.Principal{}
@@ -37,6 +42,8 @@ func unifiedResult(c *gin.Context, value any, err error) {
 		status, msg = http.StatusForbidden, "permission denied"
 	case errors.Is(err, embedded.ErrInvalid):
 		status, msg = http.StatusBadRequest, "invalid resource or request"
+	case errors.Is(err, unified.ErrTargetConflict):
+		status, msg = http.StatusConflict, "resource version or operation conflict"
 	case errors.Is(err, embedded.ErrNotFound):
 		status, msg = http.StatusNotFound, "resource not found"
 	default:
@@ -46,19 +53,45 @@ func unifiedResult(c *gin.Context, value any, err error) {
 }
 
 func bindUnifiedRoutes(auth *gin.RouterGroup) {
-	// Until new resource-scoped PAT claims are implemented, even administrator
-	// PATs are rejected. Existing Nezha scopes never imply new-module permission.
-	r := auth.Group("/unified", restPATForbiddenMiddleware(), func(c *gin.Context) {
+	// Existing Nezha PAT scopes never imply new-module permission. Explicit
+	// resource tokens use a separate bearer-only entry with the same handlers.
+	r := auth.Group("/unified", restPATForbiddenMiddleware(), unifiedReadyMiddleware())
+	bindUnifiedResources(r)
+}
+func bindUnifiedScopedRoutes(api *gin.RouterGroup) {
+	r := api.Group("/unified-api", unifiedScopedTokenAuthMiddleware(), unifiedReadyMiddleware())
+	bindUnifiedResources(r)
+}
+func unifiedReadyMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		c.Header("Cache-Control", "no-store")
 		if singleton.Unified == nil {
 			c.AbortWithStatusJSON(http.StatusServiceUnavailable, newErrorResponse(errors.New("unified module unavailable")))
 			return
 		}
-		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 256<<10)
+		p, err := singleton.Unified.CurrentPrincipal(c.Request.Context(), unifiedPrincipal(c))
+		if err != nil {
+			unifiedResult(c, nil, err)
+			c.Abort()
+			return
+		}
+		c.Set(unifiedScopedPrincipalCtxKey, p)
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 8<<20)
 		c.Next()
+	}
+}
+func bindUnifiedResources(r *gin.RouterGroup) {
+	bindUnifiedDNSRoutes(r)
+	bindUnifiedCertimateRoutes(r)
+	bindUnifiedOwnershipRoutes(r)
+	bindUnifiedIdentityRoutes(r)
+	bindUnifiedTargetRoutes(r)
+	r.GET("/runs", func(c *gin.Context) {
+		value, err := singleton.Unified.Runs(c.Request.Context(), unifiedPrincipal(c))
+		unifiedResult(c, value, err)
 	})
 	r.GET("/status", func(c *gin.Context) {
-		unifiedResult(c, gin.H{"version": "0.1.0-dev", "certimate": "0.4.35", "storage": "ready", "workflow_execution": false, "dns_management": false, "agent_deployment": false}, nil)
+		unifiedResult(c, gin.H{"version": "0.2.0-dev", "certimate": "0.4.35", "storage": "ready", "workflow_execution": embedded.RuntimeAvailable(), "dns_management": true, "agent_deployment": true, "scoped_tokens": true, "service_identities": true}, nil)
 	})
 	for path, kind := range map[string]string{"/credentials": "credential", "/certificates": "certificate", "/workflows": "workflow"} {
 		r.GET(path, func(c *gin.Context) {

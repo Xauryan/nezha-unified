@@ -1,0 +1,4660 @@
+{
+  "schema": 1,
+  "evidence_level": "retained-source declarations only; compilation, contracts and live provider acceptance are independent",
+  "sources": [
+    {
+      "name": "nezha",
+      "revision": "v2.3.18",
+      "commit": "9881c47f0cc92256ba203919da5a25fab79a6bad",
+      "path": "."
+    },
+    {
+      "name": "admin-frontend",
+      "revision": "v2.3.8",
+      "commit": "346574968cf4ecec605a74fe503814138a927b3d",
+      "path": "web/admin"
+    },
+    {
+      "name": "certimate",
+      "revision": "v0.4.35",
+      "commit": "884b353c7e2a5331ca24ff61bc18dea291cd8d91",
+      "path": "third_party/certimate"
+    },
+    {
+      "name": "certimate/pkg/sdk3rd-forked",
+      "revision": "baf25c1f3c420522d0d2bd1b7b0ca0a097af9565",
+      "commit": "baf25c1f3c420522d0d2bd1b7b0ca0a097af9565",
+      "path": "third_party/certimate/pkg/sdk3rd-forked"
+    },
+    {
+      "name": "dnsmgr",
+      "revision": "78e77a608fe37c3f7bbbfe35f732bfdf1de43bdd",
+      "commit": "78e77a608fe37c3f7bbbfe35f732bfdf1de43bdd",
+      "path": "reference/dnsmgr"
+    },
+    {
+      "name": "agent",
+      "revision": "v2.3.0",
+      "commit": "84e61fca84661503d324ae6ab00ca88e280e00a2",
+      "path": "third_party/agent"
+    }
+  ],
+  "retained_file_counts": {
+    "admin-frontend": 202,
+    "agent": 313,
+    "certimate": 2399,
+    "certimate/pkg/sdk3rd-forked": 884,
+    "dnsmgr": 373,
+    "nezha": 888
+  },
+  "nezha_admin_pages": [
+    "web/admin/src/routes/alert-rule.tsx",
+    "web/admin/src/routes/api-tokens.tsx",
+    "web/admin/src/routes/cron.tsx",
+    "web/admin/src/routes/ddns.tsx",
+    "web/admin/src/routes/login.tsx",
+    "web/admin/src/routes/nat.tsx",
+    "web/admin/src/routes/notification-group.tsx",
+    "web/admin/src/routes/notification.tsx",
+    "web/admin/src/routes/online-user.tsx",
+    "web/admin/src/routes/profile.tsx",
+    "web/admin/src/routes/protect.tsx",
+    "web/admin/src/routes/root.tsx",
+    "web/admin/src/routes/server-group.tsx",
+    "web/admin/src/routes/server.tsx",
+    "web/admin/src/routes/service.tsx",
+    "web/admin/src/routes/settings.tsx",
+    "web/admin/src/routes/transfer.tsx",
+    "web/admin/src/routes/user.tsx",
+    "web/admin/src/routes/waf.tsx"
+  ],
+  "nezha_api_sources": [
+    "cmd/dashboard/controller/agentcompat_capability_access.go",
+    "cmd/dashboard/controller/agentcompat_capability_contract.go",
+    "cmd/dashboard/controller/agentcompat_capability_handlers.go",
+    "cmd/dashboard/controller/agentcompat_routes.go",
+    "cmd/dashboard/controller/agentcompat_routes_default.go",
+    "cmd/dashboard/controller/agentcompat_sqlite_hold_routes_agentcompat_linux.go",
+    "cmd/dashboard/controller/agentcompat_sqlite_hold_routes_agentcompat_nonlinux.go",
+    "cmd/dashboard/controller/alertrule.go",
+    "cmd/dashboard/controller/api_token.go",
+    "cmd/dashboard/controller/api_token_read_only.go",
+    "cmd/dashboard/controller/api_token_revoke_registry.go",
+    "cmd/dashboard/controller/api_token_scope.go",
+    "cmd/dashboard/controller/controller.go",
+    "cmd/dashboard/controller/cron.go",
+    "cmd/dashboard/controller/csrf.go",
+    "cmd/dashboard/controller/dashboard_credential.go",
+    "cmd/dashboard/controller/ddns.go",
+    "cmd/dashboard/controller/fm.go",
+    "cmd/dashboard/controller/jwt.go",
+    "cmd/dashboard/controller/mcp.go",
+    "cmd/dashboard/controller/mcp_audit.go",
+    "cmd/dashboard/controller/mcp_capability.go",
+    "cmd/dashboard/controller/mcp_origin.go",
+    "cmd/dashboard/controller/mcp_ratelimit.go",
+    "cmd/dashboard/controller/mcp_ratelimit_agentcompat.go",
+    "cmd/dashboard/controller/mcp_result_encoding.go",
+    "cmd/dashboard/controller/mcp_tools_exec.go",
+    "cmd/dashboard/controller/mcp_tools_fs.go",
+    "cmd/dashboard/controller/mcp_tools_meta.go",
+    "cmd/dashboard/controller/mcp_tools_server.go",
+    "cmd/dashboard/controller/mcp_transfer.go",
+    "cmd/dashboard/controller/mcp_transfer_audit_throttle.go",
+    "cmd/dashboard/controller/mcp_transfer_lifecycle.go",
+    "cmd/dashboard/controller/mcp_transfer_spool.go",
+    "cmd/dashboard/controller/nat.go",
+    "cmd/dashboard/controller/notification.go",
+    "cmd/dashboard/controller/notification_group.go",
+    "cmd/dashboard/controller/oauth2.go",
+    "cmd/dashboard/controller/permissions.go",
+    "cmd/dashboard/controller/scope_doc.go",
+    "cmd/dashboard/controller/server.go",
+    "cmd/dashboard/controller/server_group.go",
+    "cmd/dashboard/controller/service.go",
+    "cmd/dashboard/controller/setting.go",
+    "cmd/dashboard/controller/terminal.go",
+    "cmd/dashboard/controller/terminal_fm_agentcompat.go",
+    "cmd/dashboard/controller/terminal_fm_agentcompat_default.go",
+    "cmd/dashboard/controller/transfer.go",
+    "cmd/dashboard/controller/user.go",
+    "cmd/dashboard/controller/waf.go",
+    "cmd/dashboard/controller/waf/waf.go",
+    "cmd/dashboard/controller/websocket_ping.go",
+    "cmd/dashboard/controller/ws.go"
+  ],
+  "certimate_pages": [
+    "third_party/certimate/ui/src/pages/AuthLayout.tsx",
+    "third_party/certimate/ui/src/pages/ConsoleLayout.tsx",
+    "third_party/certimate/ui/src/pages/ErrorLayout.tsx",
+    "third_party/certimate/ui/src/pages/accesses/AccessList.tsx",
+    "third_party/certimate/ui/src/pages/accesses/AccessNew.tsx",
+    "third_party/certimate/ui/src/pages/certificates/CertificateList.tsx",
+    "third_party/certimate/ui/src/pages/dashboard/Dashboard.tsx",
+    "third_party/certimate/ui/src/pages/login/Login.tsx",
+    "third_party/certimate/ui/src/pages/presets/PresetList.tsx",
+    "third_party/certimate/ui/src/pages/presets/PresetListNotifyTemplates.tsx",
+    "third_party/certimate/ui/src/pages/presets/PresetListScriptTemplates.tsx",
+    "third_party/certimate/ui/src/pages/settings/Settings.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsAbout.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsAccount.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsAppearance.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsDiagnostics.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsPersistence.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsSSLProvider.tsx",
+    "third_party/certimate/ui/src/pages/workflows/WorkflowDetail.tsx",
+    "third_party/certimate/ui/src/pages/workflows/WorkflowDetailDesign.tsx",
+    "third_party/certimate/ui/src/pages/workflows/WorkflowDetailRuns.tsx",
+    "third_party/certimate/ui/src/pages/workflows/WorkflowList.tsx",
+    "third_party/certimate/ui/src/pages/workflows/WorkflowNew.tsx"
+  ],
+  "certimate_repositories": [
+    "third_party/certimate/ui/src/repository/_pocketbase.ts",
+    "third_party/certimate/ui/src/repository/access.ts",
+    "third_party/certimate/ui/src/repository/admin.ts",
+    "third_party/certimate/ui/src/repository/certificate.ts",
+    "third_party/certimate/ui/src/repository/settings.ts",
+    "third_party/certimate/ui/src/repository/system.ts",
+    "third_party/certimate/ui/src/repository/workflow.ts",
+    "third_party/certimate/ui/src/repository/workflowLog.ts",
+    "third_party/certimate/ui/src/repository/workflowRun.ts"
+  ],
+  "certimate_api_sources": [
+    "third_party/certimate/internal/rest/handlers/certificates.go",
+    "third_party/certimate/internal/rest/handlers/notifications.go",
+    "third_party/certimate/internal/rest/handlers/statistics.go",
+    "third_party/certimate/internal/rest/handlers/workflows.go"
+  ],
+  "api_declaration_note": "Literal source fragments; parent groups and middleware determine effective routes. Patched files may include integrated routes. HTTP acceptance is checked separately.",
+  "api_declarations": {
+    "cmd/dashboard/controller/agentcompat_routes.go": [
+      {
+        "method": "POST",
+        "path_fragment": "/agentcompat/fs-write-contract"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/agentcompat/mcp-rate-limit-probe"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/agentcompat/io-stream-state"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/agentcompat/io-stream-state"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/agentcompat/io-stream-quota-probe"
+      }
+    ],
+    "cmd/dashboard/controller/controller.go": [
+      {
+        "method": "GET",
+        "path_fragment": "/swagger/*any"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/mcp"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/mcp"
+      },
+      {
+        "method": "DELETE",
+        "path_fragment": "/mcp"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/mcp/download/:token"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/mcp/upload/:token"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/login"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/oauth2/:provider"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/setting"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/oauth2/callback"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/ws/server"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/server-group"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/service"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/service/server"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/service/:id/history"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/server/:id/service"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/server/:id/metrics"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/refresh-token"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/profile"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/profile"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/oauth2/:provider/unbind"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/api-tokens"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/api-tokens"
+      },
+      {
+        "method": "DELETE",
+        "path_fragment": "/api-tokens/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/terminal"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/ws/terminal/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/file"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/ws/file/:id"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/server"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/server/:id"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/server/config/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/server/config"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/server"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-move/server"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/force-update/server"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/server-group"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/server-group/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/server-group"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/transfer"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/transfer/:id/cancel"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/transfer/:id/retry"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/ws/transfer"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/service/list"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/service"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/service/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/service"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/notification-group"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/notification-group"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/notification-group/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/notification-group"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/notification"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/notification"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/notification/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/notification"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/alert-rule"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/alert-rule"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/alert-rule/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/alert-rule"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/cron"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/cron"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/cron/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/cron/:id/manual"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/cron"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/ddns"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/ddns/providers"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/ddns"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/ddns/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/ddns"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/nat"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/nat"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/nat/:id"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/nat"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/user"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/user"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/user"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/waf"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/batch-delete/waf"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/online-user"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/online-user/batch-block"
+      },
+      {
+        "method": "PATCH",
+        "path_fragment": "/setting"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/maintenance"
+      }
+    ],
+    "cmd/dashboard/controller/mcp_transfer.go": [
+      {
+        "method": "GET",
+        "path_fragment": "X-Forwarded-Proto"
+      }
+    ],
+    "cmd/dashboard/controller/oauth2.go": [
+      {
+        "method": "GET",
+        "path_fragment": "X-Forwarded-Proto"
+      }
+    ],
+    "third_party/certimate/internal/rest/handlers/certificates.go": [
+      {
+        "method": "POST",
+        "path_fragment": "/{certificateId}/download"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/{certificateId}/revoke"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/{certificateId}/archive"
+      }
+    ],
+    "third_party/certimate/internal/rest/handlers/notifications.go": [
+      {
+        "method": "POST",
+        "path_fragment": "/test"
+      }
+    ],
+    "third_party/certimate/internal/rest/handlers/statistics.go": [
+      {
+        "method": "GET",
+        "path_fragment": "/statistics"
+      },
+      {
+        "method": "GET",
+        "path_fragment": "/statistics/get"
+      }
+    ],
+    "third_party/certimate/internal/rest/handlers/workflows.go": [
+      {
+        "method": "GET",
+        "path_fragment": "/stats"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/{workflowId}/runs"
+      },
+      {
+        "method": "POST",
+        "path_fragment": "/{workflowId}/runs/{runId}/cancel"
+      }
+    ]
+  },
+  "workflow_nodes": {
+    "source": "third_party/certimate/ui/src/domain/workflow.ts",
+    "types": {
+      "START": "start",
+      "END": "end",
+      "DELAY": "delay",
+      "CONDITION": "condition",
+      "BRANCHBLOCK": "branchBlock",
+      "TRYCATCH": "tryCatch",
+      "TRYBLOCK": "tryBlock",
+      "CATCHBLOCK": "catchBlock",
+      "BIZ_APPLY": "bizApply",
+      "BIZ_UPLOAD": "bizUpload",
+      "BIZ_MONITOR": "bizMonitor",
+      "BIZ_DEPLOY": "bizDeploy",
+      "BIZ_NOTIFY": "bizNotify"
+    },
+    "configuration_fields": {
+      "WorkflowNodeConfigForStart": [
+        "trigger",
+        "triggerCron"
+      ],
+      "WorkflowNodeConfigForDelay": [
+        "wait"
+      ],
+      "WorkflowNodeConfigForBranchBlock": [
+        "expression"
+      ],
+      "WorkflowNodeConfigForBizApply": [
+        "acmeProfile",
+        "caProvider",
+        "caProviderAccessId",
+        "caProviderConfig",
+        "challengeType",
+        "contactEmail",
+        "disableARI",
+        "disableFollowCNAME",
+        "dnsPropagationTimeout",
+        "dnsPropagationWait",
+        "dnsTTL",
+        "domains",
+        "httpDelayWait",
+        "identifier",
+        "ipaddrs",
+        "keyAlgorithm",
+        "keyContent",
+        "keySource",
+        "nameservers",
+        "provider",
+        "providerAccessId",
+        "providerConfig",
+        "skipBeforeExpiryDays",
+        "validityLifetime"
+      ],
+      "WorkflowNodeConfigForBizUpload": [
+        "certificate",
+        "privateKey",
+        "source"
+      ],
+      "WorkflowNodeConfigForBizMonitor": [
+        "domain",
+        "host",
+        "port",
+        "requestPath"
+      ],
+      "WorkflowNodeConfigForBizDeploy": [
+        "certificateOutputNodeId",
+        "provider",
+        "providerAccessId",
+        "providerConfig",
+        "skipOnLastSucceeded"
+      ],
+      "WorkflowNodeConfigForBizNotify": [
+        "message",
+        "provider",
+        "providerAccessId",
+        "providerConfig",
+        "skipOnAllPrevSkipped",
+        "subject"
+      ]
+    },
+    "executors": [
+      "third_party/certimate/internal/workflow/engine/executor.go",
+      "third_party/certimate/internal/workflow/engine/executor_bizapply.go",
+      "third_party/certimate/internal/workflow/engine/executor_bizdeploy.go",
+      "third_party/certimate/internal/workflow/engine/executor_bizmonitor.go",
+      "third_party/certimate/internal/workflow/engine/executor_biznotify.go",
+      "third_party/certimate/internal/workflow/engine/executor_bizupload.go",
+      "third_party/certimate/internal/workflow/engine/executor_condition.go",
+      "third_party/certimate/internal/workflow/engine/executor_delay.go",
+      "third_party/certimate/internal/workflow/engine/executor_end.go",
+      "third_party/certimate/internal/workflow/engine/executor_start.go",
+      "third_party/certimate/internal/workflow/engine/executor_trycatch.go"
+    ]
+  },
+  "provider_identifiers": {
+    "ACMEDns01ProviderType": [
+      "35cn",
+      "51dnscom",
+      "acmedns",
+      "acmehttpreq",
+      "akamai",
+      "akamai-edgedns",
+      "aliyun",
+      "aliyun-dns",
+      "aliyun-esa",
+      "arvancloud",
+      "aws",
+      "aws-lightsail",
+      "aws-route53",
+      "azure",
+      "azure-dns",
+      "baiducloud",
+      "baiducloud-dns",
+      "beget",
+      "bookmyname",
+      "bunny",
+      "byteplus",
+      "byteplus-dns",
+      "cloudflare",
+      "cloudns",
+      "cmcccloud",
+      "cmcccloud-dns",
+      "conohavps",
+      "constellix",
+      "cpanel",
+      "ctcccloud",
+      "ctcccloud-smartdns",
+      "desec",
+      "digitalocean",
+      "dnsexit",
+      "dnsla",
+      "dnsmadeeasy",
+      "duckdns",
+      "dynadot",
+      "dynu",
+      "dynv6",
+      "gandinet",
+      "gcore",
+      "gname",
+      "godaddy",
+      "googlecloud",
+      "googlecloud-dns",
+      "hetzner",
+      "hostingde",
+      "hostinger",
+      "huaweicloud",
+      "huaweicloud-dns",
+      "infomaniak",
+      "ionos",
+      "jdcloud",
+      "jdcloud-dns",
+      "linode",
+      "namecheap",
+      "namedotcom",
+      "namesilo",
+      "netcup",
+      "netlify",
+      "ns1",
+      "oraclecloud",
+      "oraclecloud-dns",
+      "ovhcloud",
+      "porkbun",
+      "powerdns",
+      "qingcloud",
+      "qingcloud-dns",
+      "rainyun",
+      "regru",
+      "rfc2136",
+      "rucenter",
+      "simplycom",
+      "spaceship",
+      "technitiumdns",
+      "tencentcloud",
+      "tencentcloud-dns",
+      "tencentcloud-eo",
+      "todaynic",
+      "ucloud",
+      "ucloud-udnr",
+      "vercel",
+      "volcengine",
+      "volcengine-dns",
+      "vultr",
+      "westcn",
+      "xinnet",
+      "yandexcloud",
+      "yandexcloud-dns"
+    ],
+    "ACMEHttp01ProviderType": [
+      "ftp",
+      "local",
+      "s3",
+      "ssh"
+    ],
+    "AccessProviderType": [
+      "1panel",
+      "35cn",
+      "51dnscom",
+      "acmeca",
+      "acmedns",
+      "acmehttpreq",
+      "actalisssl",
+      "akamai",
+      "aliyun",
+      "apisix",
+      "arvancloud",
+      "asiaispcdn",
+      "aws",
+      "axisnow",
+      "azure",
+      "baiducloud",
+      "baishan",
+      "baotapanel",
+      "baotapanelgo",
+      "baotawaf",
+      "beget",
+      "bookmyname",
+      "bunny",
+      "byteplus",
+      "cachefly",
+      "cdnfly",
+      "cloudflare",
+      "cloudns",
+      "cmcccloud",
+      "conohavps",
+      "constellix",
+      "cpanel",
+      "ctcccloud",
+      "cucccloud",
+      "desec",
+      "digicert",
+      "digitalocean",
+      "dingtalkbot",
+      "discordbot",
+      "dnsexit",
+      "dnsla",
+      "dnsmadeeasy",
+      "dogecloud",
+      "dokploy",
+      "duckdns",
+      "dynadot",
+      "dynu",
+      "dynv6",
+      "email",
+      "fastly",
+      "flexcdn",
+      "flyio",
+      "ftp",
+      "gandinet",
+      "gcore",
+      "globalsignatlas",
+      "gname",
+      "godaddy",
+      "goedge",
+      "googlecloud",
+      "googletrustservices",
+      "hetzner",
+      "hostingde",
+      "hostinger",
+      "huaweicloud",
+      "huaweiibmc",
+      "infomaniak",
+      "ionos",
+      "jdcloud",
+      "k8s",
+      "kong",
+      "ksyun",
+      "larkbot",
+      "lecdn",
+      "letsencrypt",
+      "letsencryptstaging",
+      "linode",
+      "litessl",
+      "local",
+      "matrix",
+      "mattermost",
+      "mohua",
+      "namecheap",
+      "namedotcom",
+      "namesilo",
+      "netcup",
+      "netlify",
+      "nginxproxymanager",
+      "ns1",
+      "oraclecloud",
+      "ovhcloud",
+      "porkbun",
+      "powerdns",
+      "proxmoxbs",
+      "proxmoxve",
+      "qingcloud",
+      "qiniu",
+      "rainyun",
+      "ratpanel",
+      "regru",
+      "rfc2136",
+      "rucenter",
+      "s3",
+      "safeline",
+      "samwaf",
+      "sectigo",
+      "simplycom",
+      "slackbot",
+      "spaceship",
+      "ssh",
+      "sslcom",
+      "synologydsm",
+      "technitiumdns",
+      "telegrambot",
+      "tencentcloud",
+      "todaynic",
+      "ucloud",
+      "unicloud",
+      "upyun",
+      "vercel",
+      "volcengine",
+      "vultr",
+      "wangsu",
+      "webhook",
+      "wecombot",
+      "westcn",
+      "xinnet",
+      "yandexcloud",
+      "zenlayer",
+      "zerossl"
+    ],
+    "CAProviderType": [
+      "acmeca",
+      "actalisssl",
+      "digicert",
+      "globalsignatlas",
+      "googletrustservices",
+      "letsencrypt",
+      "letsencryptstaging",
+      "litessl",
+      "sectigo",
+      "sslcom",
+      "zerossl"
+    ],
+    "DeploymentProviderType": [
+      "1panel",
+      "1panel-console",
+      "aliyun-alb",
+      "aliyun-apigw",
+      "aliyun-cas",
+      "aliyun-casdeploy",
+      "aliyun-cdn",
+      "aliyun-clb",
+      "aliyun-dcdn",
+      "aliyun-ddospro",
+      "aliyun-esa",
+      "aliyun-esasaas",
+      "aliyun-fc",
+      "aliyun-ga",
+      "aliyun-live",
+      "aliyun-nlb",
+      "aliyun-oss",
+      "aliyun-vod",
+      "aliyun-waf",
+      "apisix",
+      "asiaispcdn",
+      "aws-acm",
+      "aws-alb",
+      "aws-amplify",
+      "aws-apigateway",
+      "aws-clb",
+      "aws-cloudfront",
+      "aws-iam",
+      "aws-nlb",
+      "axisnow",
+      "azure-keyvault",
+      "baiducloud-appblb",
+      "baiducloud-blb",
+      "baiducloud-cdn",
+      "baiducloud-cert",
+      "baishan-cdn",
+      "baotapanel",
+      "baotapanel-console",
+      "baotapanelgo",
+      "baotapanelgo-console",
+      "baotawaf",
+      "baotawaf-console",
+      "bunny-cdn",
+      "byteplus-alb",
+      "byteplus-apig",
+      "byteplus-cdn",
+      "byteplus-certcenter",
+      "byteplus-clb",
+      "byteplus-medialive",
+      "byteplus-tos",
+      "cachefly",
+      "cdnfly",
+      "cloudflare-ssl",
+      "cmcccloud-cdn",
+      "cmcccloud-vlb",
+      "cpanel",
+      "ctcccloud-ao",
+      "ctcccloud-cdn",
+      "ctcccloud-cms",
+      "ctcccloud-elb",
+      "ctcccloud-faas",
+      "ctcccloud-icdn",
+      "ctcccloud-lvdn",
+      "digitalocean-certificate",
+      "dogecloud-cdn",
+      "dokploy",
+      "flexcdn",
+      "flyio",
+      "ftp",
+      "gcore-cdn",
+      "goedge",
+      "googlecloud-certificatemanager",
+      "huaweicloud-aad",
+      "huaweicloud-apig",
+      "huaweicloud-cdn",
+      "huaweicloud-elb",
+      "huaweicloud-live",
+      "huaweicloud-obs",
+      "huaweicloud-scm",
+      "huaweicloud-vod",
+      "huaweicloud-waf",
+      "huaweiibmc",
+      "jdcloud-alb",
+      "jdcloud-cdn",
+      "jdcloud-live",
+      "jdcloud-ssl",
+      "jdcloud-vod",
+      "jdcloud-waf",
+      "k8s-secret",
+      "kong",
+      "ksyun-cdn",
+      "ksyun-kcm",
+      "ksyun-slb",
+      "lecdn",
+      "linode-los",
+      "local",
+      "mohua-mvh",
+      "netlify",
+      "nginxproxymanager",
+      "oraclecloud-certificatesmgmt",
+      "proxmoxbs",
+      "proxmoxve",
+      "qingcloud-lb",
+      "qiniu-cdn",
+      "qiniu-kodo",
+      "qiniu-pili",
+      "rainyun-rcdn",
+      "rainyun-sslcenter",
+      "ratpanel",
+      "ratpanel-console",
+      "s3",
+      "safeline",
+      "samwaf",
+      "samwaf-console",
+      "ssh",
+      "synologydsm",
+      "tencentcloud-cdn",
+      "tencentcloud-clb",
+      "tencentcloud-cos",
+      "tencentcloud-css",
+      "tencentcloud-ddospro",
+      "tencentcloud-ecdn",
+      "tencentcloud-eo",
+      "tencentcloud-eomakers",
+      "tencentcloud-ga2",
+      "tencentcloud-gaap",
+      "tencentcloud-scf",
+      "tencentcloud-ssl",
+      "tencentcloud-ssldeploy",
+      "tencentcloud-sslupdate",
+      "tencentcloud-tse",
+      "tencentcloud-vod",
+      "tencentcloud-waf",
+      "ucloud-pathx",
+      "ucloud-ualb",
+      "ucloud-ucdn",
+      "ucloud-uclb",
+      "ucloud-uewaf",
+      "ucloud-us3",
+      "unicloud-webhost",
+      "upyun-cdn",
+      "upyun-file",
+      "vercel",
+      "volcengine-alb",
+      "volcengine-apig",
+      "volcengine-cdn",
+      "volcengine-certcenter",
+      "volcengine-clb",
+      "volcengine-dcdn",
+      "volcengine-imagex",
+      "volcengine-live",
+      "volcengine-tos",
+      "volcengine-vod",
+      "volcengine-waf",
+      "wangsu-cdn",
+      "wangsu-cdnpro",
+      "wangsu-certificate",
+      "webhook",
+      "yandexcloud-certificatemanager",
+      "zenlayer-cdn",
+      "zenlayer-ga"
+    ],
+    "NotificationProviderType": [
+      "dingtalkbot",
+      "discordbot",
+      "email",
+      "larkbot",
+      "matrix",
+      "mattermost",
+      "slackbot",
+      "telegrambot",
+      "webhook",
+      "wecombot"
+    ]
+  },
+  "provider_sources": {
+    "deployer": {
+      "1panel": [
+        "third_party/certimate/pkg/core/deployer/providers/1panel/1panel.go",
+        "third_party/certimate/pkg/core/deployer/providers/1panel/consts.go"
+      ],
+      "1panel-console": [
+        "third_party/certimate/pkg/core/deployer/providers/1panel-console/1panel_console.go"
+      ],
+      "aliyun-alb": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-alb/aliyun_alb.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-alb/consts.go"
+      ],
+      "aliyun-apigw": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-apigw/aliyun_apigw.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-apigw/consts.go"
+      ],
+      "aliyun-cas": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-cas/aliyun_cas.go"
+      ],
+      "aliyun-cas-deploy": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-cas-deploy/aliyun_cas_deploy.go"
+      ],
+      "aliyun-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-cdn/aliyun_cdn.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-cdn/consts.go"
+      ],
+      "aliyun-clb": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-clb/aliyun_clb.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-clb/consts.go"
+      ],
+      "aliyun-dcdn": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-dcdn/aliyun_dcdn.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-dcdn/consts.go"
+      ],
+      "aliyun-ddospro": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-ddospro/aliyun_ddospro.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-ddospro/consts.go"
+      ],
+      "aliyun-esa": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-esa/aliyun_esa.go"
+      ],
+      "aliyun-esa-saas": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-esa-saas/aliyun_esasaas.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-esa-saas/consts.go"
+      ],
+      "aliyun-fc": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-fc/aliyun_fc.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-fc/consts.go"
+      ],
+      "aliyun-ga": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-ga/aliyun_ga.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-ga/consts.go"
+      ],
+      "aliyun-live": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-live/aliyun_live.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-live/consts.go"
+      ],
+      "aliyun-nlb": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-nlb/aliyun_nlb.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-nlb/consts.go"
+      ],
+      "aliyun-oss": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-oss/aliyun_oss.go"
+      ],
+      "aliyun-vod": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-vod/aliyun_vod.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-vod/consts.go"
+      ],
+      "aliyun-waf": [
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-waf/aliyun_waf.go",
+        "third_party/certimate/pkg/core/deployer/providers/aliyun-waf/consts.go"
+      ],
+      "apisix": [
+        "third_party/certimate/pkg/core/deployer/providers/apisix/apisix.go",
+        "third_party/certimate/pkg/core/deployer/providers/apisix/consts.go"
+      ],
+      "asiaispcdn": [
+        "third_party/certimate/pkg/core/deployer/providers/asiaispcdn/asiaispcdn.go",
+        "third_party/certimate/pkg/core/deployer/providers/asiaispcdn/consts.go"
+      ],
+      "aws-acm": [
+        "third_party/certimate/pkg/core/deployer/providers/aws-acm/aws_acm.go",
+        "third_party/certimate/pkg/core/deployer/providers/aws-acm/consts.go"
+      ],
+      "aws-alb": [
+        "third_party/certimate/pkg/core/deployer/providers/aws-alb/aws_alb.go",
+        "third_party/certimate/pkg/core/deployer/providers/aws-alb/consts.go"
+      ],
+      "aws-amplify": [
+        "third_party/certimate/pkg/core/deployer/providers/aws-amplify/aws_amplify.go",
+        "third_party/certimate/pkg/core/deployer/providers/aws-amplify/consts.go"
+      ],
+      "aws-apigateway": [
+        "third_party/certimate/pkg/core/deployer/providers/aws-apigateway/aws_apigateway.go",
+        "third_party/certimate/pkg/core/deployer/providers/aws-apigateway/consts.go"
+      ],
+      "aws-clb": [
+        "third_party/certimate/pkg/core/deployer/providers/aws-clb/aws_clb.go",
+        "third_party/certimate/pkg/core/deployer/providers/aws-clb/consts.go"
+      ],
+      "aws-cloudfront": [
+        "third_party/certimate/pkg/core/deployer/providers/aws-cloudfront/aws_cloudfront.go",
+        "third_party/certimate/pkg/core/deployer/providers/aws-cloudfront/consts.go"
+      ],
+      "aws-iam": [
+        "third_party/certimate/pkg/core/deployer/providers/aws-iam/aws_iam.go",
+        "third_party/certimate/pkg/core/deployer/providers/aws-iam/consts.go"
+      ],
+      "aws-nlb": [
+        "third_party/certimate/pkg/core/deployer/providers/aws-nlb/aws_nlb.go",
+        "third_party/certimate/pkg/core/deployer/providers/aws-nlb/consts.go"
+      ],
+      "axisnow": [
+        "third_party/certimate/pkg/core/deployer/providers/axisnow/axisnow.go"
+      ],
+      "azure-keyvault": [
+        "third_party/certimate/pkg/core/deployer/providers/azure-keyvault/azure_keyvault.go"
+      ],
+      "baiducloud-appblb": [
+        "third_party/certimate/pkg/core/deployer/providers/baiducloud-appblb/baiducloud_appblb.go",
+        "third_party/certimate/pkg/core/deployer/providers/baiducloud-appblb/consts.go"
+      ],
+      "baiducloud-blb": [
+        "third_party/certimate/pkg/core/deployer/providers/baiducloud-blb/baiducloud_blb.go",
+        "third_party/certimate/pkg/core/deployer/providers/baiducloud-blb/consts.go"
+      ],
+      "baiducloud-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/baiducloud-cdn/baiducloud_cdn.go",
+        "third_party/certimate/pkg/core/deployer/providers/baiducloud-cdn/consts.go"
+      ],
+      "baiducloud-cert": [
+        "third_party/certimate/pkg/core/deployer/providers/baiducloud-cert/baiducloud_cert.go"
+      ],
+      "baishan-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/baishan-cdn/baishan_cdn.go",
+        "third_party/certimate/pkg/core/deployer/providers/baishan-cdn/consts.go"
+      ],
+      "baotapanel": [
+        "third_party/certimate/pkg/core/deployer/providers/baotapanel/baotapanel.go"
+      ],
+      "baotapanel-console": [
+        "third_party/certimate/pkg/core/deployer/providers/baotapanel-console/baotapanel_console.go"
+      ],
+      "baotapanelgo": [
+        "third_party/certimate/pkg/core/deployer/providers/baotapanelgo/baotapanelgo.go"
+      ],
+      "baotapanelgo-console": [
+        "third_party/certimate/pkg/core/deployer/providers/baotapanelgo-console/baotapanelgo_console.go"
+      ],
+      "baotawaf": [
+        "third_party/certimate/pkg/core/deployer/providers/baotawaf/baotawaf.go"
+      ],
+      "baotawaf-console": [
+        "third_party/certimate/pkg/core/deployer/providers/baotawaf-console/baotawaf_console.go"
+      ],
+      "bunny-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/bunny-cdn/bunny_cdn.go"
+      ],
+      "byteplus-alb": [
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-alb/byteplus_alb.go",
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-alb/consts.go"
+      ],
+      "byteplus-apig": [
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-apig/byteplus_apig.go",
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-apig/consts.go"
+      ],
+      "byteplus-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-cdn/byteplus_cdn.go",
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-cdn/consts.go"
+      ],
+      "byteplus-certcenter": [
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-certcenter/byteplus_certcenter.go"
+      ],
+      "byteplus-clb": [
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-clb/byteplus_clb.go",
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-clb/consts.go"
+      ],
+      "byteplus-medialive": [
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-medialive/byteplus_medialive.go",
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-medialive/consts.go"
+      ],
+      "byteplus-tos": [
+        "third_party/certimate/pkg/core/deployer/providers/byteplus-tos/byteplus_tos.go"
+      ],
+      "cachefly": [
+        "third_party/certimate/pkg/core/deployer/providers/cachefly/cachefly.go"
+      ],
+      "cdnfly": [
+        "third_party/certimate/pkg/core/deployer/providers/cdnfly/cdnfly.go",
+        "third_party/certimate/pkg/core/deployer/providers/cdnfly/consts.go"
+      ],
+      "cloudflare-ssl": [
+        "third_party/certimate/pkg/core/deployer/providers/cloudflare-ssl/cloudflare_ssl.go",
+        "third_party/certimate/pkg/core/deployer/providers/cloudflare-ssl/deploy_env.go"
+      ],
+      "cmcccloud-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/cmcccloud-cdn/cmcccloud_cdn.go",
+        "third_party/certimate/pkg/core/deployer/providers/cmcccloud-cdn/consts.go"
+      ],
+      "cmcccloud-vlb": [
+        "third_party/certimate/pkg/core/deployer/providers/cmcccloud-vlb/cmcccloud_vlb.go",
+        "third_party/certimate/pkg/core/deployer/providers/cmcccloud-vlb/consts.go"
+      ],
+      "cpanel": [
+        "third_party/certimate/pkg/core/deployer/providers/cpanel/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/cpanel/cpanel.go"
+      ],
+      "ctcccloud-ao": [
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-ao/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-ao/ctcccloud_ao.go"
+      ],
+      "ctcccloud-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-cdn/ctcccloud_cdn.go"
+      ],
+      "ctcccloud-cms": [
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-cms/ctcccloud_cms.go"
+      ],
+      "ctcccloud-elb": [
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-elb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-elb/ctcccloud_elb.go"
+      ],
+      "ctcccloud-faas": [
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-faas/ctcccloud_faas.go"
+      ],
+      "ctcccloud-icdn": [
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-icdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-icdn/ctcccloud_icdn.go"
+      ],
+      "ctcccloud-lvdn": [
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-lvdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ctcccloud-lvdn/ctcccloud_lvdn.go"
+      ],
+      "digitalocean-certificate": [
+        "third_party/certimate/pkg/core/deployer/providers/digitalocean-certificate/digitalocean_certificate.go"
+      ],
+      "dogecloud-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/dogecloud-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/dogecloud-cdn/dogecloud_cdn.go"
+      ],
+      "dokploy": [
+        "third_party/certimate/pkg/core/deployer/providers/dokploy/dokploy.go"
+      ],
+      "flexcdn": [
+        "third_party/certimate/pkg/core/deployer/providers/flexcdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/flexcdn/flexcdn.go"
+      ],
+      "flyio": [
+        "third_party/certimate/pkg/core/deployer/providers/flyio/flyio.go"
+      ],
+      "ftp": [
+        "third_party/certimate/pkg/core/deployer/providers/ftp/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ftp/ftp.go"
+      ],
+      "gcore-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/gcore-cdn/gcore_cdn.go"
+      ],
+      "goedge": [
+        "third_party/certimate/pkg/core/deployer/providers/goedge/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/goedge/goedge.go"
+      ],
+      "googlecloud-certificatemanager": [
+        "third_party/certimate/pkg/core/deployer/providers/googlecloud-certificatemanager/googlecloud_certificatemanager.go"
+      ],
+      "huaweicloud-aad": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-aad/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-aad/huaweicloud_aad.go"
+      ],
+      "huaweicloud-apig": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-apig/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-apig/huaweicloud_apig.go"
+      ],
+      "huaweicloud-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-cdn/huaweicloud_cdn.go"
+      ],
+      "huaweicloud-elb": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-elb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-elb/huaweicloud_elb.go"
+      ],
+      "huaweicloud-live": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-live/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-live/huaweicloud_live.go"
+      ],
+      "huaweicloud-obs": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-obs/huaweicloud_obs.go"
+      ],
+      "huaweicloud-scm": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-scm/huaweicloud_scm.go"
+      ],
+      "huaweicloud-vod": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-vod/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-vod/huaweicloud_vod.go"
+      ],
+      "huaweicloud-waf": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-waf/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/huaweicloud-waf/huaweicloud_waf.go"
+      ],
+      "huaweiibmc": [
+        "third_party/certimate/pkg/core/deployer/providers/huaweiibmc/huaweiibmc.go"
+      ],
+      "jdcloud-alb": [
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-alb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-alb/jdcloud_alb.go"
+      ],
+      "jdcloud-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-cdn/jdcloud_cdn.go"
+      ],
+      "jdcloud-live": [
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-live/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-live/jdcloud_live.go"
+      ],
+      "jdcloud-ssl": [
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-ssl/jdcloud_ssl.go"
+      ],
+      "jdcloud-vod": [
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-vod/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-vod/jdcloud_vod.go"
+      ],
+      "jdcloud-waf": [
+        "third_party/certimate/pkg/core/deployer/providers/jdcloud-waf/jdcloud_waf.go"
+      ],
+      "k8s-secret": [
+        "third_party/certimate/pkg/core/deployer/providers/k8s-secret/k8s_secret.go"
+      ],
+      "kong": [
+        "third_party/certimate/pkg/core/deployer/providers/kong/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/kong/kong.go"
+      ],
+      "ksyun-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/ksyun-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ksyun-cdn/ksyun_cdn.go"
+      ],
+      "ksyun-kcm": [
+        "third_party/certimate/pkg/core/deployer/providers/ksyun-kcm/ksyun_kcm.go"
+      ],
+      "ksyun-slb": [
+        "third_party/certimate/pkg/core/deployer/providers/ksyun-slb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ksyun-slb/ksyun_slb.go"
+      ],
+      "lecdn": [
+        "third_party/certimate/pkg/core/deployer/providers/lecdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/lecdn/lecdn.go"
+      ],
+      "linode-los": [
+        "third_party/certimate/pkg/core/deployer/providers/linode-los/linode_los.go"
+      ],
+      "local": [
+        "third_party/certimate/pkg/core/deployer/providers/local/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/local/local.go"
+      ],
+      "mohua-mvh": [
+        "third_party/certimate/pkg/core/deployer/providers/mohua-mvh/mohua_mvh.go"
+      ],
+      "netlify": [
+        "third_party/certimate/pkg/core/deployer/providers/netlify/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/netlify/netlify.go"
+      ],
+      "nginxproxymanager": [
+        "third_party/certimate/pkg/core/deployer/providers/nginxproxymanager/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/nginxproxymanager/nginxproxymanager.go"
+      ],
+      "oraclecloud-certificatesmgmt": [
+        "third_party/certimate/pkg/core/deployer/providers/oraclecloud-certificatesmgmt/oraclecloud_certificatesmgmt.go"
+      ],
+      "proxmoxbs": [
+        "third_party/certimate/pkg/core/deployer/providers/proxmoxbs/proxmoxbs.go"
+      ],
+      "proxmoxve": [
+        "third_party/certimate/pkg/core/deployer/providers/proxmoxve/proxmoxve.go"
+      ],
+      "qingcloud-lb": [
+        "third_party/certimate/pkg/core/deployer/providers/qingcloud-lb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/qingcloud-lb/qingcloud_lb.go"
+      ],
+      "qiniu-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/qiniu-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/qiniu-cdn/qiniu_cdn.go"
+      ],
+      "qiniu-kodo": [
+        "third_party/certimate/pkg/core/deployer/providers/qiniu-kodo/qiniu_kodo.go"
+      ],
+      "qiniu-pili": [
+        "third_party/certimate/pkg/core/deployer/providers/qiniu-pili/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/qiniu-pili/qiniu_pili.go"
+      ],
+      "rainyun-rcdn": [
+        "third_party/certimate/pkg/core/deployer/providers/rainyun-rcdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/rainyun-rcdn/rainyun_rcdn.go"
+      ],
+      "rainyun-sslcenter": [
+        "third_party/certimate/pkg/core/deployer/providers/rainyun-sslcenter/rainyun_sslcenter.go"
+      ],
+      "ratpanel": [
+        "third_party/certimate/pkg/core/deployer/providers/ratpanel/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ratpanel/ratpanel.go"
+      ],
+      "ratpanel-console": [
+        "third_party/certimate/pkg/core/deployer/providers/ratpanel-console/ratpanel_console.go"
+      ],
+      "s3": [
+        "third_party/certimate/pkg/core/deployer/providers/s3/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/s3/s3.go"
+      ],
+      "safeline": [
+        "third_party/certimate/pkg/core/deployer/providers/safeline/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/safeline/safeline.go"
+      ],
+      "samwaf": [
+        "third_party/certimate/pkg/core/deployer/providers/samwaf/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/samwaf/samwaf.go"
+      ],
+      "samwaf-console": [
+        "third_party/certimate/pkg/core/deployer/providers/samwaf-console/samwaf_console.go"
+      ],
+      "ssh": [
+        "third_party/certimate/pkg/core/deployer/providers/ssh/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ssh/ssh.go"
+      ],
+      "synologydsm": [
+        "third_party/certimate/pkg/core/deployer/providers/synologydsm/synologydsm.go"
+      ],
+      "tencentcloud-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-cdn/tencentcloud_cdn.go"
+      ],
+      "tencentcloud-clb": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-clb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-clb/tencentcloud_clb.go"
+      ],
+      "tencentcloud-cos": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-cos/tencentcloud_cos.go"
+      ],
+      "tencentcloud-css": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-css/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-css/tencentcloud_css.go"
+      ],
+      "tencentcloud-ddospro": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ddospro/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ddospro/tencentcloud_ddospro.go"
+      ],
+      "tencentcloud-ecdn": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ecdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ecdn/tencentcloud_ecdn.go"
+      ],
+      "tencentcloud-eo": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-eo/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-eo/tencentcloud_eo.go"
+      ],
+      "tencentcloud-eomakers": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-eomakers/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-eomakers/tencentcloud_eomakers.go"
+      ],
+      "tencentcloud-ga2": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ga2/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ga2/tencentcloud_ga2.go"
+      ],
+      "tencentcloud-gaap": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-gaap/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-gaap/tencentcloud_gaap.go"
+      ],
+      "tencentcloud-scf": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-scf/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-scf/tencentcloud_scf.go"
+      ],
+      "tencentcloud-ssl": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ssl/tencentcloud_ssl.go"
+      ],
+      "tencentcloud-ssl-deploy": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ssl-deploy/tencentcloud_ssl_deploy.go"
+      ],
+      "tencentcloud-ssl-update": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ssl-update/tencentcloud_ssl_update.go"
+      ],
+      "tencentcloud-tse": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-tse/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-tse/tencentcloud_tse.go"
+      ],
+      "tencentcloud-vod": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-vod/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-vod/tencentcloud_vod.go"
+      ],
+      "tencentcloud-waf": [
+        "third_party/certimate/pkg/core/deployer/providers/tencentcloud-waf/tencentcloud_waf.go"
+      ],
+      "ucloud-ualb": [
+        "third_party/certimate/pkg/core/deployer/providers/ucloud-ualb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ucloud-ualb/ucloud_ualb.go"
+      ],
+      "ucloud-ucdn": [
+        "third_party/certimate/pkg/core/deployer/providers/ucloud-ucdn/ucloud_ucdn.go"
+      ],
+      "ucloud-uclb": [
+        "third_party/certimate/pkg/core/deployer/providers/ucloud-uclb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/ucloud-uclb/ucloud_uclb.go"
+      ],
+      "ucloud-uewaf": [
+        "third_party/certimate/pkg/core/deployer/providers/ucloud-uewaf/ucloud_uewaf.go"
+      ],
+      "ucloud-upathx": [
+        "third_party/certimate/pkg/core/deployer/providers/ucloud-upathx/ucloud_upathx.go"
+      ],
+      "ucloud-us3": [
+        "third_party/certimate/pkg/core/deployer/providers/ucloud-us3/ucloud_us3.go"
+      ],
+      "unicloud-webhost": [
+        "third_party/certimate/pkg/core/deployer/providers/unicloud-webhost/unicloud_webhost.go"
+      ],
+      "upyun-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/upyun-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/upyun-cdn/upyun_cdn.go"
+      ],
+      "upyun-file": [
+        "third_party/certimate/pkg/core/deployer/providers/upyun-file/upyun_file.go"
+      ],
+      "vercel": [
+        "third_party/certimate/pkg/core/deployer/providers/vercel/vercel.go"
+      ],
+      "volcengine-alb": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-alb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-alb/volcengine_alb.go"
+      ],
+      "volcengine-apig": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-apig/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-apig/volcengine_apig.go"
+      ],
+      "volcengine-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-cdn/volcengine_cdn.go"
+      ],
+      "volcengine-certcenter": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-certcenter/volcengine_certcenter.go"
+      ],
+      "volcengine-clb": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-clb/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-clb/volcengine_clb.go"
+      ],
+      "volcengine-dcdn": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-dcdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-dcdn/volcengine_dcdn.go"
+      ],
+      "volcengine-imagex": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-imagex/volcengine_imagex.go"
+      ],
+      "volcengine-live": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-live/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-live/volcengine_live.go"
+      ],
+      "volcengine-tos": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-tos/volcengine_tos.go"
+      ],
+      "volcengine-vod": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-vod/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-vod/volcengine_vod.go"
+      ],
+      "volcengine-waf": [
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-waf/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/volcengine-waf/volcengine_waf.go"
+      ],
+      "wangsu-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/wangsu-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/wangsu-cdn/wangsu_cdn.go"
+      ],
+      "wangsu-cdnpro": [
+        "third_party/certimate/pkg/core/deployer/providers/wangsu-cdnpro/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/wangsu-cdnpro/wangsu_cdnpro.go"
+      ],
+      "wangsu-certificate": [
+        "third_party/certimate/pkg/core/deployer/providers/wangsu-certificate/wangsu_certificate.go"
+      ],
+      "webhook": [
+        "third_party/certimate/pkg/core/deployer/providers/webhook/webhook.go"
+      ],
+      "yandexcloud-certificatemanager": [
+        "third_party/certimate/pkg/core/deployer/providers/yandexcloud-certificatemanager/yandexcloud_certificatemanager.go"
+      ],
+      "zenlayer-cdn": [
+        "third_party/certimate/pkg/core/deployer/providers/zenlayer-cdn/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/zenlayer-cdn/zenlayer_cdn.go"
+      ],
+      "zenlayer-ga": [
+        "third_party/certimate/pkg/core/deployer/providers/zenlayer-ga/consts.go",
+        "third_party/certimate/pkg/core/deployer/providers/zenlayer-ga/zenlayer_ga.go"
+      ]
+    },
+    "notifier": {
+      "dingtalkbot": [
+        "third_party/certimate/pkg/core/notifier/providers/dingtalkbot/dingtalkbot.go"
+      ],
+      "discordbot": [
+        "third_party/certimate/pkg/core/notifier/providers/discordbot/discordbot.go"
+      ],
+      "email": [
+        "third_party/certimate/pkg/core/notifier/providers/email/consts.go",
+        "third_party/certimate/pkg/core/notifier/providers/email/email.go"
+      ],
+      "larkbot": [
+        "third_party/certimate/pkg/core/notifier/providers/larkbot/larkbot.go"
+      ],
+      "matrix": [
+        "third_party/certimate/pkg/core/notifier/providers/matrix/matrix.go"
+      ],
+      "mattermost": [
+        "third_party/certimate/pkg/core/notifier/providers/mattermost/mattermost.go"
+      ],
+      "slackbot": [
+        "third_party/certimate/pkg/core/notifier/providers/slackbot/slackbot.go"
+      ],
+      "telegrambot": [
+        "third_party/certimate/pkg/core/notifier/providers/telegrambot/telegrambot.go"
+      ],
+      "webhook": [
+        "third_party/certimate/pkg/core/notifier/providers/webhook/webhook.go"
+      ],
+      "wecombot": [
+        "third_party/certimate/pkg/core/notifier/providers/wecombot/wecombot.go"
+      ]
+    },
+    "certmgr": {
+      "1panel": [
+        "third_party/certimate/pkg/core/certmgr/providers/1panel/1panel.go"
+      ],
+      "aliyun-cas": [
+        "third_party/certimate/pkg/core/certmgr/providers/aliyun-cas/aliyun_cas.go"
+      ],
+      "aliyun-slb": [
+        "third_party/certimate/pkg/core/certmgr/providers/aliyun-slb/aliyun_slb.go"
+      ],
+      "asiaispcdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/asiaispcdn/asiaispcdn.go"
+      ],
+      "aws-acm": [
+        "third_party/certimate/pkg/core/certmgr/providers/aws-acm/aws_acm.go",
+        "third_party/certimate/pkg/core/certmgr/providers/aws-acm/consts.go"
+      ],
+      "aws-iam": [
+        "third_party/certimate/pkg/core/certmgr/providers/aws-iam/aws_iam.go",
+        "third_party/certimate/pkg/core/certmgr/providers/aws-iam/consts.go"
+      ],
+      "axisnow": [
+        "third_party/certimate/pkg/core/certmgr/providers/axisnow/axisnow.go"
+      ],
+      "azure-keyvault": [
+        "third_party/certimate/pkg/core/certmgr/providers/azure-keyvault/azure_keyvault.go"
+      ],
+      "baiducloud-cert": [
+        "third_party/certimate/pkg/core/certmgr/providers/baiducloud-cert/baiducloud_cert.go"
+      ],
+      "baishan-cdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/baishan-cdn/baishan_cdn.go"
+      ],
+      "byteplus-cdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/byteplus-cdn/byteplus_cdn.go"
+      ],
+      "byteplus-certcenter": [
+        "third_party/certimate/pkg/core/certmgr/providers/byteplus-certcenter/byteplus_certcenter.go"
+      ],
+      "byteplus-medialive": [
+        "third_party/certimate/pkg/core/certmgr/providers/byteplus-medialive/byteplus_medialive.go"
+      ],
+      "cmcccloud-vlb": [
+        "third_party/certimate/pkg/core/certmgr/providers/cmcccloud-vlb/cmcccloud_vlb.go"
+      ],
+      "ctcccloud-ao": [
+        "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-ao/ctcccloud_ao.go"
+      ],
+      "ctcccloud-cdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-cdn/ctcccloud_cdn.go"
+      ],
+      "ctcccloud-cms": [
+        "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-cms/ctcccloud_cms.go"
+      ],
+      "ctcccloud-elb": [
+        "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-elb/ctcccloud_elb.go"
+      ],
+      "ctcccloud-icdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-icdn/ctcccloud_icdn.go"
+      ],
+      "ctcccloud-lvdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-lvdn/ctcccloud_lvdn.go"
+      ],
+      "digitalocean-certificate": [
+        "third_party/certimate/pkg/core/certmgr/providers/digitalocean-certificate/digitalocean_certificate.go"
+      ],
+      "dogecloud": [
+        "third_party/certimate/pkg/core/certmgr/providers/dogecloud/dogecloud.go"
+      ],
+      "dokploy": [
+        "third_party/certimate/pkg/core/certmgr/providers/dokploy/dokploy.go"
+      ],
+      "gcore-cdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/gcore-cdn/gcore_cdn.go"
+      ],
+      "googlecloud-certificatemanager": [
+        "third_party/certimate/pkg/core/certmgr/providers/googlecloud-certificatemanager/googlecloud_certificatemanager.go"
+      ],
+      "huaweicloud-elb": [
+        "third_party/certimate/pkg/core/certmgr/providers/huaweicloud-elb/huaweicloud_elb.go"
+      ],
+      "huaweicloud-scm": [
+        "third_party/certimate/pkg/core/certmgr/providers/huaweicloud-scm/huaweicloud_scm.go"
+      ],
+      "huaweicloud-waf": [
+        "third_party/certimate/pkg/core/certmgr/providers/huaweicloud-waf/huaweicloud_waf.go"
+      ],
+      "jdcloud-ssl": [
+        "third_party/certimate/pkg/core/certmgr/providers/jdcloud-ssl/jdcloud_ssl.go"
+      ],
+      "ksyun-kcm": [
+        "third_party/certimate/pkg/core/certmgr/providers/ksyun-kcm/ksyun_kcm.go"
+      ],
+      "ksyun-slb": [
+        "third_party/certimate/pkg/core/certmgr/providers/ksyun-slb/ksyun_slb.go"
+      ],
+      "nginxproxymanager": [
+        "third_party/certimate/pkg/core/certmgr/providers/nginxproxymanager/consts.go",
+        "third_party/certimate/pkg/core/certmgr/providers/nginxproxymanager/nginxproxymanager.go"
+      ],
+      "oraclecloud-certificatesmgmt": [
+        "third_party/certimate/pkg/core/certmgr/providers/oraclecloud-certificatesmgmt/consts.go",
+        "third_party/certimate/pkg/core/certmgr/providers/oraclecloud-certificatesmgmt/oraclecloud_certificatesmgmt.go"
+      ],
+      "qingcloud-lb": [
+        "third_party/certimate/pkg/core/certmgr/providers/qingcloud-lb/qingcloud_lb.go"
+      ],
+      "qiniu-sslcert": [
+        "third_party/certimate/pkg/core/certmgr/providers/qiniu-sslcert/qiniu_sslcert.go"
+      ],
+      "rainyun-sslcenter": [
+        "third_party/certimate/pkg/core/certmgr/providers/rainyun-sslcenter/rainyun_sslcenter.go"
+      ],
+      "tencentcloud-gaap": [
+        "third_party/certimate/pkg/core/certmgr/providers/tencentcloud-gaap/tencentcloud_gaap.go"
+      ],
+      "tencentcloud-ssl": [
+        "third_party/certimate/pkg/core/certmgr/providers/tencentcloud-ssl/tencentcloud_ssl.go"
+      ],
+      "tencentcloud-tse": [
+        "third_party/certimate/pkg/core/certmgr/providers/tencentcloud-tse/consts.go",
+        "third_party/certimate/pkg/core/certmgr/providers/tencentcloud-tse/tencentcloud_tse.go"
+      ],
+      "ucloud-ulb": [
+        "third_party/certimate/pkg/core/certmgr/providers/ucloud-ulb/ucloud_ulb.go"
+      ],
+      "ucloud-upathx": [
+        "third_party/certimate/pkg/core/certmgr/providers/ucloud-upathx/ucloud_upathx.go"
+      ],
+      "ucloud-ussl": [
+        "third_party/certimate/pkg/core/certmgr/providers/ucloud-ussl/ucloud_ussl.go"
+      ],
+      "upyun-ssl": [
+        "third_party/certimate/pkg/core/certmgr/providers/upyun-ssl/upyun_ssl.go"
+      ],
+      "volcengine-cdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/volcengine-cdn/volcengine_cdn.go"
+      ],
+      "volcengine-certcenter": [
+        "third_party/certimate/pkg/core/certmgr/providers/volcengine-certcenter/volcengine_certcenter.go"
+      ],
+      "volcengine-live": [
+        "third_party/certimate/pkg/core/certmgr/providers/volcengine-live/volcengine_live.go"
+      ],
+      "wangsu-certificate": [
+        "third_party/certimate/pkg/core/certmgr/providers/wangsu-certificate/wangsu_certificate.go"
+      ],
+      "yandexcloud-certificatemanager": [
+        "third_party/certimate/pkg/core/certmgr/providers/yandexcloud-certificatemanager/yandexcloud_certificatemanager.go"
+      ],
+      "zenlayer-cdn": [
+        "third_party/certimate/pkg/core/certmgr/providers/zenlayer-cdn/zenlayer_cdn.go"
+      ],
+      "zenlayer-ga": [
+        "third_party/certimate/pkg/core/certmgr/providers/zenlayer-ga/zenlayer_ga.go"
+      ]
+    },
+    "dns01": {
+      "35cn": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/35cn/35cn.go"
+      ],
+      "51dnscom": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/51dnscom/51dnscom.go"
+      ],
+      "acmedns": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/acmedns/acmedns.go"
+      ],
+      "acmehttpreq": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/acmehttpreq/acmehttpreq.go"
+      ],
+      "akamai-edgedns": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/akamai-edgedns/akamai_edgedns.go"
+      ],
+      "aliyun": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/aliyun/aliyun.go"
+      ],
+      "aliyun-esa": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/aliyun-esa/aliyun_esa.go"
+      ],
+      "arvancloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/arvancloud/arvancloud.go"
+      ],
+      "aws-lightsail": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/aws-lightsail/aws_lightsail.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/aws-lightsail/consts.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/aws-lightsail/internal/lego.go"
+      ],
+      "aws-route53": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/aws-route53/aws_route53.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/aws-route53/consts.go"
+      ],
+      "azure": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/azure/azure.go"
+      ],
+      "baiducloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/baiducloud/baiducloud.go"
+      ],
+      "beget": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/beget/beget.go"
+      ],
+      "bookmyname": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/bookmyname/bookmyname.go"
+      ],
+      "bunny": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/bunny/bunny.go"
+      ],
+      "byteplus": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/byteplus/byteplus.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/byteplus/internal/lego.go"
+      ],
+      "cloudflare": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/cloudflare/cloudflare.go"
+      ],
+      "cloudns": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/cloudns/cloudns.go"
+      ],
+      "cmcccloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/cmcccloud/cmcccloud.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/cmcccloud/internal/lego.go"
+      ],
+      "conohavpsv2": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/conohavpsv2/conohavpsv2.go"
+      ],
+      "conohavpsv3": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/conohavpsv3/conohavpsv3.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/conohavpsv3/internal/lego.go"
+      ],
+      "constellix": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/constellix/constellix.go"
+      ],
+      "cpanel": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/cpanel/cpanel.go"
+      ],
+      "ctcccloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/ctcccloud/ctcccloud.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/ctcccloud/internal/lego.go"
+      ],
+      "desec": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/desec/desec.go"
+      ],
+      "digitalocean": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/digitalocean/digitalocean.go"
+      ],
+      "dnsexit": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/dnsexit/dnsexit.go"
+      ],
+      "dnsla": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/dnsla/dnsla.go"
+      ],
+      "dnsmadeeasy": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/dnsmadeeasy/dnsmadeeasy.go"
+      ],
+      "duckdns": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/duckdns/duckdns.go"
+      ],
+      "dynadot": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/dynadot/dynadot.go"
+      ],
+      "dynu": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/dynu/dynu.go"
+      ],
+      "dynv6": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/dynv6/dynv6.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/dynv6/internal/lego.go"
+      ],
+      "gandinet": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/gandinet/gandinet.go"
+      ],
+      "gcore": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/gcore/gcore.go"
+      ],
+      "gname": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/gname/gname.go"
+      ],
+      "godaddy": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/godaddy/godaddy.go"
+      ],
+      "googlecloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/googlecloud/googlecloud.go"
+      ],
+      "hetzner": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/hetzner/hetzner.go"
+      ],
+      "hostingde": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/hostingde/hostingde.go"
+      ],
+      "hostinger": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/hostinger/hostinger.go"
+      ],
+      "huaweicloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/huaweicloud/huaweicloud.go"
+      ],
+      "infomaniak": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/infomaniak/infomaniak.go"
+      ],
+      "ionos": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/ionos/ionos.go"
+      ],
+      "jdcloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/jdcloud/jdcloud.go"
+      ],
+      "linode": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/linode/internal/lego.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/linode/linode.go"
+      ],
+      "namecheap": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/namecheap/namecheap.go"
+      ],
+      "namedotcom": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/namedotcom/namedotcom.go"
+      ],
+      "namesilo": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/namesilo/namesilo.go"
+      ],
+      "netcup": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/netcup/netcup.go"
+      ],
+      "netlify": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/netlify/netlify.go"
+      ],
+      "ns1": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/ns1/ns1.go"
+      ],
+      "oraclecloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/oraclecloud/consts.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/oraclecloud/oraclecloud.go"
+      ],
+      "ovhcloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/ovhcloud/consts.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/ovhcloud/ovhcloud.go"
+      ],
+      "porkbun": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/porkbun/porkbun.go"
+      ],
+      "powerdns": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/powerdns/powerdns.go"
+      ],
+      "qingcloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/qingcloud/internal/lego.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/qingcloud/qingcloud.go"
+      ],
+      "rainyun": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/rainyun/rainyun.go"
+      ],
+      "regru": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/regru/regru.go"
+      ],
+      "rfc2136": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/rfc2136/rfc2136.go"
+      ],
+      "rucenter": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/rucenter/rucenter.go"
+      ],
+      "simplycom": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/simplycom/simplycom.go"
+      ],
+      "spaceship": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/spaceship/spaceship.go"
+      ],
+      "technitiumdns": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/technitiumdns/technitiumdns.go"
+      ],
+      "tencentcloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/tencentcloud/tencentcloud.go"
+      ],
+      "tencentcloud-eo": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/tencentcloud-eo/tencentcloud_eo.go"
+      ],
+      "todaynic": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/todaynic/todaynic.go"
+      ],
+      "ucloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/ucloud/internal/lego.go",
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/ucloud/ucloud.go"
+      ],
+      "vercel": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/vercel/vercel.go"
+      ],
+      "volcengine": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/volcengine/volcengine.go"
+      ],
+      "vultr": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/vultr/vultr.go"
+      ],
+      "westcn": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/westcn/westcn.go"
+      ],
+      "xinnet": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/xinnet/xinnet.go"
+      ],
+      "yandexcloud": [
+        "third_party/certimate/pkg/core/certifier/challengers/dns01/yandexcloud/yandexcloud.go"
+      ]
+    },
+    "http01": {
+      "ftp": [
+        "third_party/certimate/pkg/core/certifier/challengers/http01/ftp/ftp.go",
+        "third_party/certimate/pkg/core/certifier/challengers/http01/ftp/internal/lego.go"
+      ],
+      "local": [
+        "third_party/certimate/pkg/core/certifier/challengers/http01/local/local.go"
+      ],
+      "s3": [
+        "third_party/certimate/pkg/core/certifier/challengers/http01/s3/internal/lego.go",
+        "third_party/certimate/pkg/core/certifier/challengers/http01/s3/s3.go"
+      ],
+      "ssh": [
+        "third_party/certimate/pkg/core/certifier/challengers/http01/ssh/internal/ssh.go",
+        "third_party/certimate/pkg/core/certifier/challengers/http01/ssh/ssh.go"
+      ]
+    }
+  },
+  "provider_configuration_fields": {
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/35cn/35cn.go#ChallengerConfig": [
+      "apiPassword",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/51dnscom/51dnscom.go#ChallengerConfig": [
+      "apiKey",
+      "apiSecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/acmedns/acmedns.go#ChallengerConfig": [
+      "credentials",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/acmehttpreq/acmehttpreq.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "endpoint",
+      "mode",
+      "password",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/aliyun-esa/aliyun_esa.go#ChallengerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "region"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/aliyun/aliyun.go#ChallengerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/arvancloud/arvancloud.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/aws-lightsail/aws_lightsail.go#ChallengerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/aws-route53/aws_route53.go#ChallengerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "hostedZoneId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/azure/azure.go#ChallengerConfig": [
+      "clientId",
+      "clientSecret",
+      "cloudName",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "resourceGroupName",
+      "subscriptionId",
+      "tenantId"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/baiducloud/baiducloud.go#ChallengerConfig": [
+      "accessKeyId",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/beget/beget.go#ChallengerConfig": [
+      "apiPassword",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/bookmyname/bookmyname.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "password",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/bunny/bunny.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/byteplus/byteplus.go#ChallengerConfig": [
+      "accessKeyId",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/cloudflare/cloudflare.go#ChallengerConfig": [
+      "apiToken",
+      "apiTokenForZone",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/cloudns/cloudns.go#ChallengerConfig": [
+      "authId",
+      "authPassword",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/cmcccloud/cmcccloud.go#ChallengerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/conohavpsv2/conohavpsv2.go#ChallengerConfig": [
+      "apiPassword",
+      "apiUserName",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "tenantId"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/conohavpsv3/conohavpsv3.go#ChallengerConfig": [
+      "apiPassword",
+      "apiUserId",
+      "apiUserName",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "tenantId",
+      "tenantName"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/constellix/constellix.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/cpanel/cpanel.go#ChallengerConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "serverUrl",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/ctcccloud/ctcccloud.go#ChallengerConfig": [
+      "accessKeyId",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/desec/desec.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "token"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/digitalocean/digitalocean.go#ChallengerConfig": [
+      "accessToken",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/dnsexit/dnsexit.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/dnsla/dnsla.go#ChallengerConfig": [
+      "apiId",
+      "apiSecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/dnsmadeeasy/dnsmadeeasy.go#ChallengerConfig": [
+      "apiKey",
+      "apiSecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/duckdns/duckdns.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "token"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/dynadot/dynadot.go#ChallengerConfig": [
+      "apiKey",
+      "apiSecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/dynu/dynu.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/dynv6/dynv6.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "httpToken"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/gandinet/gandinet.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "personalAccessToken"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/gcore/gcore.go#ChallengerConfig": [
+      "apiToken",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/gname/gname.go#ChallengerConfig": [
+      "appId",
+      "appKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/godaddy/godaddy.go#ChallengerConfig": [
+      "apiKey",
+      "apiSecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/googlecloud/googlecloud.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "projectId",
+      "serviceAccountKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/hetzner/hetzner.go#ChallengerConfig": [
+      "apiToken",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/hostingde/hostingde.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/hostinger/hostinger.go#ChallengerConfig": [
+      "apiToken",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/huaweicloud/huaweicloud.go#ChallengerConfig": [
+      "accessKeyId",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/infomaniak/infomaniak.go#ChallengerConfig": [
+      "accessToken",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/ionos/ionos.go#ChallengerConfig": [
+      "apiKeyPublicPrefix",
+      "apiKeySecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/jdcloud/jdcloud.go#ChallengerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "regionId"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/linode/linode.go#ChallengerConfig": [
+      "accessToken",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/namecheap/namecheap.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/namedotcom/namedotcom.go#ChallengerConfig": [
+      "apiToken",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/namesilo/namesilo.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/netcup/netcup.go#ChallengerConfig": [
+      "apiKey",
+      "apiPassword",
+      "customerNumber",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/netlify/netlify.go#ChallengerConfig": [
+      "apiToken",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/ns1/ns1.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/oraclecloud/oraclecloud.go#ChallengerConfig": [
+      "authMethod",
+      "compartmentOcid",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "privateKey",
+      "privateKeyPassphrase",
+      "publicKeyFingerprint",
+      "region",
+      "tenancyOcid",
+      "userOcid"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/ovhcloud/ovhcloud.go#ChallengerConfig": [
+      "applicationKey",
+      "applicationSecret",
+      "authMethod",
+      "clientId",
+      "clientSecret",
+      "consumerKey",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "endpoint"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/porkbun/porkbun.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "secretApiKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/powerdns/powerdns.go#ChallengerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/qingcloud/qingcloud.go#ChallengerConfig": [
+      "accessKeyId",
+      "apiPassword",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/rainyun/rainyun.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/regru/regru.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "mtlsCertificate",
+      "mtlsPrivateKey",
+      "password",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/rfc2136/rfc2136.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "host",
+      "port",
+      "tsigAlgorithm",
+      "tsigGssPassword",
+      "tsigGssRealm",
+      "tsigGssUsername",
+      "tsigKey",
+      "tsigSecret"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/rucenter/rucenter.go#ChallengerConfig": [
+      "applicationId",
+      "applicationToken",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "password",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/simplycom/simplycom.go#ChallengerConfig": [
+      "accountNumber",
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/spaceship/spaceship.go#ChallengerConfig": [
+      "apiKey",
+      "apiSecret",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/technitiumdns/technitiumdns.go#ChallengerConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/tencentcloud-eo/tencentcloud_eo.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/tencentcloud/tencentcloud.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/todaynic/todaynic.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "userId"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/ucloud/ucloud.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "endpoint",
+      "privateKey",
+      "projectId",
+      "publicKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/vercel/vercel.go#ChallengerConfig": [
+      "apiAccessToken",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "teamId"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/volcengine/volcengine.go#ChallengerConfig": [
+      "accessKeyId",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/vultr/vultr.go#ChallengerConfig": [
+      "apiKey",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/westcn/westcn.go#ChallengerConfig": [
+      "apiPassword",
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/xinnet/xinnet.go#ChallengerConfig": [
+      "agentId",
+      "apiPassword",
+      "dnsPropagationTimeout",
+      "dnsTTL"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/dns01/yandexcloud/yandexcloud.go#ChallengerConfig": [
+      "dnsPropagationTimeout",
+      "dnsTTL",
+      "folderId",
+      "serviceAccountKey"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/http01/ftp/ftp.go#ChallengerConfig": [
+      "ftpHost",
+      "ftpPassword",
+      "ftpPort",
+      "ftpUsername",
+      "webRootPath"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/http01/local/local.go#ChallengerConfig": [
+      "webRootPath"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/http01/s3/s3.go#ChallengerConfig": [
+      "accessKey",
+      "allowInsecureConnections",
+      "bucket",
+      "endpoint",
+      "region",
+      "secretKey",
+      "signatureVersion",
+      "usePathStyle"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/http01/ssh/ssh.go#ChallengerConfig": [
+      "jumpServers",
+      "useSCP",
+      "webRootPath"
+    ],
+    "third_party/certimate/pkg/core/certifier/challengers/http01/ssh/ssh.go#ServerConfig": [
+      "sshAuthMethod",
+      "sshHost",
+      "sshKey",
+      "sshKeyCertificate",
+      "sshKeyPassphrase",
+      "sshPassword",
+      "sshPort",
+      "sshUsername"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/1panel/1panel.go#CertmgrConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "apiVersion",
+      "nodeName",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/aliyun-cas/aliyun_cas.go#CertmgrConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/aliyun-slb/aliyun_slb.go#CertmgrConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/asiaispcdn/asiaispcdn.go#CertmgrConfig": [
+      "accessKeyId",
+      "accessKeySecret"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/aws-acm/aws_acm.go#CertmgrConfig": [
+      "accessKeyId",
+      "authMethod",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/aws-iam/aws_iam.go#CertmgrConfig": [
+      "accessKeyId",
+      "authMethod",
+      "certificatePath",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/axisnow/axisnow.go#CertmgrConfig": [
+      "apiToken"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/azure-keyvault/azure_keyvault.go#CertmgrConfig": [
+      "clientId",
+      "clientSecret",
+      "cloudName",
+      "keyvaultName",
+      "tenantId"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/baiducloud-cert/baiducloud_cert.go#CertmgrConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/baishan-cdn/baishan_cdn.go#CertmgrConfig": [
+      "apiToken"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/byteplus-cdn/byteplus_cdn.go#CertmgrConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/byteplus-certcenter/byteplus_certcenter.go#CertmgrConfig": [
+      "accessKeyId",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/byteplus-medialive/byteplus_medialive.go#CertmgrConfig": [
+      "accessKeyId",
+      "projectName",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/cmcccloud-vlb/cmcccloud_vlb.go#CertmgrConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "isDefault",
+      "poolId"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-ao/ctcccloud_ao.go#CertmgrConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-cdn/ctcccloud_cdn.go#CertmgrConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-cms/ctcccloud_cms.go#CertmgrConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-elb/ctcccloud_elb.go#CertmgrConfig": [
+      "accessKeyId",
+      "regionId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-icdn/ctcccloud_icdn.go#CertmgrConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ctcccloud-lvdn/ctcccloud_lvdn.go#CertmgrConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/digitalocean-certificate/digitalocean_certificate.go#CertmgrConfig": [
+      "accessToken"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/dogecloud/dogecloud.go#CertmgrConfig": [
+      "accessKey",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/dokploy/dokploy.go#CertmgrConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/gcore-cdn/gcore_cdn.go#CertmgrConfig": [
+      "apiToken"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/googlecloud-certificatemanager/googlecloud_certificatemanager.go#CertmgrConfig": [
+      "projectId",
+      "serviceAccountKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/huaweicloud-elb/huaweicloud_elb.go#CertmgrConfig": [
+      "accessKeyId",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/huaweicloud-scm/huaweicloud_scm.go#CertmgrConfig": [
+      "accessKeyId",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/huaweicloud-waf/huaweicloud_waf.go#CertmgrConfig": [
+      "accessKeyId",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/jdcloud-ssl/jdcloud_ssl.go#CertmgrConfig": [
+      "accessKeyId",
+      "accessKeySecret"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ksyun-kcm/ksyun_kcm.go#CertmgrConfig": [
+      "accessKeyId",
+      "projectId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ksyun-slb/ksyun_slb.go#CertmgrConfig": [
+      "accessKeyId",
+      "projectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/nginxproxymanager/nginxproxymanager.go#CertmgrConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "authMethod",
+      "password",
+      "serverUrl",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/oraclecloud-certificatesmgmt/oraclecloud_certificatesmgmt.go#CertmgrConfig": [
+      "authMethod",
+      "compartmentOcid",
+      "privateKey",
+      "privateKeyPassphrase",
+      "publicKeyFingerprint",
+      "tenancyOcid",
+      "userOcid"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/qingcloud-lb/qingcloud_lb.go#CertmgrConfig": [
+      "accessKeyId",
+      "secretAccessKey",
+      "zoneId"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/qiniu-sslcert/qiniu_sslcert.go#CertmgrConfig": [
+      "accessKey",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/rainyun-sslcenter/rainyun_sslcenter.go#CertmgrConfig": [
+      "ApiKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/tencentcloud-gaap/tencentcloud_gaap.go#CertmgrConfig": [
+      "endpoint",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/tencentcloud-ssl/tencentcloud_ssl.go#CertmgrConfig": [
+      "endpoint",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/tencentcloud-tse/tencentcloud_tse.go#CertmgrConfig": [
+      "domains",
+      "endpoint",
+      "gatewayId",
+      "projectId",
+      "region",
+      "secretId",
+      "secretKey",
+      "serviceType"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ucloud-ulb/ucloud_ulb.go#CertmgrConfig": [
+      "endpoint",
+      "privateKey",
+      "projectId",
+      "publicKey",
+      "region"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ucloud-upathx/ucloud_upathx.go#CertmgrConfig": [
+      "endpoint",
+      "privateKey",
+      "projectId",
+      "publicKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/ucloud-ussl/ucloud_ussl.go#CertmgrConfig": [
+      "endpoint",
+      "privateKey",
+      "projectId",
+      "publicKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/upyun-ssl/upyun_ssl.go#CertmgrConfig": [
+      "password",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/volcengine-cdn/volcengine_cdn.go#CertmgrConfig": [
+      "accessKeyId",
+      "projectName",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/volcengine-certcenter/volcengine_certcenter.go#CertmgrConfig": [
+      "accessKeyId",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/volcengine-live/volcengine_live.go#CertmgrConfig": [
+      "accessKeyId",
+      "projectName",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/wangsu-certificate/wangsu_certificate.go#CertmgrConfig": [
+      "accessKeyId",
+      "accessKeySecret"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/yandexcloud-certificatemanager/yandexcloud_certificatemanager.go#CertmgrConfig": [
+      "folderId",
+      "serviceAccountKey"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/zenlayer-cdn/zenlayer_cdn.go#CertmgrConfig": [
+      "accessKeyId",
+      "accessKeyPassword",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/certmgr/providers/zenlayer-ga/zenlayer_ga.go#CertmgrConfig": [
+      "accessKeyId",
+      "accessKeyPassword",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/1panel-console/1panel_console.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "apiVersion",
+      "autoRestart",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/1panel/1panel.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "apiVersion",
+      "certificateId",
+      "deployTarget",
+      "nodeName",
+      "serverUrl",
+      "websiteId",
+      "websiteMatchPattern"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-alb/aliyun_alb.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "deployTarget",
+      "domain",
+      "listenerId",
+      "loadbalancerId",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-apigw/aliyun_apigw.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern",
+      "gatewayId",
+      "groupId",
+      "region",
+      "resourceGroupId",
+      "serviceType"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-cas-deploy/aliyun_cas_deploy.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "contactIds",
+      "region",
+      "resourceGroupId",
+      "resourceIds"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-cas/aliyun_cas.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-cdn/aliyun_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-clb/aliyun_clb.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "deployTarget",
+      "domain",
+      "listenerPort",
+      "loadbalancerId",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-dcdn/aliyun_dcdn.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-ddospro/aliyun_ddospro.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-esa-saas/aliyun_esasaas.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern",
+      "region",
+      "resourceGroupId",
+      "siteId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-esa/aliyun_esa.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "region",
+      "resourceGroupId",
+      "siteId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-fc/aliyun_fc.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern",
+      "region",
+      "resourceGroupId",
+      "serviceVersion"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-ga/aliyun_ga.go#DeployerConfig": [
+      "acceleratorId",
+      "accessKeyId",
+      "accessKeySecret",
+      "deployTarget",
+      "domain",
+      "listenerId",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-live/aliyun_live.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-nlb/aliyun_nlb.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "deployTarget",
+      "listenerId",
+      "loadbalancerId",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-oss/aliyun_oss.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "bucket",
+      "domain",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-vod/aliyun_vod.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern",
+      "region",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aliyun-waf/aliyun_waf.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "instanceId",
+      "region",
+      "resourceGroupId",
+      "resourceId",
+      "resourcePort",
+      "resourceProduct",
+      "serviceType",
+      "serviceVersion"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/apisix/apisix.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "certificateId",
+      "deployTarget",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/asiaispcdn/asiaispcdn.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aws-acm/aws_acm.go#DeployerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "certificateArn",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aws-alb/aws_alb.go#DeployerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "certificateSource",
+      "isDefault",
+      "listenerArn",
+      "loadbalancerArn",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aws-amplify/aws_amplify.go#DeployerConfig": [
+      "accessKeyId",
+      "appId",
+      "authMethod",
+      "certificateSource",
+      "domain",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aws-apigateway/aws_apigateway.go#DeployerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "certificateSource",
+      "domain",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aws-clb/aws_clb.go#DeployerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "certificateSource",
+      "loadbalancerName",
+      "loadbalancerPort",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aws-cloudfront/aws_cloudfront.go#DeployerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "certificateSource",
+      "distributionId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aws-iam/aws_iam.go#DeployerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "certificatePath",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/aws-nlb/aws_nlb.go#DeployerConfig": [
+      "accessKeyId",
+      "authMethod",
+      "certificateSource",
+      "isDefault",
+      "listenerArn",
+      "loadbalancerArn",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/axisnow/axisnow.go#DeployerConfig": [
+      "apiToken"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/azure-keyvault/azure_keyvault.go#DeployerConfig": [
+      "certificateName",
+      "clientId",
+      "clientSecret",
+      "cloudName",
+      "keyvaultName",
+      "tenantId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baiducloud-appblb/baiducloud_appblb.go#DeployerConfig": [
+      "accessKeyId",
+      "deployTarget",
+      "domain",
+      "listenerPort",
+      "loadbalancerId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baiducloud-blb/baiducloud_blb.go#DeployerConfig": [
+      "accessKeyId",
+      "deployTarget",
+      "domain",
+      "listenerPort",
+      "loadbalancerId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baiducloud-cdn/baiducloud_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baiducloud-cert/baiducloud_cert.go#DeployerConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baishan-cdn/baishan_cdn.go#DeployerConfig": [
+      "apiToken",
+      "certificateId",
+      "deployTarget",
+      "domain",
+      "domainMatchPattern"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baotapanel-console/baotapanel_console.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "autoRestart",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baotapanel/baotapanel.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "serverUrl",
+      "siteNames",
+      "siteType"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baotapanelgo-console/baotapanelgo_console.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baotapanelgo/baotapanelgo.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "serverUrl",
+      "siteNames",
+      "siteType"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baotawaf-console/baotawaf_console.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/baotawaf/baotawaf.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "serverUrl",
+      "siteNames",
+      "sitePort"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/bunny-cdn/bunny_cdn.go#DeployerConfig": [
+      "apiKey",
+      "hostname",
+      "pullZoneId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/byteplus-alb/byteplus_alb.go#DeployerConfig": [
+      "accessKeyId",
+      "deployTarget",
+      "domain",
+      "listenerId",
+      "loadbalancerId",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/byteplus-apig/byteplus_apig.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/byteplus-cdn/byteplus_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "projectName",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/byteplus-certcenter/byteplus_certcenter.go#DeployerConfig": [
+      "accessKeyId",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/byteplus-clb/byteplus_clb.go#DeployerConfig": [
+      "accessKeyId",
+      "deployTarget",
+      "listenerId",
+      "loadbalancerId",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/byteplus-medialive/byteplus_medialive.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "projectName",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/byteplus-tos/byteplus_tos.go#DeployerConfig": [
+      "accessKeyId",
+      "bucket",
+      "domain",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/cachefly/cachefly.go#DeployerConfig": [
+      "apiToken"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/cdnfly/cdnfly.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "apiSecret",
+      "certificateId",
+      "deployTarget",
+      "serverUrl",
+      "siteId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/cloudflare-ssl/cloudflare_ssl.go#DeployerConfig": [
+      "apiToken",
+      "certificateId",
+      "environment",
+      "zoneId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/cmcccloud-cdn/cmcccloud_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/cmcccloud-vlb/cmcccloud_vlb.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "deployTarget",
+      "domain",
+      "listenerId",
+      "loadbalancerId",
+      "poolId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/cpanel/cpanel.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "deployTarget",
+      "domain",
+      "serverUrl",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ctcccloud-ao/ctcccloud_ao.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ctcccloud-cdn/ctcccloud_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ctcccloud-cms/ctcccloud_cms.go#DeployerConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ctcccloud-elb/ctcccloud_elb.go#DeployerConfig": [
+      "accessKeyId",
+      "deployTarget",
+      "listenerId",
+      "loadbalancerId",
+      "regionId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ctcccloud-faas/ctcccloud_faas.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "regionId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ctcccloud-icdn/ctcccloud_icdn.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ctcccloud-lvdn/ctcccloud_lvdn.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/digitalocean-certificate/digitalocean_certificate.go#DeployerConfig": [
+      "accessToken"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/dogecloud-cdn/dogecloud_cdn.go#DeployerConfig": [
+      "accessKey",
+      "domain",
+      "domainMatchPattern",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/dokploy/dokploy.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/flexcdn/flexcdn.go#DeployerConfig": [
+      "accessKey",
+      "accessKeyId",
+      "allowInsecureConnections",
+      "apiRole",
+      "certificateId",
+      "deployTarget",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/flyio/flyio.go#DeployerConfig": [
+      "apiToken",
+      "appName",
+      "domain"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ftp/ftp.go#DeployerConfig": [
+      "fileFormat",
+      "filePathForCrt",
+      "filePathForCrtOnlyIntermedia",
+      "filePathForCrtOnlyServer",
+      "filePathForKey",
+      "ftpHost",
+      "ftpPassword",
+      "ftpPort",
+      "ftpUsername",
+      "jksAlias",
+      "jksKeypass",
+      "jksStorepass",
+      "pfxEncoder",
+      "pfxPassword"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/gcore-cdn/gcore_cdn.go#DeployerConfig": [
+      "apiToken",
+      "certificateId",
+      "resourceId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/goedge/goedge.go#DeployerConfig": [
+      "accessKey",
+      "accessKeyId",
+      "allowInsecureConnections",
+      "apiRole",
+      "certificateId",
+      "deployTarget",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/googlecloud-certificatemanager/googlecloud_certificatemanager.go#DeployerConfig": [
+      "projectId",
+      "serviceAccountKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-aad/huaweicloud_aad.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "enterpriseProjectId",
+      "instanceId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-apig/huaweicloud_apig.go#DeployerConfig": [
+      "accessKeyId",
+      "certificateId",
+      "deployTarget",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-cdn/huaweicloud_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-elb/huaweicloud_elb.go#DeployerConfig": [
+      "accessKeyId",
+      "certificateId",
+      "deployTarget",
+      "enterpriseProjectId",
+      "listenerId",
+      "loadbalancerId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-live/huaweicloud_live.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-obs/huaweicloud_obs.go#DeployerConfig": [
+      "accessKeyId",
+      "bucket",
+      "domain",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-scm/huaweicloud_scm.go#DeployerConfig": [
+      "accessKeyId",
+      "enterpriseProjectId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-vod/huaweicloud_vod.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweicloud-waf/huaweicloud_waf.go#DeployerConfig": [
+      "accessKeyId",
+      "certificateId",
+      "deployTarget",
+      "domain",
+      "enterpriseProjectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/huaweiibmc/huaweiibmc.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "autoRestart",
+      "host",
+      "password",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/jdcloud-alb/jdcloud_alb.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "deployTarget",
+      "domain",
+      "listenerId",
+      "loadbalancerId",
+      "regionId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/jdcloud-cdn/jdcloud_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/jdcloud-live/jdcloud_live.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/jdcloud-ssl/jdcloud_ssl.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/jdcloud-vod/jdcloud_vod.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "domainMatchPattern"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/jdcloud-waf/jdcloud_waf.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domain",
+      "instanceId",
+      "regionId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/k8s-secret/k8s_secret.go#DeployerConfig": [
+      "kubeConfig",
+      "namespace",
+      "secretAnnotations",
+      "secretDataKeyForCrt",
+      "secretDataKeyForCrtOnlyIntermedia",
+      "secretDataKeyForCrtOnlyServer",
+      "secretDataKeyForKey",
+      "secretLabels",
+      "secretName",
+      "secretType"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/kong/kong.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "certificateId",
+      "deployTarget",
+      "serverUrl",
+      "workspace"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ksyun-cdn/ksyun_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "certificateId",
+      "deployTarget",
+      "domain",
+      "domainMatchPattern",
+      "projectId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ksyun-kcm/ksyun_kcm.go#DeployerConfig": [
+      "accessKeyId",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ksyun-slb/ksyun_slb.go#DeployerConfig": [
+      "accessKeyId",
+      "certificateId",
+      "deployTarget",
+      "projectId",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/lecdn/lecdn.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "apiRole",
+      "apiVersion",
+      "authMethod",
+      "certificateId",
+      "clientId",
+      "deployTarget",
+      "password",
+      "serverUrl",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/linode-los/linode_los.go#DeployerConfig": [
+      "accessToken",
+      "bucket",
+      "regionId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/local/local.go#DeployerConfig": [
+      "fileFormat",
+      "filePathForCrt",
+      "filePathForCrtOnlyIntermedia",
+      "filePathForCrtOnlyServer",
+      "filePathForKey",
+      "jksAlias",
+      "jksKeypass",
+      "jksStorepass",
+      "pfxEncoder",
+      "pfxPassword",
+      "postCommand",
+      "preCommand",
+      "shellEnv"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/mohua-mvh/mohua_mvh.go#DeployerConfig": [
+      "apiPassword",
+      "domainId",
+      "hostId",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/netlify/netlify.go#DeployerConfig": [
+      "apiToken",
+      "deployTarget",
+      "siteId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/nginxproxymanager/nginxproxymanager.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "authMethod",
+      "certificateId",
+      "deployTarget",
+      "hostId",
+      "hostMatchPattern",
+      "hostType",
+      "password",
+      "serverUrl",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/oraclecloud-certificatesmgmt/oraclecloud_certificatesmgmt.go#DeployerConfig": [
+      "authMethod",
+      "compartmentOcid",
+      "privateKey",
+      "privateKeyPassphrase",
+      "publicKeyFingerprint",
+      "tenancyOcid",
+      "userOcid"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/proxmoxbs/proxmoxbs.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "apiTokenSecret",
+      "autoRestart",
+      "nodeName",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/proxmoxve/proxmoxve.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "apiTokenSecret",
+      "autoRestart",
+      "nodeName",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/qingcloud-lb/qingcloud_lb.go#DeployerConfig": [
+      "accessKeyId",
+      "deployTarget",
+      "listenerId",
+      "loadbalancerId",
+      "secretAccessKey",
+      "zoneId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/qiniu-cdn/qiniu_cdn.go#DeployerConfig": [
+      "accessKey",
+      "domain",
+      "domainMatchPattern",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/qiniu-kodo/qiniu_kodo.go#DeployerConfig": [
+      "accessKey",
+      "bucket",
+      "domain",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/qiniu-pili/qiniu_pili.go#DeployerConfig": [
+      "accessKey",
+      "domain",
+      "domainMatchPattern",
+      "hub",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/rainyun-rcdn/rainyun_rcdn.go#DeployerConfig": [
+      "apiKey",
+      "domain",
+      "domainMatchPattern",
+      "instanceId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/rainyun-sslcenter/rainyun_sslcenter.go#DeployerConfig": [
+      "apiKey",
+      "certificateId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ratpanel-console/ratpanel_console.go#DeployerConfig": [
+      "accessToken",
+      "accessTokenId",
+      "allowInsecureConnections",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ratpanel/ratpanel.go#DeployerConfig": [
+      "accessToken",
+      "accessTokenId",
+      "allowInsecureConnections",
+      "certificateId",
+      "deployTarget",
+      "serverUrl",
+      "siteNames"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/s3/s3.go#DeployerConfig": [
+      "accessKey",
+      "allowInsecureConnections",
+      "bucket",
+      "endpoint",
+      "fileFormat",
+      "jksAlias",
+      "jksKeypass",
+      "jksStorepass",
+      "objectKeyForCrt",
+      "objectKeyForCrtOnlyIntermedia",
+      "objectKeyForCrtOnlyServer",
+      "objectKeyForKey",
+      "pfxEncoder",
+      "pfxPassword",
+      "region",
+      "secretKey",
+      "signatureVersion",
+      "usePathStyle"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/safeline/safeline.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiToken",
+      "certificateId",
+      "deployTarget",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/samwaf-console/samwaf_console.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "autoRestart",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/samwaf/samwaf.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "apiKey",
+      "certificateId",
+      "deployTarget",
+      "serverUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ssh/ssh.go#DeployerConfig": [
+      "fileFormat",
+      "filePathForCrt",
+      "filePathForCrtOnlyIntermedia",
+      "filePathForCrtOnlyServer",
+      "filePathForKey",
+      "jksAlias",
+      "jksKeypass",
+      "jksStorepass",
+      "jumpServers",
+      "pfxEncoder",
+      "pfxPassword",
+      "postCommand",
+      "preCommand",
+      "useREPL",
+      "useSCP"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ssh/ssh.go#ServerConfig": [
+      "sshAuthMethod",
+      "sshHost",
+      "sshKey",
+      "sshKeyCertificate",
+      "sshKeyPassphrase",
+      "sshPassword",
+      "sshPort",
+      "sshUsername"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/synologydsm/synologydsm.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "certificateIdOrDesc",
+      "isDefault",
+      "password",
+      "serverUrl",
+      "totpSecret",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-cdn/tencentcloud_cdn.go#DeployerConfig": [
+      "domain",
+      "domainMatchPattern",
+      "endpoint",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-clb/tencentcloud_clb.go#DeployerConfig": [
+      "deployTarget",
+      "domain",
+      "endpoint",
+      "listenerId",
+      "loadbalancerId",
+      "projectId",
+      "region",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-cos/tencentcloud_cos.go#DeployerConfig": [
+      "bucket",
+      "domain",
+      "projectId",
+      "region",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-css/tencentcloud_css.go#DeployerConfig": [
+      "domain",
+      "domainMatchPattern",
+      "endpoint",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ddospro/tencentcloud_ddospro.go#DeployerConfig": [
+      "domain",
+      "domainMatchPattern",
+      "endpoint",
+      "instanceId",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ecdn/tencentcloud_ecdn.go#DeployerConfig": [
+      "domain",
+      "domainMatchPattern",
+      "endpoint",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-eo/tencentcloud_eo.go#DeployerConfig": [
+      "domainMatchPattern",
+      "domains",
+      "enableMultipleSSL",
+      "endpoint",
+      "projectId",
+      "secretId",
+      "secretKey",
+      "zoneId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-eomakers/tencentcloud_eomakers.go#DeployerConfig": [
+      "domainMatchPattern",
+      "domains",
+      "enableMultipleSSL",
+      "endpoint",
+      "makersApiToken",
+      "makersProjectId",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ga2/tencentcloud_ga2.go#DeployerConfig": [
+      "acceleratorId",
+      "deployTarget",
+      "endpoint",
+      "listenerId",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-gaap/tencentcloud_gaap.go#DeployerConfig": [
+      "deployTarget",
+      "endpoint",
+      "listenerId",
+      "projectId",
+      "proxyId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-scf/tencentcloud_scf.go#DeployerConfig": [
+      "domain",
+      "domainMatchPattern",
+      "endpoint",
+      "projectId",
+      "region",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ssl-deploy/tencentcloud_ssl_deploy.go#DeployerConfig": [
+      "endpoint",
+      "projectId",
+      "resourceIds",
+      "resourceProduct",
+      "resourceRegion",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ssl-update/tencentcloud_ssl_update.go#DeployerConfig": [
+      "certificateId",
+      "endpoint",
+      "isReplaced",
+      "projectId",
+      "resourceProducts",
+      "resourceRegions",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-ssl/tencentcloud_ssl.go#DeployerConfig": [
+      "endpoint",
+      "projectId",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-tse/tencentcloud_tse.go#DeployerConfig": [
+      "certificateId",
+      "domains",
+      "endpoint",
+      "gatewayId",
+      "projectId",
+      "region",
+      "secretId",
+      "secretKey",
+      "serviceType"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-vod/tencentcloud_vod.go#DeployerConfig": [
+      "domain",
+      "domainMatchPattern",
+      "endpoint",
+      "projectId",
+      "secretId",
+      "secretKey",
+      "subAppId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/tencentcloud-waf/tencentcloud_waf.go#DeployerConfig": [
+      "domain",
+      "domainId",
+      "endpoint",
+      "instanceId",
+      "projectId",
+      "region",
+      "secretId",
+      "secretKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ucloud-ualb/ucloud_ualb.go#DeployerConfig": [
+      "deployTarget",
+      "domain",
+      "endpoint",
+      "listenerId",
+      "loadbalancerId",
+      "privateKey",
+      "projectId",
+      "publicKey",
+      "region"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ucloud-ucdn/ucloud_ucdn.go#DeployerConfig": [
+      "domainId",
+      "endpoint",
+      "privateKey",
+      "projectId",
+      "publicKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ucloud-uclb/ucloud_uclb.go#DeployerConfig": [
+      "deployTarget",
+      "endpoint",
+      "loadbalancerId",
+      "privateKey",
+      "projectId",
+      "publicKey",
+      "region",
+      "vserverId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ucloud-uewaf/ucloud_uewaf.go#DeployerConfig": [
+      "domain",
+      "endpoint",
+      "privateKey",
+      "projectId",
+      "publicKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ucloud-upathx/ucloud_upathx.go#DeployerConfig": [
+      "acceleratorId",
+      "endpoint",
+      "listenerPort",
+      "privateKey",
+      "projectId",
+      "publicKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/ucloud-us3/ucloud_us3.go#DeployerConfig": [
+      "bucket",
+      "domain",
+      "endpoint",
+      "privateKey",
+      "projectId",
+      "publicKey",
+      "region"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/unicloud-webhost/unicloud_webhost.go#DeployerConfig": [
+      "domain",
+      "password",
+      "spaceId",
+      "spaceProvider",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/upyun-cdn/upyun_cdn.go#DeployerConfig": [
+      "domain",
+      "domainMatchPattern",
+      "password",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/upyun-file/upyun_file.go#DeployerConfig": [
+      "bucket",
+      "domain",
+      "password",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/vercel/vercel.go#DeployerConfig": [
+      "apiAccessToken",
+      "teamId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-alb/volcengine_alb.go#DeployerConfig": [
+      "accessKeyId",
+      "deployTarget",
+      "domain",
+      "listenerId",
+      "loadbalancerId",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-apig/volcengine_apig.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-cdn/volcengine_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "projectName",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-certcenter/volcengine_certcenter.go#DeployerConfig": [
+      "accessKeyId",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-clb/volcengine_clb.go#DeployerConfig": [
+      "accessKeyId",
+      "deployTarget",
+      "domain",
+      "listenerId",
+      "loadbalancerId",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-dcdn/volcengine_dcdn.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-imagex/volcengine_imagex.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "projectName",
+      "region",
+      "secretAccessKey",
+      "serviceId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-live/volcengine_live.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "projectName",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-tos/volcengine_tos.go#DeployerConfig": [
+      "accessKeyId",
+      "bucket",
+      "domain",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-vod/volcengine_vod.go#DeployerConfig": [
+      "accessKeyId",
+      "domain",
+      "domainMatchPattern",
+      "domainType",
+      "projectName",
+      "region",
+      "secretAccessKey",
+      "spaceName"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/volcengine-waf/volcengine_waf.go#DeployerConfig": [
+      "accessKeyId",
+      "accessMode",
+      "domain",
+      "projectName",
+      "region",
+      "secretAccessKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/wangsu-cdn/wangsu_cdn.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "domainMatchPattern",
+      "domains"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/wangsu-cdnpro/wangsu_cdnpro.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "apiKey",
+      "certificateId",
+      "domain",
+      "domainMatchPattern",
+      "environment",
+      "webhookId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/wangsu-certificate/wangsu_certificate.go#DeployerConfig": [
+      "accessKeyId",
+      "accessKeySecret",
+      "certificateId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/webhook/webhook.go#DeployerConfig": [
+      "allowInsecureConnections",
+      "headers",
+      "method",
+      "timeout",
+      "webhookData",
+      "webhookUrl"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/yandexcloud-certificatemanager/yandexcloud_certificatemanager.go#DeployerConfig": [
+      "certificateId",
+      "folderId",
+      "serviceAccountKey"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/zenlayer-cdn/zenlayer_cdn.go#DeployerConfig": [
+      "acceleratorId",
+      "accessKeyId",
+      "accessKeyPassword",
+      "certificateId",
+      "deployTarget",
+      "domain",
+      "domainMatchPattern",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/deployer/providers/zenlayer-ga/zenlayer_ga.go#DeployerConfig": [
+      "acceleratorId",
+      "accessKeyId",
+      "accessKeyPassword",
+      "certificateId",
+      "deployTarget",
+      "resourceGroupId"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/dingtalkbot/dingtalkbot.go#NotifierConfig": [
+      "customPayload",
+      "secret",
+      "webhookUrl"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/discordbot/discordbot.go#NotifierConfig": [
+      "botToken",
+      "channelId"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/email/email.go#NotifierConfig": [
+      "allowInsecureConnections",
+      "messageFormat",
+      "password",
+      "receiverAddress",
+      "senderAddress",
+      "senderName",
+      "smtpHost",
+      "smtpPort",
+      "smtpTls",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/larkbot/larkbot.go#NotifierConfig": [
+      "customPayload",
+      "secret",
+      "webhookUrl"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/matrix/matrix.go#NotifierConfig": [
+      "accessToken",
+      "roomId",
+      "serverUrl",
+      "userId"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/mattermost/mattermost.go#NotifierConfig": [
+      "channelId",
+      "password",
+      "serverUrl",
+      "username"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/slackbot/slackbot.go#NotifierConfig": [
+      "botToken",
+      "channelId"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/telegrambot/telegrambot.go#NotifierConfig": [
+      "botToken",
+      "chatId"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/webhook/webhook.go#NotifierConfig": [
+      "allowInsecureConnections",
+      "headers",
+      "method",
+      "timeout",
+      "webhookData",
+      "webhookUrl"
+    ],
+    "third_party/certimate/pkg/core/notifier/providers/wecombot/wecombot.go#NotifierConfig": [
+      "customPayload",
+      "webhookUrl"
+    ]
+  },
+  "configuration_field_note": "Named Go *Config structs' JSON fields and workflow node TypeScript fields; source paths retain comments, nested types and validation rules. Dynamic provider maps must be reviewed in source.",
+  "credential_forms": [
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProvider.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProvider1Panel.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProvider35cn.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProvider51DNScom.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderACMECA.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderACMEDNS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderACMEHttpReq.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderAPISIX.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderAWS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderActalisSSL.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderAkamai.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderAliyun.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderArvanCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderAsiaISPCDN.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderAxisNow.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderAzure.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBaiduCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBaishan.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBaotaPanel.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBaotaPanelGo.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBaotaWAF.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBeget.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBookMyName.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBunny.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderBytePlus.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderCMCCCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderCPanel.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderCTCCCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderCacheFly.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderCdnfly.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderClouDNS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderCloudflare.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderConoHaVPS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderConstellix.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDNSExit.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDNSLA.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDNSMadeEasy.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDeSEC.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDigiCert.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDigitalOcean.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDingTalkBot.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDiscordBot.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDogeCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDokploy.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDuckDNS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDynadot.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDynu.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderDynv6.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderEmail.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderFTP.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderFlexCDN.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderFlyIO.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderGandinet.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderGcore.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderGlobalSignAtlas.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderGname.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderGoDaddy.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderGoEdge.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderGoogleCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderGoogleTrustServices.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderHetzner.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderHostingde.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderHostinger.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderHuaweiCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderHuaweiIBMC.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderIONOS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderInfomaniak.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderJDCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderKong.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderKsyun.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderKubernetes.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderLarkBot.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderLeCDN.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderLinode.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderLiteSSL.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderMatrix.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderMattermost.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderMohua.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderNS1.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderNameDotCom.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderNameSilo.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderNamecheap.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderNetcup.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderNetlify.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderNginxProxyManager.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderOVHcloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderOracleCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderPorkbun.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderPowerDNS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderProxmoxBS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderProxmoxVE.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderQingCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderQiniu.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderRFC2136.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderRainYun.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderRatPanel.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderRegru.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderRuCenter.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderS3.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSSH.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSSLCom.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSafeLine.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSamWAF.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSectigo.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSimplyCom.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSlackBot.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSpaceship.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderSynologyDSM.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderTechnitiumDNS.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderTelegramBot.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderTencentCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderTodayNIC.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderUCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderUniCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderUpyun.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderVercel.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderVolcEngine.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderVultr.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderWangsu.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderWeComBot.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderWebhook.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderWestcn.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderXinnet.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderYandexCloud.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderZenlayer.tsx",
+    "third_party/certimate/ui/src/components/access/forms/AccessConfigFieldsProviderZeroSSL.tsx"
+  ],
+  "workflow_forms": [
+    "third_party/certimate/ui/src/components/workflow/WorkflowGraphExportBox.tsx",
+    "third_party/certimate/ui/src/components/workflow/WorkflowGraphExportModal.tsx",
+    "third_party/certimate/ui/src/components/workflow/WorkflowGraphImportInputBox.tsx",
+    "third_party/certimate/ui/src/components/workflow/WorkflowGraphImportModal.tsx",
+    "third_party/certimate/ui/src/components/workflow/WorkflowRunDetail.tsx",
+    "third_party/certimate/ui/src/components/workflow/WorkflowRunDetailDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/WorkflowStatus.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/Designer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/Minimap.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/NodeDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/NodeRender.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/Toolbar.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/elements/Adder.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/elements/BranchAdder.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/elements/Collapse.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/elements/DragHighlightAdder.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/elements/DragNode.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/elements/DraggingAdder.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/elements/Null.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/elements/TryCatchCollapse.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProvider.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderAWSLightsail.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderAWSRoute53.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderAliyunESA.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderFTP.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderHuaweiCloudDNS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderJDCloudDNS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderLocal.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderOracleCloudDNS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderS3.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderSSH.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigFieldsProviderUCloudUDNR.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizApplyNodeConfigForm.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProvider.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProvider1Panel.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProvider1PanelConsole.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAPISIX.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAWSACM.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAWSALB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAWSAPIGateway.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAWSAmplify.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAWSCLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAWSCloudFront.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAWSIAM.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAWSNLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunALB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunAPIGW.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunCAS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunCASDeploy.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunCLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunDCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunDDoSPro.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunESA.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunESASaaS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunFC.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunGA.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunLive.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunNLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunOSS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunVOD.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAliyunWAF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAsiaISPCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderAzureKeyVault.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaiduCloudAppBLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaiduCloudBLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaiduCloudCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaishanCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaotaPanel.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaotaPanelConsole.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaotaPanelGo.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaotaPanelGoConsole.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaotaWAF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBaotaWAFConsole.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBunnyCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBytePlusALB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBytePlusAPIG.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBytePlusCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBytePlusCLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBytePlusCertCenter.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBytePlusMediaLive.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderBytePlusTOS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCMCCCloudCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCMCCCloudVLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCPanel.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCTCCCloudAO.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCTCCCloudCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCTCCCloudELB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCTCCCloudFaaS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCTCCCloudICDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCTCCCloudLVDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCdnfly.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderCloudflareSSL.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderDogeCloudCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderFTP.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderFlexCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderFlyIO.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderGcoreCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderGoEdge.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiCloudAAD.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiCloudAPIG.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiCloudCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiCloudELB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiCloudLive.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiCloudOBS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiCloudVOD.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiCloudWAF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderHuaweiIBMC.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderJDCloudALB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderJDCloudCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderJDCloudLive.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderJDCloudVOD.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderJDCloudWAF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderKong.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderKsyunCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderKsyunSLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderKubernetesSecret.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderLeCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderLinodeLOS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderLocal.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderMohuaMVH.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderNetlify.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderNginxProxyManager.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderOracleCloudCertificatesMgmt.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderProxmoxBS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderProxmoxVE.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderQingCloudLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderQiniuCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderQiniuKodo.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderQiniuPili.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderRainYunRCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderRainYunSSLCenter.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderRatPanel.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderS3.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderSSH.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderSafeLine.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderSamWAF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderSamWAFConsole.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderSynologyDSM.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudCLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudCOS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudCSS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudDDoSPro.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudECDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudEO.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudEOMakers.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudGA2.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudGAAP.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudSCF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudSSL.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudSSLDeploy.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudSSLUpdate.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudTSE.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudVOD.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderTencentCloudWAF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUCloudUALB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUCloudUCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUCloudUCLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUCloudUEWAF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUCloudUPathX.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUCloudUS3.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUniCloudWebHost.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUpyunCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderUpyunFile.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineALB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineAPIG.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineCLB.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineCertCenter.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineDCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineImageX.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineLive.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineTOS.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineVOD.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderVolcEngineWAF.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderWangsuCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderWangsuCDNPro.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderWangsuCertificate.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderWebhook.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderYandexCloudCertificateManager.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderZenlayerCDN.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigFieldsProviderZenlayerGA.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizDeployNodeConfigForm.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizMonitorNodeConfigDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizMonitorNodeConfigForm.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigFieldsProvider.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigFieldsProviderDiscordBot.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigFieldsProviderEmail.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigFieldsProviderMatrix.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigFieldsProviderMattermost.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigFieldsProviderSlackBot.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigFieldsProviderTelegramBot.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigFieldsProviderWebhook.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizNotifyNodeConfigForm.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizUploadNodeConfigDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BizUploadNodeConfigForm.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BranchBlockNodeConfigDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BranchBlockNodeConfigExprInputBox.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/BranchBlockNodeConfigForm.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/DelayNodeConfigDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/DelayNodeConfigForm.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/StartNodeConfigDrawer.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/StartNodeConfigForm.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/forms/_shared.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/BizApplyNodeRegistry.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/BizDeployNodeRegistry.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/BizMonitorNodeRegistry.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/BizNotifyNodeRegistry.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/BizUploadNodeRegistry.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/ConditionNode.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/DelayNode.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/EndNode.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/StartNode.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/TryCatchNode.tsx",
+    "third_party/certimate/ui/src/components/workflow/designer/nodes/_shared.tsx"
+  ],
+  "settings_sources": [
+    "third_party/certimate/internal/settings/pbhook.go",
+    "third_party/certimate/internal/settings/pbsettings.go",
+    "third_party/certimate/internal/settings/pbstore.go",
+    "third_party/certimate/internal/settings/settings.go",
+    "third_party/certimate/ui/src/pages/settings/Settings.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsAbout.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsAccount.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsAppearance.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsDiagnostics.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsPersistence.tsx",
+    "third_party/certimate/ui/src/pages/settings/SettingsSSLProvider.tsx"
+  ],
+  "certimate_migrations": [
+    "third_party/certimate/migrations/1757476800_upgrade_v0.4.0.go",
+    "third_party/certimate/migrations/1757476801_initialize_v0.4.0.go",
+    "third_party/certimate/migrations/1760486400_upgrade_v0.4.1.go",
+    "third_party/certimate/migrations/1762142400_upgrade_v0.4.3.go",
+    "third_party/certimate/migrations/1762516800_upgrade_v0.4.4.go",
+    "third_party/certimate/migrations/1763373600_upgrade_v0.4.5.go",
+    "third_party/certimate/migrations/1763640000_upgrade_v0.4.6.go",
+    "third_party/certimate/migrations/1766592000_upgrade_v0.4.11.go",
+    "third_party/certimate/migrations/1766800800_upgrade_v0.4.12.go",
+    "third_party/certimate/migrations/1767024000_upgrade_v0.4.13.go",
+    "third_party/certimate/migrations/1768363200_upgrade_v0.4.14.go",
+    "third_party/certimate/migrations/1769313600_upgrade_v0.4.15.go",
+    "third_party/certimate/migrations/1779206400_upgrade_v0.4.23.go",
+    "third_party/certimate/migrations/1780934400_upgrade_v0.4.25.go",
+    "third_party/certimate/migrations/1785384000_upgrade_v0.4.29.go",
+    "third_party/certimate/migrations/1788364800_upgrade_v0.4.33.go",
+    "third_party/certimate/migrations/snaps/v0.3/workflow.go",
+    "third_party/certimate/migrations/snaps/v0.4/workflow.go",
+    "third_party/certimate/migrations/tracer.go"
+  ],
+  "nezha_migration_sources": [
+    "service/singleton/config.go"
+  ],
+  "dns_reference_sources": [
+    "reference/dnsmgr/app/lib/dns/aliyun.php",
+    "reference/dnsmgr/app/lib/dns/aliyunesa.php",
+    "reference/dnsmgr/app/lib/dns/aws.php",
+    "reference/dnsmgr/app/lib/dns/baidu.php",
+    "reference/dnsmgr/app/lib/dns/bt.php",
+    "reference/dnsmgr/app/lib/dns/cloudflare.php",
+    "reference/dnsmgr/app/lib/dns/dnsla.php",
+    "reference/dnsmgr/app/lib/dns/dnsmgr.php",
+    "reference/dnsmgr/app/lib/dns/dnspod.php",
+    "reference/dnsmgr/app/lib/dns/dynv6.php",
+    "reference/dnsmgr/app/lib/dns/goedge.php",
+    "reference/dnsmgr/app/lib/dns/henet.php",
+    "reference/dnsmgr/app/lib/dns/huawei.php",
+    "reference/dnsmgr/app/lib/dns/huoshan.php",
+    "reference/dnsmgr/app/lib/dns/jdcloud.php",
+    "reference/dnsmgr/app/lib/dns/namesilo.php",
+    "reference/dnsmgr/app/lib/dns/powerdns.php",
+    "reference/dnsmgr/app/lib/dns/qingcloud.php",
+    "reference/dnsmgr/app/lib/dns/spaceship.php",
+    "reference/dnsmgr/app/lib/dns/technitium.php",
+    "reference/dnsmgr/app/lib/dns/tencenteo.php",
+    "reference/dnsmgr/app/lib/dns/west.php"
+  ],
+  "dns_reference_ui": [
+    "reference/dnsmgr/app/view/domain/account.html",
+    "reference/dnsmgr/app/view/domain/account_add.html",
+    "reference/dnsmgr/app/view/domain/alias.html",
+    "reference/dnsmgr/app/view/domain/batchadd.html",
+    "reference/dnsmgr/app/view/domain/batchadd2.html",
+    "reference/dnsmgr/app/view/domain/batchedit.html",
+    "reference/dnsmgr/app/view/domain/category.html",
+    "reference/dnsmgr/app/view/domain/domain.html",
+    "reference/dnsmgr/app/view/domain/domain_add.html",
+    "reference/dnsmgr/app/view/domain/expire_notice.html",
+    "reference/dnsmgr/app/view/domain/log.html",
+    "reference/dnsmgr/app/view/domain/qingcloud.html",
+    "reference/dnsmgr/app/view/domain/record.html",
+    "reference/dnsmgr/app/view/domain/record_import.html",
+    "reference/dnsmgr/app/view/domain/record_search.html",
+    "reference/dnsmgr/app/view/domain/smartparse.html",
+    "reference/dnsmgr/app/view/domain/weight.html"
+  ],
+  "dns_reference_services": [
+    "reference/dnsmgr/app/service/CertDeployService.php",
+    "reference/dnsmgr/app/service/CertOrderService.php",
+    "reference/dnsmgr/app/service/CertTaskService.php",
+    "reference/dnsmgr/app/service/CloudflareEnhanceService.php",
+    "reference/dnsmgr/app/service/ExpireNoticeService.php",
+    "reference/dnsmgr/app/service/OptimizeService.php",
+    "reference/dnsmgr/app/service/ScheduleService.php",
+    "reference/dnsmgr/app/service/TaskRunner.php"
+  ],
+  "agent_baseline": {
+    "repository": "https://github.com/nezhahq/agent",
+    "revision": "v2.3.0",
+    "commit": "84e61fca84661503d324ae6ab00ca88e280e00a2",
+    "status": "source retained; optional unified deployment protocol implemented; local and live acceptance recorded separately",
+    "path": "third_party/agent"
+  }
+}

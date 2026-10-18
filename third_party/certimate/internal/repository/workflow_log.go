@@ -8,6 +8,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embedcrypto"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -68,8 +69,9 @@ func (r *WorkflowLogRepository) Save(ctx context.Context, workflowLog *domain.Wo
 	record.Set("nodeName", workflowLog.NodeName)
 	record.Set("timestamp", workflowLog.TimestampMilli)
 	record.Set("level", workflowLog.Level)
-	record.Set("message", workflowLog.Message)
-	record.Set("data", workflowLog.Data)
+	message, data := embedcrypto.SafeLog(app.GetApp(), workflowLog.Message, workflowLog.Data)
+	record.Set("message", message)
+	record.Set("data", data)
 	record.Set("created", workflowLog.CreatedAt)
 	err = app.GetApp().Save(record)
 	if err != nil {

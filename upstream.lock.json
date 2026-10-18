@@ -35,6 +35,13 @@
       "revision": "78e77a608fe37c3f7bbbfe35f732bfdf1de43bdd",
       "commit": "78e77a608fe37c3f7bbbfe35f732bfdf1de43bdd",
       "path": "reference/dnsmgr"
+    },
+    {
+      "name": "agent",
+      "repository": "https://github.com/nezhahq/agent.git",
+      "revision": "v2.3.0",
+      "commit": "84e61fca84661503d324ae6ab00ca88e280e00a2",
+      "path": "third_party/agent"
     }
   ],
   "toolchains": {
@@ -47,7 +54,8 @@
     "repository": "https://github.com/nezhahq/agent",
     "revision": "v2.3.0",
     "commit": "84e61fca84661503d324ae6ab00ca88e280e00a2",
-    "status": "baseline pinned; integration acceptance pending"
+    "status": "source retained; optional unified deployment protocol implemented; local and live acceptance recorded separately",
+    "path": "third_party/agent"
   },
   "public_themes": [
     {

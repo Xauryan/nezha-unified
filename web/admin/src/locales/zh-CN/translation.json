@@ -361,6 +361,9 @@
         "ReadMetadata": "查看元数据",
         "CreateGrant": "授予权限",
         "NoGrants": "暂无资源授权",
-        "Revoke": "撤销"
+        "Revoke": "撤销",
+        "DeploymentTargets": "部署目标",
+        "Identities": "执行身份与令牌",
+        "RunHistory": "运行记录"
     }
 }

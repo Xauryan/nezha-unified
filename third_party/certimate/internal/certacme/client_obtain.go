@@ -20,6 +20,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/certacme/certifiers"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embeddedhooks"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -34,6 +35,7 @@ type ObtainCertificateRequest struct {
 	// 提供商相关
 	ChallengeType          string
 	Provider               domain.ACMEChallengeProviderType
+	ProviderAccessID       string
 	ProviderAccessConfig   map[string]any
 	ProviderExtendedConfig map[string]any
 
@@ -74,6 +76,11 @@ func (c *ACMEClient) ObtainCertificate(ctx context.Context, request *ObtainCerti
 		return nil, fmt.Errorf("the request is nil")
 	}
 
+	release, err := enterEmbeddedACME(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
 	os.Setenv("LEGO_DISABLE_CNAME_SUPPORT", strconv.FormatBool(request.DisableFollowCNAME))
 
 	const CHALLENGE_TYPE_DNS01 = "dns-01"
@@ -98,8 +105,16 @@ func (c *ACMEClient) ObtainCertificate(ctx context.Context, request *ObtainCerti
 
 			opts := &dns01.Options{}
 			opts.RecursiveNameservers = request.Nameservers
+			if embeddedhooks.EnabledFor(ctx) {
+				address, closeResolver, err := newPinnedResolver(ctx, request.Nameservers)
+				if err != nil {
+					return nil, err
+				}
+				defer closeResolver()
+				opts.RecursiveNameservers = []string{address}
+			}
 			dns01.SetDefaultClient(dns01.NewClient(opts))
-			c.client.Challenge.SetDNS01Provider(provider,
+			c.client.Challenge.SetDNS01Provider(guardChallenge(ctx, provider, request.DomainOrIPs, request.ProviderAccessID, true),
 				dns01.CondOptions(
 					request.DnsPropagationWait > 0,
 					dns01.PropagationWait(time.Duration(request.DnsPropagationWait)*time.Second, true),
@@ -126,7 +141,7 @@ func (c *ACMEClient) ObtainCertificate(ctx context.Context, request *ObtainCerti
 				return nil, fmt.Errorf("failed to initialize http-01 provider '%s': %w", request.Provider, err)
 			}
 
-			c.client.Challenge.SetHTTP01Provider(provider,
+			c.client.Challenge.SetHTTP01Provider(guardChallenge(ctx, provider, request.DomainOrIPs, request.ProviderAccessID, false),
 				http01.SetDelay(time.Duration(request.HttpDelayWait)*time.Second),
 			)
 		}

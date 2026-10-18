@@ -1,40 +1,40 @@
 # Implementation and acceptance status
 
-Status is recorded by working behavior, not by the presence of a source directory. This initial development slice is **not a release or production acceptance**. All items in the full plan remain in scope.
+The complete scope in `plan.zh-CN.md` remains authoritative. The implementation now includes the integration surfaces below; final exact-commit build, full regression, browser, CI and real-provider acceptance are separate evidence. No release, production deployment or live cloud/CA/host acceptance is claimed by source retention or individual test results.
 
-| Area | Initial implementation | Remaining acceptance |
+| Area | Implemented integration | Acceptance evidence still required |
 |---|---|---|
-| Upstreams | Dashboard, admin, Certimate, SDK snapshot and DNS reference are pinned and retained | Full page/API/node/provider/field inventories and upgrade automation |
-| Host runtime | One Dashboard owns Nezha and embedded Certimate databases; shutdown closes both module resources | Executor/scheduler lifecycle and bounded queues |
-| Identity | Nezha JWT/session and CSRF; no PocketBase superuser bootstrap or router | New scoped PAT/service identities and resource constraints |
-| Resources | Metadata projection, exact per-user resource grants, filtered pagination, immediate revoke | Delegated workflows, credential use scopes and live event filtering |
-| Credentials | Create and list; authenticated encryption, resource-bound ciphertext, atomic local audit | Provider-specific forms/validation, resolver, version rotation, disable, plaintext export policy, migration |
-| Certificates | Import matching X.509/key pair; derive actual SANs; encrypted key; separately authorized public-chain download | ACME issuance/renewal, format conversion, revoke/delete, delegated SAN validation at every side-effect boundary |
-| Certimate workflows | Full upstream source retained, metadata list connected | Full designer/pages/repositories, settings, all nodes/providers, application-service side effects and cancellation |
-| DNS | Tested name/record authorization primitives | Cloudflare, DNSPod and EdgeOne adapters, real Zone identity, CRUD/batch/import/export, audit and resource UI |
-| DDNS | Original Nezha implementation retained | Credential references, single writer, IP freshness, scoped device tokens and unified execution |
-| Agent deployment | Original Nezha RPC retained | General AgentRPC, capability acceptance, durable leases/tasks, supersession, unknown-result reconciliation, rollback |
-| Frontend | Native credentials/certificates/permissions routes and shared session/theme/i18n | Complete Certimate UI and DNS/targets/aggregated runs; broader browser regression |
-| Backup/recovery | Recovery key is generated once and required with an existing DB; new-store reopen tested | Coordinated online backup, cross-store intents/outbox and real restored-state reconciliation |
-| CI | Standard GitHub-hosted Ubuntu runners; pinned actions and toolchains; tests/build/HTTP smoke | Agent compatibility stress on fixed agent baseline, provider contracts and authorized live acceptance |
+| Upstreams | Dashboard/admin/Certimate/SDK/DNS reference and Agent pinned; 5059 retained files; page/API/node/provider/configuration/migration inventory; declared patches; shared Dashboard/Agent protocol equality gate | Final reviewed diff and exact-commit structural check |
+| Host runtime | One Dashboard owns both stores, certificate runtime, DDNS and Agent integration; exclusive data lock; cancellation/drain/shutdown and restore fence | Full runtime startup/shutdown/race gates; Agent compatibility stress |
+| Identity | One session; legacy PATs rejected for new powers; exact-resource scoped tokens and versioned service identities; current authority at requests/side effects | Final token/session/scoped HTTP and revoke-during-execution regressions |
+| Resource authority | Nezha owns bindings/grants/versions; cross-store intents and activation; stable typed IDs; filtered child runs/logs/outputs; explicit transfer | Interruption/reopen/repair tests and existing-installation migration rehearsal |
+| Credentials | Authenticated encryption, version/purpose/resource-bound resolver, enable/disable/rotation, explicit export, clone, shared provider forms | Actual credentials against authorized providers |
+| Certificate assets | Matching X.509/key import/SAN derivation, encrypted keys/ACME accounts, independent metadata/public/private export, format conversion/revoke APIs | Complete runtime format/revoke tests and real issuance/renewal/revocation |
+| Certimate workflows | Full source/providers/nodes/forms; native settings/statistics/run APIs; designer/repositories; scheduling/cache services; versioned run authorization; encrypted state and sanitized logs | Full-provider compilation, local runtime tests, browser interactions and authorized provider operations |
+| DNS | Cloudflare, DNSPod legacy/cloud and EdgeOne NS adapters; Zone discovery; CRUD/batch/import/export; provider fields/options; subtree policy and audit/reconciliation | Final fixture tests plus real account/Zone/record/propagation acceptance |
+| DDNS | Credential refs, record single writer, current grants, host/interface reports, freshness/IP selection, pause-on-manual-change, device tokens, legacy migration adapter | Fixed Agent report compatibility, real reconnect/propagation and authorized old-data migration |
+| Agent deployment | Purpose-scoped Agent call layer; compatible Agent source/capability protocol; durable versioned targets/tasks; staged bundle/check/reload/health/fingerprint; supersession/reconciliation | Exact host+Agent build/tests and live served-fingerprint/rollback acceptance |
+| Frontend | One admin build/root/session/theme; adapted Certimate designer/pages/forms; DNS/DDNS/targets/permissions/ownership screens | Final tests/lint/build and browser scenarios |
+| Backup/recovery | Encrypted archive with DBs/assets/config/journals; independent wrapped key; hash/schema/reference/version validation; CLI/rehearsal; quarantine and exact operation evidence | Final CLI rehearsal on disposable DBs, then authorized existing-installation recovery |
+| CI/release | Standard GitHub-hosted `ubuntu-24.04`, pinned actions/toolchains, unified admin/release build and synthetic checks | Actual complete final-commit CI, release, deployment and customer acceptance |
 
-## Next implementation sequence
+## Evidence recorded during implementation
 
-1. Extend the `access` envelope adapter into a single credential resolver with explicit purpose, resource and version checks; define operation-intent activation and recovery before cross-store writes.
-2. Add authoritative DNS account/Zone models and adapters, persist DNS subtree grants and enforce them on provider-fetched original records; integrate existing DDNS through the same entry point.
-3. Refactor Certimate singleton/request-hook dependencies into the public embedding boundary. Put current-authority checks at manual, scheduled, retry and recovery execution, then enable the scheduler and migrate the full designer/API surface.
-4. Extract AgentRPC with independent purpose cancellation, add durable versioned deployments and reconcile unknown remote outcomes before retries.
-5. Implement coordinated backup/restore and finish the full acceptance matrix against fixed upstream inventories.
+- `python3 script/check-integration.py` passed after retaining the exact Agent v2.3.0 snapshot and reconciling intended patch paths: 5059 files, 50 declared patches, licenses, module boundary, capability inventory and shared protocol checks. Later edits require another run.
+- `service/unifiedbackup` passed Go 1.26.6 `-race` tests covering archive confidentiality/authentication/path safety, references, independent keys, offline SQLite integrity/ownership validation, exclusive lock, configuration/TSDB path hardening, restore quarantine, exact operation evidence and chained backup/recovery-history preservation. Later code changes require another run before the final report.
+- Other module owners run focused synthetic checks during development. Final project-level command/CI results must be recorded against the completed commit; unrun or failing checks are not passes.
 
-## Important architectural choices
+The full matrix/provider counts are in `acceptance.md`; backup commands/no-replay recovery are in `backup.md`; resource/token/execution contracts are in `api.md`.
 
-- `third_party/certimate/pkg/embedded` is the only cross-module import boundary. The initial adapter uses PocketBase core directly; it deliberately does not initialize Certimate's old singleton or scheduler before those paths honor host authorization.
-- Nezha GORM owns grants and grant audit. Certimate owns access/certificate records and their audit. Credential/certificate create and audit are one PocketBase transaction; grant/revoke and audit are one GORM transaction. No GORM writes target PocketBase tables.
-- Original secret fields stay empty for new encrypted resources. The future workflow resolver must decrypt at the execution boundary; pointing unmodified Certimate executors at these rows would be incorrect.
-- New-module PAT requests fail closed, including admin PATs. Original Nezha PAT behavior remains unchanged. Resource-scoped PAT support is a separate explicit feature.
-- Metadata read, public certificate download, secret use, secret export and execution are distinct actions. Only the first two are exposed for delegation in this slice.
-- Known toolchain incompatibility: Go 1.27 JSON v2 causes recursion in PocketBase v0.39.10 `Collection.UnmarshalJSON`. Builds/tests are pinned to Go 1.26.6; changing the pin requires an actual migration/reopen test.
+## Architectural boundaries
 
-## Verification evidence
+- `github.com/certimate-go/certimate/pkg/embedded` is the only host import boundary. No Certimate internal imports, PocketBase login/admin/public routes or second management application are exposed.
+- Full releases include the `certimate_full` engine and all upstream providers. Explicit storage-only development mode reports unavailable execution and is not the release acceptance target.
+- GORM owns users, grants, bindings, policies and intents. Certimate owns records, graph/run state, keys and audit. Local transactions and inactive-until-bound resources prevent partially linked resources from executing.
+- Credential config, certificate/ACME keys, graphs, run snapshots, node configuration/output and sensitive settings are encrypted at rest. Provider logs/errors are sanitized before persistence. Metadata access never implies secret export or execution.
+- Restored stores are fenced until operation-specific reconciliation completes. Workflows, DDNS and targets stay disabled until explicitly reviewed/re-enabled. Old backups never justify blind remote-side-effect replay.
+- Go 1.26.6 preserves PocketBase v0.39.10 JSON behavior. Toolchain changes require actual migration/reopen and complete workflow tests.
 
-`make test`, `make race`, `make test-web`, `make build` and `script/smoke-unified.py` are reproducible local/CI entry points. Check the GitHub Actions run for a given commit for its actual outcome. No cloud DNS, CA, real host, production database or external deployment credentials are required by these checks, and no live provider acceptance is claimed.
+## Remaining release gates
+
+Run `make check test`, `make race`, `make test-web`, `make build`, the disposable native HTTP smoke, fixed Agent compatibility and browser scenarios for the final head. Confirm complete remote CI for that same commit. Track authorized real DNS/CA/notification/host acceptance separately; no production credentials belong in tests or CI.

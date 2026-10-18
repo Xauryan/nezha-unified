@@ -8,6 +8,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/certimate-go/certimate/internal/embedcrypto"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -32,7 +33,7 @@ func (r *SettingsRepository) GetByName(ctx context.Context, name string) (*domai
 	}
 
 	content := make(map[string]any)
-	if err := record.UnmarshalJSONField("content", &content); err != nil {
+	if err := embedcrypto.ReadJSON(app.GetApp(), record, "content", &content); err != nil {
 		return nil, fmt.Errorf("field 'content' is malformed")
 	}
 
@@ -70,7 +71,9 @@ func (r *SettingsRepository) Save(ctx context.Context, settings *domain.Settings
 	}
 
 	record.Set("name", settings.Name)
-	record.Set("content", settings.Content)
+	if err := embedcrypto.SetJSON(app.GetApp(), record, "content", settings.Content); err != nil {
+		return settings, err
+	}
 	if err := app.GetApp().Save(record); err != nil {
 		return settings, err
 	}

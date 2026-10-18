@@ -75,6 +75,7 @@ func (e *Engine) List(ctx context.Context, kind string, ids []string, all bool, 
 		return result, nil
 	}
 	query := e.app.RecordQuery(collection).WithContext(ctx)
+	query.AndWhere(dbx.Or(dbx.HashExp{"unified_operation_id": ""}, dbx.HashExp{"unified_active": true}))
 	// Certimate access/certificate records are soft-deleted; workflow records
 	// are hard-deleted and do not have a deleted column in the upstream schema.
 	if kind != "workflow" {
@@ -230,8 +231,8 @@ func (e *Engine) ImportCertificate(ctx context.Context, actor string, in Certifi
 	return result, err
 }
 
-// CertificatePEM returns the public chain only. Private key export requires a
-// separate future action and is intentionally absent from this API surface.
+// CertificatePEM returns the public chain only. Private key export uses the
+// separate, host-authorized native download or deployment service.
 func (e *Engine) CertificatePEM(ctx context.Context, id string) (string, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -239,7 +240,7 @@ func (e *Engine) CertificatePEM(ctx context.Context, id string) (string, error) 
 		return "", err
 	}
 	r, err := e.app.FindRecordById("certificate", id)
-	if err != nil || !r.GetDateTime("deleted").IsZero() {
+	if err != nil || !nativeActive(r) || !r.GetDateTime("deleted").IsZero() {
 		return "", ErrNotFound
 	}
 	return r.GetString("certificate"), nil
