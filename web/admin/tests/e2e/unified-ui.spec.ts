@@ -154,6 +154,92 @@ test("native workflow create, node configuration, publish, execute and cancel", 
     expect(errors).toEqual([])
 })
 
+test("workflow node deletion preserves saved graph without delayed hover errors", async ({
+    page,
+    baseURL,
+}) => {
+    const fixture = await nativeFixture(page, baseURL!)
+    const errors: string[] = []
+    page.on("pageerror", (error) => errors.push(error.message))
+    await page.setViewportSize({ width: 1440, height: 1080 })
+    await page.goto("/dashboard/certificates/workflows/new")
+    await page.getByRole("button", { name: "Create from blank", exact: true }).click()
+    await expect(page).toHaveURL(/fixtureflow0001\/design$/)
+
+    const adder = page.locator(".flow-canvas-adder").first()
+    await adder.hover()
+    await adder.getByRole("button").click()
+    await page.getByRole("menuitem", { name: "Delay", exact: true }).click()
+    await expect.poll(() => fixture.workflow.graphDraft.nodes.length).toBe(3)
+    const delayId = fixture.workflow.graphDraft.nodes[1].id as string
+    const delay = page.locator(`[data-node-id="${delayId}"]`)
+    await delay.getByText("Delay", { exact: true }).click()
+    await page.locator(".ant-drawer").getByRole("spinbutton").fill("7")
+    await page.locator(".ant-drawer").getByRole("button", { name: "Save changes", exact: true }).click()
+    await expect(page.locator(".ant-drawer")).toBeHidden()
+    await expect.poll(() => fixture.workflow.graphDraft.nodes[1].data.config.wait).toBe(7)
+
+    await delay.hover()
+    await page.locator(".ant-popover:visible button").click()
+    await page.getByRole("menuitem", { name: "Duplicate node", exact: true }).click()
+    await expect.poll(() => fixture.workflow.graphDraft.nodes.length).toBe(4)
+    const copyId = fixture.workflow.graphDraft.nodes[2].id as string
+    expect(copyId).not.toBe(delayId)
+    const copy = page.locator(`[data-node-id="${copyId}"]`)
+    await expect(copy.getByText("Delay-copy", { exact: true })).toBeVisible()
+    expect(fixture.workflow.graphDraft.nodes[2].data.config.wait).toBe(7)
+
+    await copy.hover()
+    const grip = await copy.locator(".tabler-icon-grip-vertical").boundingBox()
+    const destination = await page.locator(".flow-canvas-adder").first().boundingBox()
+    expect(grip).not.toBeNull()
+    expect(destination).not.toBeNull()
+    await page.mouse.move(grip!.x + grip!.width / 2, grip!.y + grip!.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(
+        destination!.x + destination!.width / 2,
+        destination!.y + destination!.height / 2,
+        { steps: 30 },
+    )
+    await page.mouse.up()
+    await expect.poll(() => fixture.workflow.graphDraft.nodes[1].id).toBe(copyId)
+
+    await delay.hover()
+    await page.locator(".ant-popover:visible button").click()
+    await page.getByRole("menuitem", { name: "Delete node", exact: true }).click()
+    await expect(delay).toHaveCount(0)
+    await expect.poll(() => fixture.workflow.graphDraft.nodes.length).toBe(3)
+    // The canvas schedules mouseleave cleanup for 200ms; deleting a hovered node must
+    // remain safe after that callback runs, as well as after the draft autosave.
+    await page.waitForTimeout(350)
+    expect(errors).toEqual([])
+    const savedGraph = structuredClone(fixture.workflow.graphDraft)
+    expect(savedGraph.nodes.map((node: { id: string }) => node.id)).not.toContain(delayId)
+    expect(savedGraph.nodes[1].id).toBe(copyId)
+
+    await page.reload()
+    await expect(copy.getByText("Delay-copy", { exact: true })).toBeVisible()
+    await expect(delay).toHaveCount(0)
+    expect(fixture.workflow.graphDraft).toEqual(savedGraph)
+    await copy.getByText("Delay-copy", { exact: true }).click()
+    await expect(page.locator(".ant-drawer").getByRole("spinbutton")).toHaveValue("7")
+    await page.locator(".ant-drawer").getByRole("button", { name: "Cancel", exact: true }).click()
+    await expect(page.locator(".ant-drawer")).toBeHidden()
+    await page.getByText("History runs", { exact: true }).click()
+    await expect(page).toHaveURL(/fixtureflow0001\/runs$/)
+    await page.goBack()
+    await expect(page).toHaveURL(/fixtureflow0001\/design$/)
+    await expect(copy).toBeVisible()
+    await expect(delay).toHaveCount(0)
+    await page.goForward()
+    await expect(page).toHaveURL(/fixtureflow0001\/runs$/)
+    await page.goBack()
+    await expect(copy).toBeVisible()
+    await expect(delay).toHaveCount(0)
+    expect(fixture.workflow.graphDraft).toEqual(savedGraph)
+    expect(errors).toEqual([])
+})
+
 test("certificate permission denial retains Nezha session and scoped dark theme", async ({
     page,
     baseURL,

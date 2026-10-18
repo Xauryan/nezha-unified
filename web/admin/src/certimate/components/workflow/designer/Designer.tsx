@@ -9,6 +9,7 @@ import {
   type FlowDocumentJSON,
   FlowLayoutDefault,
   type FlowNodeEntity,
+  FlowNodeRenderData,
   FlowTextKey,
 } from "@flowgram.ai/fixed-layout-editor";
 import { createMinimapPlugin } from "@flowgram.ai/minimap-plugin";
@@ -157,6 +158,38 @@ const Designer = forwardRef<DesignerInstance, DesignerProps>(
 
       return () => d.dispose();
     }, [onDocumentChange]);
+
+    useEffect(() => {
+      const document = flowgramEditorRef.current!.document;
+      const tracked = new Map<FlowNodeEntity, () => void>();
+      const track = (node: FlowNodeEntity) => {
+        const renderData = node.getData(FlowNodeRenderData);
+        if (!renderData || tracked.has(node)) return;
+
+        // Flowgram 1.0.15 leaves its delayed mouseleave callback running after
+        // disposing a node. Capture the render data before disposal removes it.
+        const clearHoverTimer = () => {
+          clearTimeout(renderData.mouseLeaveTimeout);
+          renderData.mouseLeaveTimeout = undefined;
+        };
+        const subscription = node.onDispose(() => {
+          clearHoverTimer();
+          tracked.delete(node);
+        });
+        tracked.set(node, () => {
+          subscription.dispose();
+          clearHoverTimer();
+        });
+      };
+      document.getAllNodes().forEach(track);
+      const subscription = document.onNodeCreate(({ node }) => track(node));
+
+      return () => {
+        subscription.dispose();
+        tracked.forEach((dispose) => dispose());
+        tracked.clear();
+      };
+    }, []);
 
     useImperativeHandle(ref, () => {
       return {

@@ -52,8 +52,12 @@ const Node = (_props: NodeProps) => {
         opacity: nodeRender.dragging ? 0.3 : 1,
         ...nodeRender.node.getNodeRegistry<NodeRegistry>().meta?.style,
       }}
-      onMouseEnter={nodeRender.onMouseEnter}
-      onMouseLeave={nodeRender.onMouseLeave}
+      onMouseEnter={(event) => {
+        if (!nodeRender.node.disposed) nodeRender.onMouseEnter(event);
+      }}
+      onMouseLeave={(event) => {
+        if (!nodeRender.node.disposed) nodeRender.onMouseLeave(event);
+      }}
       onMouseDown={(e) => {
         nodeRender.startDrag(e);
         e.stopPropagation();
