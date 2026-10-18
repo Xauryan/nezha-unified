@@ -411,7 +411,7 @@ func fallbackToFrontend(frontendDist fs.FS) func(*gin.Context) {
 
 	frontendPageUrlRegistry := []*regexp.Regexp{
 		// Native integrated resource pages.
-		regexp.MustCompile(`^/dashboard/(dns|permissions|credentials(?:/new)?|certificates(?:/overview|/presets|/workflows(?:/new|/[^/]+(?:/design|/runs)?)?)?|settings/certificates(?:/ssl-provider|/persistence|/diagnostics|/about)?)$`),
+		regexp.MustCompile(`^/dashboard/(dns|targets|identities|runs|permissions|credentials(?:/new)?|certificates(?:/overview|/presets|/workflows(?:/new|/[^/]+(?:/design|/runs)?)?)?|settings/certificates(?:/ssl-provider|/persistence|/diagnostics|/about)?)$`),
 		// official user frontend
 		regexp.MustCompile(`^/$`),
 		regexp.MustCompile(`^/server/\d*$`),

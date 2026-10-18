@@ -15,3 +15,7 @@ func (e *Engine) NativeRevokeCertificate(context.Context, string, string) error 
 func (e *Engine) NativeTestNotification(context.Context, CredentialUse, string) error {
 	return ErrRuntimeUnavailable
 }
+
+func (e *Engine) NativeDeployProvider(context.Context, CredentialUse, string, map[string]any, CertificateMaterial) error {
+	return ErrRuntimeUnavailable
+}

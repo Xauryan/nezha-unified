@@ -14,34 +14,35 @@ themes:
 	python3 script/fetch-public-themes.py
 
 test-core: prepare
-	go test -mod=readonly -p 2 ./service/unified/... ./service/unifiedbackup ./service/agentcall ./pkg/certdeploy github.com/certimate-go/certimate/pkg/embedded
+	go test -ldflags='-s -w' -mod=readonly -p 2 ./service/unified/... ./service/unifiedbackup ./service/agentcall ./pkg/certdeploy github.com/certimate-go/certimate/pkg/embedded
 
 test: prepare
-	go test -tags=certimate_full -mod=readonly -p 2 ./... $(CERTIMATE_TEST_PACKAGES)
+	go test -ldflags='-s -w' -tags=certimate_full -mod=readonly -p 2 ./... $(CERTIMATE_TEST_PACKAGES)
 
 test-web:
 	cd web/admin && npm ci --no-audit --no-fund && npm test && npm run lint
 
 race: prepare
-	go test -tags=certimate_full -mod=readonly -p 2 -race ./service/unified/... ./service/unifiedbackup ./service/agentcall ./pkg/certdeploy ./cmd/dashboard/controller $(CERTIMATE_TEST_PACKAGES)
+	go test -ldflags='-s -w' -tags=certimate_full -mod=readonly -p 2 -race ./service/unified/... ./service/unifiedbackup ./service/agentcall ./service/rpc ./service/singleton ./pkg/certdeploy ./cmd/dashboard ./cmd/dashboard/controller $(CERTIMATE_TEST_PACKAGES)
 
 vet: prepare
 	go vet -tags=certimate_full -mod=readonly -p 2 ./... $(CERTIMATE_TEST_PACKAGES)
 
 test-agent:
-	cd third_party/agent && go test -mod=readonly -p 2 ./...
-	cd third_party/agent && go test -mod=readonly -p 2 -race ./pkg/agentproto ./pkg/certdeploy ./cmd/agent -run 'TestUnified|TestAgent|TestDeploy'
+	cd third_party/agent && go test -ldflags='-s -w' -mod=readonly -p 2 ./...
+	cd third_party/agent && go test -ldflags='-s -w' -mod=readonly -p 2 -race ./pkg/agentproto ./pkg/certdeploy ./cmd/agent -run 'TestUnified|TestAgent|TestDeploy'
 
 build-agent:
 	mkdir -p bin
-	cd third_party/agent && go build -mod=readonly -trimpath -o ../../bin/nezha-agent ./cmd/agent
+	cd third_party/agent && go build -mod=readonly -trimpath -ldflags '-s -w' -o ../../bin/nezha-agent ./cmd/agent
 
-test-e2e:
-	cd web/admin && npx playwright install --with-deps chromium && npm run e2e
+test-e2e: build build-agent
+	cd web/admin && npx playwright install --with-deps chromium
+	python3 script/e2e-unified.py
 
 build: prepare frontend themes
 	mkdir -p bin
-	go build -tags=certimate_full -mod=readonly -p 2 -trimpath -ldflags '-X github.com/nezhahq/nezha/service/singleton.Version=unified-0.2.0-dev' -o bin/nezha-unified ./cmd/dashboard
+	go build -tags=certimate_full -mod=readonly -p 2 -trimpath -ldflags '-s -w -X github.com/nezhahq/nezha/service/singleton.Version=unified-0.2.0-dev' -o bin/nezha-unified ./cmd/dashboard
 
 check:
 	python3 script/check-integration.py

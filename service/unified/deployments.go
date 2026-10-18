@@ -44,6 +44,7 @@ type Deployment struct {
 	Code               string             `json:"code,omitempty"`
 	CreatedAt          time.Time          `json:"created_at"`
 	UpdatedAt          time.Time          `json:"updated_at"`
+	InspectedAt        time.Time          `json:"inspected_at,omitempty"`
 }
 
 func (Deployment) TableName() string { return "unified_deployments" }
@@ -58,12 +59,14 @@ type DeploymentInput struct {
 	NodeID             string `json:"-"`
 }
 type deploymentRuntime struct {
-	calls  *agentcall.Broker
-	cancel context.CancelFunc
-	wg     sync.WaitGroup
-	mu     sync.Mutex
-	locks  [64]sync.Mutex
-	wake   chan struct{}
+	calls    *agentcall.Broker
+	cancel   context.CancelFunc
+	wg       sync.WaitGroup
+	mu       sync.Mutex
+	locks    [64]sync.Mutex
+	wake     chan struct{}
+	ctx      context.Context
+	stopping bool
 }
 
 func (s *Service) SetAgentCalls(calls *agentcall.Broker) {
@@ -73,7 +76,7 @@ func (s *Service) SetAgentCalls(calls *agentcall.Broker) {
 	r := s.deployments
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if r.cancel != nil {
+	if r.cancel != nil || r.stopping {
 		return
 	}
 	r.calls = calls
@@ -81,6 +84,7 @@ func (s *Service) SetAgentCalls(calls *agentcall.Broker) {
 		return
 	}
 	ctx, cancel := context.WithCancel(context.Background())
+	r.ctx = ctx
 	r.cancel = cancel
 	r.wg.Add(1)
 	go func() {
@@ -104,6 +108,7 @@ func (s *Service) CloseDeployments() {
 	}
 	r := s.deployments
 	r.mu.Lock()
+	r.stopping = true
 	if r.cancel != nil {
 		r.cancel()
 	}
@@ -116,6 +121,7 @@ func (s *Service) CloseDeploymentsContext(ctx context.Context) error {
 	}
 	r := s.deployments
 	r.mu.Lock()
+	r.stopping = true
 	if r.cancel != nil {
 		r.cancel()
 	}
@@ -158,8 +164,28 @@ func (s *Service) deploymentAuthorization(ctx context.Context, p Principal, t De
 	if !fresh.Enabled || fresh.Version != t.Version || fresh.ServerID != t.ServerID {
 		return ErrTargetConflict
 	}
+	if fresh.Kind == "certimate" {
+		info, err := s.engine.CredentialInfo(ctx, fresh.CredentialID)
+		if err != nil || !info.Enabled || info.Version != fresh.CredentialVersion {
+			return ErrDenied
+		}
+	}
 	return nil
 }
+
+// A new operation must not bypass an earlier mutation whose result is still
+// uncertain. Queued operations may still supersede one another before dispatch.
+func checkDeploymentFence(db *gorm.DB, target, operation uint64) error {
+	var active int64
+	if err := db.Model(&Deployment{}).Where("target_id = ? AND id <> ? AND state IN ?", target, operation, []string{"dispatching", "staging", "validating", "applying", "unknown", "reconciling", "reconciliation_required"}).Count(&active).Error; err != nil {
+		return err
+	}
+	if active != 0 {
+		return ErrTargetConflict
+	}
+	return nil
+}
+
 func (s *Service) createDeployment(ctx context.Context, p Principal, target uint64, in DeploymentInput, m embedded.CertificateMaterial) (Deployment, error) {
 	var t DeploymentTarget
 	if err := s.db.WithContext(ctx).First(&t, target).Error; err != nil {
@@ -172,7 +198,7 @@ func (s *Service) createDeployment(ctx context.Context, p Principal, target uint
 		return Deployment{}, embedded.ErrInvalid
 	}
 	check := agentproto.Deployment{OperationID: in.OperationID, Sequence: 1, Target: t.agentTarget(), CertificatePEM: m.CertificatePEM, PrivateKeyPEM: m.PrivateKeyPEM, Fingerprint: m.Fingerprint}
-	if certdeploy.Validate(check) != nil {
+	if (t.Kind == "nezha" && certdeploy.Validate(check) != nil) || (t.Kind == "certimate" && certdeploy.ValidateCertificate(m.CertificatePEM, m.PrivateKeyPEM, m.Fingerprint, t.AllowedNames) != nil) {
 		return Deployment{}, embedded.ErrInvalid
 	}
 	actor, _ := json.Marshal(p)
@@ -197,6 +223,9 @@ func (s *Service) createDeployment(ctx context.Context, p Principal, target uint
 			d = prior
 			return nil
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+		if err := checkDeploymentFence(tx, target, 0); err != nil {
 			return err
 		}
 		if err := tx.Create(&d).Error; err != nil {
@@ -251,20 +280,36 @@ func (s *Service) DeployTarget(ctx context.Context, p Principal, in embedded.Tar
 	return err
 }
 func (s *Service) processDeployment(ctx context.Context, id uint64, m *embedded.CertificateMaterial, reconcile bool) (Deployment, error) {
-	if s.deployments == nil || s.deployments.calls == nil {
+	if s.deployments == nil {
 		return Deployment{}, agentcall.ErrOffline
 	}
 	r := s.deployments
+	r.mu.Lock()
+	if r.stopping {
+		r.mu.Unlock()
+		return Deployment{}, ErrDenied
+	}
+	r.wg.Add(1)
+	runtimeContext := r.ctx
+	r.mu.Unlock()
+	defer r.wg.Done()
+	if runtimeContext != nil {
+		operationContext, cancel := context.WithCancel(ctx)
+		stop := context.AfterFunc(runtimeContext, cancel)
+		defer stop()
+		defer cancel()
+		ctx = operationContext
+	}
 	r.locks[id%uint64(len(r.locks))].Lock()
 	defer r.locks[id%uint64(len(r.locks))].Unlock()
 	var d Deployment
 	if err := s.db.WithContext(ctx).First(&d, id).Error; err != nil {
 		return d, err
 	}
-	if d.State == "verified" {
+	if d.State == "verified" || d.State == "applied" {
 		return d, nil
 	}
-	if d.State == "cancelled" || d.State == "superseded" || d.State == "rolled_back" || d.State == "failed" || d.State == "reconciliation_required" {
+	if d.State == "cancelled" || d.State == "superseded" || d.State == "rolled_back" || d.State == "failed" || d.State == "reconciliation_required" || d.State == "retired" {
 		return d, ErrTargetConflict
 	}
 	var p Principal
@@ -275,6 +320,12 @@ func (s *Service) processDeployment(ctx context.Context, id uint64, m *embedded.
 	targetLock := &s.recordLocks[d.TargetID%uint64(len(s.recordLocks))]
 	targetLock.Lock()
 	defer targetLock.Unlock()
+	reconcile = reconcile || d.State == "unknown" || d.State == "reconciling" || (!d.LeaseUntil.IsZero() && time.Now().After(d.LeaseUntil))
+	if !reconcile {
+		if err := checkDeploymentFence(s.db.WithContext(ctx), d.TargetID, d.ID); err != nil {
+			return d, err
+		}
+	}
 	auth := func(ctx context.Context) error {
 		var current Deployment
 		if err := s.db.WithContext(ctx).First(&current, d.ID).Error; err != nil {
@@ -282,6 +333,11 @@ func (s *Service) processDeployment(ctx context.Context, id uint64, m *embedded.
 		}
 		if current.Code == "cancel_requested" || current.State == "cancelled" || current.State == "reconciliation_required" {
 			return ErrDenied
+		}
+		if !reconcile {
+			if err := checkDeploymentFence(s.db.WithContext(ctx), d.TargetID, d.ID); err != nil {
+				return err
+			}
 		}
 		return s.deploymentAuthorization(ctx, p, t, d.CertificateID, d.WorkflowID, d.WorkflowRunID)
 	}
@@ -305,7 +361,6 @@ func (s *Service) processDeployment(ctx context.Context, id uint64, m *embedded.
 	if err := s.db.WithContext(ctx).First(&latest, t.ID).Error; err != nil {
 		return d, err
 	}
-	reconcile = reconcile || d.State == "unknown" || d.State == "reconciling" || (!d.LeaseUntil.IsZero() && time.Now().After(d.LeaseUntil))
 	if !reconcile && latest.DesiredVersion != d.ID {
 		finish("superseded", "newer_version", d.Receipt)
 		return d, ErrTargetConflict
@@ -317,6 +372,13 @@ func (s *Service) processDeployment(ctx context.Context, id uint64, m *embedded.
 	claim := s.db.WithContext(ctx).Model(&Deployment{}).Where("id = ? AND (lease_until IS NULL OR lease_until = ? OR lease_until < ?)", id, time.Time{}, now).Updates(map[string]any{"lease_until": now.Add(3 * time.Minute), "attempts": gorm.Expr("attempts + 1")})
 	if claim.Error != nil || claim.RowsAffected != 1 {
 		return d, ErrTargetConflict
+	}
+	if t.Kind == "certimate" {
+		return s.processCloudDeployment(ctx, d, p, t, latest, m, reconcile, auth, finish)
+	}
+	if r.calls == nil {
+		finish("waiting_online", "offline", d.Receipt)
+		return d, agentcall.ErrOffline
 	}
 	cap, err := r.calls.Capabilities(ctx, t.ServerID, auth)
 	if err != nil {
@@ -388,7 +450,7 @@ func (s *Service) processDeployment(ctx context.Context, id uint64, m *embedded.
 		s.cancelIssuedDeployment(t.ServerID, d.OperationID)
 	}
 	var receipt agentproto.Receipt
-	if len(raw) > 0 && json.Unmarshal(raw, &receipt) == nil && receipt.OperationID == d.OperationID && receipt.TargetID == fmt.Sprint(t.ID) && receipt.TargetVersion == t.Version && receipt.Sequence == d.ID && receipt.Fingerprint == d.Fingerprint {
+	if len(raw) > 0 && json.Unmarshal(raw, &receipt) == nil && validDeploymentReceipt(&receipt, d) {
 		if callErr == nil && receipt.Verified && receipt.Phase == "verified" {
 			err := s.db.WithContext(context.WithoutCancel(ctx)).Transaction(func(tx *gorm.DB) error {
 				if err := tx.Model(&Deployment{}).Where("id = ?", d.ID).Updates(map[string]any{"state": "verified", "code": "", "receipt": mustDeploymentJSON(receipt), "lease_until": time.Time{}}).Error; err != nil {
@@ -413,6 +475,8 @@ func (s *Service) processDeployment(ctx context.Context, id uint64, m *embedded.
 			finish(receipt.Phase, receipt.Code, receipt)
 			return d, callErr
 		}
+	} else {
+		receipt = agentproto.Receipt{}
 	}
 	finish("unknown", "result_unknown", receipt)
 	if callErr == nil {
@@ -490,9 +554,9 @@ func (s *Service) CancelDeployment(ctx context.Context, p Principal, id uint64) 
 	}
 	state := "cancelled"
 	switch d.State {
-	case "verified", "failed", "rolled_back", "superseded", "cancelled":
+	case "verified", "applied", "failed", "rolled_back", "superseded", "cancelled", "retired":
 		return d, nil
-	case "dispatching", "staging", "validating", "applying", "unknown", "reconciling":
+	case "dispatching", "staging", "validating", "applying", "unknown", "reconciling", "reconciliation_required":
 		state = "unknown"
 	}
 	if err = s.db.WithContext(ctx).Model(&Deployment{}).Where("id = ?", id).Updates(map[string]any{"state": state, "code": "cancel_requested"}).Error; err != nil {
@@ -503,6 +567,9 @@ func (s *Service) CancelDeployment(ctx context.Context, p Principal, id uint64) 
 	if state == "unknown" && s.deployments != nil && s.deployments.calls != nil {
 		var t DeploymentTarget
 		_ = json.Unmarshal([]byte(d.TargetJSON), &t)
+		if t.Kind != "nezha" {
+			return d, nil
+		}
 		_, _ = s.deployments.calls.Call(ctx, t.ServerID, agentproto.TaskCall, "certificate_cancel", agentproto.Request{Protocol: agentproto.Protocol, OperationID: d.OperationID, Method: "cancel"}, func(ctx context.Context) error {
 			if !s.Can(ctx, p, "deployment_target", fmt.Sprint(t.ID), "execute") {
 				return ErrDenied
@@ -513,12 +580,5 @@ func (s *Service) CancelDeployment(ctx context.Context, p Principal, id uint64) 
 	return d, nil
 }
 func (s *Service) ReconcileDeployment(ctx context.Context, p Principal, id uint64) (Deployment, error) {
-	d, err := s.Deployment(ctx, p, id)
-	if err != nil {
-		return d, err
-	}
-	if !s.Can(ctx, p, "deployment_target", fmt.Sprint(d.TargetID), "execute") {
-		return d, ErrDenied
-	}
-	return s.processDeployment(ctx, id, nil, true)
+	return s.inspectDeployment(ctx, p, id, false, "")
 }

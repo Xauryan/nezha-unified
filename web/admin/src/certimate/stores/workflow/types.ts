@@ -18,4 +18,4 @@ export interface WorkflowActions {
   rollback(): Promise<void>;
 }
 
-export interface WorkflowStore extends WorkflowState, WorkflowActions {}
+export type WorkflowStore = WorkflowState & WorkflowActions;

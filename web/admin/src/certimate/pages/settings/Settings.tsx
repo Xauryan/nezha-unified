@@ -11,10 +11,10 @@ const Settings = () => {
   const { t } = useTranslation();
 
   const menus = [
-    ["ssl-provider", "settings.sslprovider.tab", <IconPlugConnected size="1em" />],
-    ["persistence", "settings.persistence.tab", <IconDatabaseCog size="1em" />],
-    ["diagnostics", "settings.diagnostics.tab", <IconHeartRateMonitor size="1em" />],
-    ["about", "settings.about.tab", <IconInfoCircle size="1em" />],
+    ["ssl-provider", "settings.sslprovider.tab", <IconPlugConnected key="IconPlugConnected" size="1em" />],
+    ["persistence", "settings.persistence.tab", <IconDatabaseCog key="IconDatabaseCog" size="1em" />],
+    ["diagnostics", "settings.diagnostics.tab", <IconHeartRateMonitor key="IconHeartRateMonitor" size="1em" />],
+    ["about", "settings.about.tab", <IconInfoCircle key="IconInfoCircle" size="1em" />],
   ] satisfies [string, string, React.ReactElement][];
   const [menuKey, setMenuKey] = useState<string>(() => location.pathname.replace("/dashboard/settings/certificates", "").split("/")[1]);
   useEffect(() => {

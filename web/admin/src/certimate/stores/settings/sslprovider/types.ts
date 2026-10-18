@@ -11,4 +11,4 @@ export interface SSLProviderSettingsActions {
   saveSettings: (settings: SSLProviderSettingsContent) => Promise<void>;
 }
 
-export interface SSLProviderSettingsStore extends SSLProviderSettingsState, SSLProviderSettingsActions {}
+export type SSLProviderSettingsStore = SSLProviderSettingsState & SSLProviderSettingsActions;

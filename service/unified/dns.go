@@ -99,6 +99,12 @@ type DNSPage struct {
 }
 
 func (s *Service) authorizeCredential(ctx context.Context, use embedded.CredentialUse) error {
+	if use.ResourceKind == "deployment_target" {
+		return s.authorizeTargetCredential(ctx, use)
+	}
+	if use.ResourceKind == "legacy_ddns" {
+		return s.authorizeLegacyCredential(ctx, use)
+	}
 	if use.ResourceKind == "credential" {
 		return s.authorizeStandaloneCredential(ctx, use)
 	}
@@ -551,6 +557,7 @@ func (s *Service) changeDNS(ctx context.Context, p Principal, zoneID uint64, in 
 		return DNSOperation{}, err
 	}
 	record := in.Record
+	legacyName, legacyType := "", ""
 	if in.Action != "create" {
 		if record.ID == "" {
 			return DNSOperation{}, embedded.ErrInvalid
@@ -562,6 +569,7 @@ func (s *Service) changeDNS(ctx context.Context, p Principal, zoneID uint64, in 
 		if original.ID != record.ID || !s.canDNS(ctx, p, z, original, authAction) {
 			return DNSOperation{}, ErrDenied
 		}
+		legacyName, legacyType = original.Name, original.Type
 		if in.Action == "delete" {
 			record = original
 		}
@@ -587,6 +595,9 @@ func (s *Service) changeDNS(ctx context.Context, p Principal, zoneID uint64, in 
 		}
 	}
 	if binding == nil && in.Action != "create" {
+		if s.legacyDDNSOwnsName(ctx, legacyName, legacyType) {
+			return DNSOperation{}, ErrDDNSManaged
+		}
 		var active []DDNSBinding
 		if err := s.db.WithContext(ctx).Where("zone_id = ? AND record_id = ? AND enabled = ?", zoneID, record.ID, true).Find(&active).Error; err != nil {
 			return DNSOperation{}, err

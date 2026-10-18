@@ -11,4 +11,4 @@ export interface ContactEmailsActions {
   removeEmail: (email: string) => Promise<void>;
 }
 
-export interface ContactEmailsStore extends ContactEmailsState, ContactEmailsActions {}
+export type ContactEmailsStore = ContactEmailsState & ContactEmailsActions;

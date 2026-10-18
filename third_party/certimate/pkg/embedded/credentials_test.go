@@ -60,3 +60,20 @@ func TestCredentialResolutionRequiresCurrentScopedAuthority(t *testing.T) {
 		t.Fatal("disabled credential resolved")
 	}
 }
+
+func TestCredentialResolutionRejectsReplacedAuthorizer(t *testing.T) {
+	e := testEngine(t)
+	ctx := context.Background()
+	r, err := e.CreateCredential(ctx, "synthetic", CredentialInput{Name: "synthetic", Provider: "synthetic", Config: json.RawMessage(`{"token":"synthetic"}`)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	e.SetCredentialAuthorizer(func(context.Context, CredentialUse) error {
+		e.SetCredentialAuthorizer(nil)
+		return nil
+	})
+	_, err = e.ResolveCredential(ctx, CredentialUse{ActorID: 1, CredentialID: r.ID, Version: 1, Purpose: "synthetic", ResourceKind: "credential", ResourceID: r.ID})
+	if err == nil {
+		t.Fatal("replaced authorizer still released material")
+	}
+}

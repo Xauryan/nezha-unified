@@ -298,6 +298,9 @@ const AccessList = () => {
     const drawer = detailDrawer.open({ data: access, loading: true });
     getAccess(access.id).then((data) => {
       drawer.safeUpdate({ data, loading: false });
+    }).catch(error => {
+      drawer.safeUpdate({ loading: false });
+      notification.error({ title: t("common.text.request_error"), description: unwrapErrMsg(error) });
     });
   };
 

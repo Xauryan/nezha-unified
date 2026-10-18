@@ -482,7 +482,7 @@ export const ACME_DNS01_PROVIDERS = Object.freeze(
 
 export type ACMEDns01ProviderType = (typeof ACME_DNS01_PROVIDERS)[keyof typeof ACME_DNS01_PROVIDERS];
 
-export interface ACMEDns01Provider extends BaseProviderWithAccess<ACMEDns01ProviderType> {}
+export type ACMEDns01Provider = BaseProviderWithAccess<ACMEDns01ProviderType>;
 
 export const acmeDns01ProvidersMap: Map<ACMEDns01Provider["type"] | string, ACMEDns01Provider> = new Map(
   /*
@@ -593,7 +593,7 @@ export const ACME_HTTP01_PROVIDERS = Object.freeze(
 
 export type ACMEHttp01ProviderType = (typeof ACME_HTTP01_PROVIDERS)[keyof typeof ACME_HTTP01_PROVIDERS];
 
-export interface ACMEHttp01Provider extends BaseProviderWithAccess<ACMEHttp01ProviderType> {}
+export type ACMEHttp01Provider = BaseProviderWithAccess<ACMEHttp01ProviderType>;
 
 export const acmeHttp01ProvidersMap: Map<ACMEHttp01Provider["type"] | string, ACMEHttp01Provider> = new Map(
   /*
@@ -1001,7 +1001,7 @@ export const deploymentProvidersMap: Map<DeploymentProvider["type"] | string, De
 // #region NotificationProvider
 deploymentProvidersMap.set(DEPLOYMENT_PROVIDERS.NEZHA_AGENT, {
   type: DEPLOYMENT_PROVIDERS.NEZHA_AGENT,
-  name: "Nezha Agent",
+  name: "Shared deployment target",
   icon: "/dashboard/logo.svg",
   provider: ACCESS_PROVIDERS.LOCAL,
   category: DEPLOYMENT_CATEGORIES.OTHER,
@@ -1029,7 +1029,7 @@ export const NOTIFICATION_PROVIDERS = Object.freeze(
 
 export type NotificationProviderType = (typeof NOTIFICATION_PROVIDERS)[keyof typeof NOTIFICATION_PROVIDERS];
 
-export interface NotificationProvider extends BaseProviderWithAccess<NotificationProviderType> {}
+export type NotificationProvider = BaseProviderWithAccess<NotificationProviderType>;
 
 export const notificationProvidersMap: Map<NotificationProvider["type"] | string, NotificationProvider> = new Map(
   /*

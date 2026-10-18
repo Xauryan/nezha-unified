@@ -131,3 +131,17 @@ func TestFallbackToFrontendPreservesDashboardRoutes(t *testing.T) {
 		t.Fatalf("/dashboard/assets/app.js status = %d body = %q, want admin asset", w.Code, w.Body.String())
 	}
 }
+
+func TestFallbackToFrontendPreservesIntegratedDeepLinks(t *testing.T) {
+	t.Chdir(t.TempDir())
+	router := newFrontendFallbackTestRouter(t)
+	for _, path := range []string{"/dashboard/targets", "/dashboard/identities", "/dashboard/runs", "/dashboard/dns", "/dashboard/permissions", "/dashboard/certificates/workflows/synthetic/design"} {
+		w := performFrontendFallbackRequest(t, router, path)
+		if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), "admin index") {
+			t.Fatalf("%s status = %d, want integrated app", path, w.Code)
+		}
+	}
+	if w := performFrontendFallbackRequest(t, router, "/dashboard/unregistered-resource"); w.Code != http.StatusNotFound {
+		t.Fatalf("unknown route status = %d, want 404", w.Code)
+	}
+}

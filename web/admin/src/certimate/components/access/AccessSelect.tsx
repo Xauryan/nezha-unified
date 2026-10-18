@@ -20,7 +20,7 @@ const AccessSelect = ({ onFilter, ...props }: AccessTypeSelectProps) => {
     fetchAccesses(false);
   });
 
-  const [options, setOptions] = useState<Array<{ key: string; value: string; label: string; data: AccessModel }>>([]);
+  const [options, setOptions] = useState<Array<{ key: string; value: string; label: string; data: AccessModel; disabled: boolean }>>([]);
   useEffect(() => {
     const filteredItems = onFilter != null ? accesses.filter((item) => onFilter(item.id, item)) : accesses;
     setOptions(
@@ -29,6 +29,7 @@ const AccessSelect = ({ onFilter, ...props }: AccessTypeSelectProps) => {
         value: item.id,
         label: item.name,
         data: item,
+        disabled: item.unified_enabled === false,
       }))
     );
   }, [accesses, onFilter]);

@@ -2,6 +2,7 @@ package unified
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strconv"
@@ -16,27 +17,33 @@ import (
 )
 
 type DeploymentTarget struct {
-	ID                 uint64    `json:"id" gorm:"primaryKey"`
-	Name               string    `json:"name"`
-	Kind               string    `json:"kind"`
-	ServerID           uint64    `json:"server_id" gorm:"index"`
-	AllowedNames       []string  `json:"allowed_names" gorm:"serializer:json"`
-	BundlePath         string    `json:"bundle_path"`
-	CheckCommand       []string  `json:"check_command" gorm:"serializer:json"`
-	ReloadCommand      []string  `json:"reload_command" gorm:"serializer:json"`
-	HealthCommand      []string  `json:"health_command" gorm:"serializer:json"`
-	TLSAddress         string    `json:"tls_address,omitempty"`
-	TLSServerName      string    `json:"tls_server_name,omitempty"`
-	FileMode           uint32    `json:"file_mode,omitempty"`
-	OwnerUID           *int      `json:"owner_uid,omitempty"`
-	OwnerGID           *int      `json:"owner_gid,omitempty"`
-	Version            uint64    `json:"version"`
-	Enabled            bool      `json:"enabled"`
-	DesiredVersion     uint64    `json:"desired_version"`
-	AppliedVersion     uint64    `json:"applied_version"`
-	AppliedFingerprint string    `json:"applied_fingerprint,omitempty"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
+	ID                    uint64         `json:"id" gorm:"primaryKey"`
+	Name                  string         `json:"name"`
+	Kind                  string         `json:"kind"`
+	Provider              string         `json:"provider,omitempty"`
+	CredentialID          string         `json:"credential_id,omitempty"`
+	CredentialVersion     int            `json:"credential_version,omitempty"`
+	ConfigurationEnvelope string         `json:"-"`
+	Config                map[string]any `json:"config,omitempty" gorm:"-"`
+	Configured            bool           `json:"configured" gorm:"-"`
+	ServerID              uint64         `json:"server_id" gorm:"index"`
+	AllowedNames          []string       `json:"allowed_names" gorm:"serializer:json"`
+	BundlePath            string         `json:"bundle_path"`
+	CheckCommand          []string       `json:"check_command" gorm:"serializer:json"`
+	ReloadCommand         []string       `json:"reload_command" gorm:"serializer:json"`
+	HealthCommand         []string       `json:"health_command" gorm:"serializer:json"`
+	TLSAddress            string         `json:"tls_address,omitempty"`
+	TLSServerName         string         `json:"tls_server_name,omitempty"`
+	FileMode              uint32         `json:"file_mode,omitempty"`
+	OwnerUID              *int           `json:"owner_uid,omitempty"`
+	OwnerGID              *int           `json:"owner_gid,omitempty"`
+	Version               uint64         `json:"version"`
+	Enabled               bool           `json:"enabled"`
+	DesiredVersion        uint64         `json:"desired_version"`
+	AppliedVersion        uint64         `json:"applied_version"`
+	AppliedFingerprint    string         `json:"applied_fingerprint,omitempty"`
+	CreatedAt             time.Time      `json:"created_at"`
+	UpdatedAt             time.Time      `json:"updated_at"`
 }
 
 func (DeploymentTarget) TableName() string { return "unified_deployment_targets" }
@@ -49,6 +56,7 @@ func (s *Service) Target(ctx context.Context, p Principal, id uint64) (Deploymen
 	}
 	var t DeploymentTarget
 	err := s.db.WithContext(ctx).First(&t, id).Error
+	t.Configured = t.ConfigurationEnvelope != ""
 	return t, err
 }
 func (s *Service) Targets(ctx context.Context, p Principal) ([]DeploymentTarget, error) {
@@ -67,6 +75,7 @@ func (s *Service) Targets(ctx context.Context, p Principal) ([]DeploymentTarget,
 	out := []DeploymentTarget{}
 	for _, t := range rows {
 		if s.Can(ctx, p, "deployment_target", fmt.Sprint(t.ID), "read") {
+			t.Configured = t.ConfigurationEnvelope != ""
 			out = append(out, t)
 		}
 	}
@@ -80,40 +89,39 @@ func (s *Service) SaveTarget(ctx context.Context, p Principal, id uint64, t Depl
 	if err = requireAdmin(p); err != nil {
 		return t, err
 	}
-	if t.Kind != "nezha" || strings.TrimSpace(t.Name) == "" || len(t.Name) > 120 || t.ServerID == 0 || !filepath.IsAbs(t.BundlePath) || filepath.Clean(t.BundlePath) == "/" || len(t.AllowedNames) == 0 || len(t.AllowedNames) > 100 {
-		return t, embedded.ErrInvalid
+	if (t.Kind != "nezha" && t.Kind != "certimate") || strings.TrimSpace(t.Name) == "" || len(t.Name) > 120 || len(t.AllowedNames) == 0 || len(t.AllowedNames) > 100 {
+		return DeploymentTarget{}, embedded.ErrInvalid
 	}
 	for i, name := range t.AllowedNames {
 		t.AllowedNames[i], err = policy.NormalizeName(name)
 		if err != nil {
-			return t, embedded.ErrInvalid
+			return DeploymentTarget{}, embedded.ErrInvalid
 		}
 	}
-	for _, argv := range [][]string{t.CheckCommand, t.ReloadCommand, t.HealthCommand} {
-		if len(argv) == 0 || len(argv) > 64 || !filepath.IsAbs(argv[0]) {
-			return t, embedded.ErrInvalid
+	if t.Kind == "nezha" {
+		if err = s.validateAgentTarget(ctx, t); err != nil {
+			return DeploymentTarget{}, err
 		}
-		for _, arg := range argv {
-			if len(arg) > 4096 || strings.ContainsRune(arg, 0) {
-				return t, embedded.ErrInvalid
+		t.Provider, t.CredentialID, t.CredentialVersion, t.ConfigurationEnvelope, t.Config = "", "", 0, "", nil
+		if t.FileMode == 0 {
+			t.FileMode = 0600
+		}
+	} else {
+		if t.Provider == "" || len(t.Provider) > 100 || t.Provider == "nezha-agent" || t.CredentialVersion < 1 || !s.Can(ctx, p, "credential", t.CredentialID, "use") {
+			return DeploymentTarget{}, embedded.ErrInvalid
+		}
+		info, infoErr := s.engine.CredentialInfo(ctx, t.CredentialID)
+		if infoErr != nil || !info.Enabled || info.Version != t.CredentialVersion {
+			return DeploymentTarget{}, embedded.ErrInvalid
+		}
+		if t.Config != nil {
+			if encoded, e := json.Marshal(t.Config); e != nil || len(encoded) > 2<<20 {
+				return DeploymentTarget{}, embedded.ErrInvalid
 			}
 		}
-	}
-	if (t.TLSAddress == "") != (t.TLSServerName == "") {
-		return t, embedded.ErrInvalid
-	}
-	if t.FileMode == 0 {
-		t.FileMode = 0600
-	}
-	if t.FileMode != 0600 && t.FileMode != 0640 {
-		return t, embedded.ErrInvalid
-	}
-	if t.OwnerUID != nil && *t.OwnerUID < 0 || t.OwnerGID != nil && *t.OwnerGID < 0 {
-		return t, embedded.ErrInvalid
-	}
-	var count int64
-	if err = s.db.WithContext(ctx).Model(&model.Server{}).Where("id = ?", t.ServerID).Count(&count).Error; err != nil || count != 1 {
-		return t, embedded.ErrInvalid
+		t.ServerID, t.BundlePath, t.TLSAddress, t.TLSServerName = 0, "", "", ""
+		t.CheckCommand, t.ReloadCommand, t.HealthCommand, t.OwnerUID, t.OwnerGID = nil, nil, nil, nil, nil
+		t.FileMode = 0
 	}
 	t.ID = id
 	t.Name = strings.TrimSpace(t.Name)
@@ -127,6 +135,16 @@ func (s *Service) SaveTarget(ctx context.Context, p Principal, id uint64, t Depl
 			t.UpdatedAt = time.Time{}
 			if err := tx.Create(&t).Error; err != nil {
 				return err
+			}
+			if t.Kind == "certimate" {
+				envelope, e := s.engine.SealTargetConfiguration(ctx, fmt.Sprint(t.ID), t.Version, t.Config)
+				if e != nil {
+					return e
+				}
+				t.ConfigurationEnvelope = envelope
+				if e = tx.Model(&DeploymentTarget{}).Where("id = ?", t.ID).Update("configuration_envelope", envelope).Error; e != nil {
+					return e
+				}
 			}
 			if err := tx.Create(&ResourceBinding{Kind: "deployment_target", ResourceID: fmt.Sprint(t.ID), OwnerID: p.UserID, Version: 1, Active: true}).Error; err != nil {
 				return err
@@ -147,6 +165,24 @@ func (s *Service) SaveTarget(ctx context.Context, p Principal, id uint64, t Depl
 				return ErrTargetConflict
 			}
 			t.Version++
+			if t.Kind == "certimate" {
+				config := t.Config
+				if config == nil {
+					if prior.Kind != t.Kind || prior.Provider != t.Provider || prior.CredentialID != t.CredentialID {
+						return embedded.ErrInvalid
+					}
+					var e error
+					config, e = s.engine.OpenTargetConfiguration(ctx, fmt.Sprint(prior.ID), prior.Version, prior.ConfigurationEnvelope)
+					if e != nil {
+						return e
+					}
+				}
+				envelope, e := s.engine.SealTargetConfiguration(ctx, fmt.Sprint(t.ID), t.Version, config)
+				if e != nil {
+					return e
+				}
+				t.ConfigurationEnvelope = envelope
+			}
 			t.DesiredVersion = prior.DesiredVersion
 			t.AppliedVersion = prior.AppliedVersion
 			t.AppliedFingerprint = prior.AppliedFingerprint
@@ -161,6 +197,8 @@ func (s *Service) SaveTarget(ctx context.Context, p Principal, id uint64, t Depl
 		}
 		return tx.Create(&Audit{ActorID: p.UserID, Action: "target.save", Resource: fmt.Sprint(t.ID)}).Error
 	})
+	t.Configured = t.ConfigurationEnvelope != ""
+	t.Config = nil
 	return t, err
 }
 func (s *Service) DeleteTarget(ctx context.Context, p Principal, id uint64) error {
@@ -173,7 +211,7 @@ func (s *Service) DeleteTarget(ctx context.Context, p Principal, id uint64) erro
 	}
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var active int64
-		if err := tx.Model(&Deployment{}).Where("target_id = ? AND state NOT IN ?", id, []string{"verified", "failed", "rolled_back", "cancelled", "superseded"}).Count(&active).Error; err != nil {
+		if err := tx.Model(&Deployment{}).Where("target_id = ? AND state NOT IN ?", id, []string{"verified", "applied", "failed", "rolled_back", "cancelled", "superseded", "retired"}).Count(&active).Error; err != nil {
 			return err
 		}
 		if active > 0 {
@@ -193,7 +231,7 @@ func (s *Service) TargetCapabilities(ctx context.Context, p Principal, id uint64
 	if err != nil {
 		return agentproto.Capabilities{}, err
 	}
-	if s.deployments == nil || s.deployments.calls == nil {
+	if t.Kind != "nezha" || s.deployments == nil || s.deployments.calls == nil {
 		return agentproto.Capabilities{}, nil
 	}
 	return s.deployments.calls.Capabilities(ctx, t.ServerID, func(ctx context.Context) error {
@@ -202,4 +240,31 @@ func (s *Service) TargetCapabilities(ctx context.Context, p Principal, id uint64
 		}
 		return nil
 	})
+}
+
+func (s *Service) validateAgentTarget(ctx context.Context, t DeploymentTarget) error {
+	if t.ServerID == 0 || !filepath.IsAbs(t.BundlePath) || filepath.Clean(t.BundlePath) == "/" {
+		return embedded.ErrInvalid
+	}
+	for _, argv := range [][]string{t.CheckCommand, t.ReloadCommand, t.HealthCommand} {
+		if len(argv) == 0 || len(argv) > 64 || !filepath.IsAbs(argv[0]) {
+			return embedded.ErrInvalid
+		}
+		for _, arg := range argv {
+			if len(arg) > 4096 || strings.ContainsRune(arg, 0) {
+				return embedded.ErrInvalid
+			}
+		}
+	}
+	if (t.TLSAddress == "") != (t.TLSServerName == "") || (t.FileMode != 0 && t.FileMode != 0600 && t.FileMode != 0640) || t.OwnerUID != nil && *t.OwnerUID < 0 || t.OwnerGID != nil && *t.OwnerGID < 0 {
+		return embedded.ErrInvalid
+	}
+	var count int64
+	if err := s.db.WithContext(ctx).Model(&model.Server{}).Where("id = ?", t.ServerID).Count(&count).Error; err != nil {
+		return err
+	}
+	if count != 1 {
+		return embedded.ErrInvalid
+	}
+	return nil
 }

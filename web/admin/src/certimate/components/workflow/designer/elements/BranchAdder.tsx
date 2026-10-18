@@ -6,7 +6,7 @@ import { BranchBlockNodeRegistry } from "../nodes/ConditionNode";
 import { CatchBlockNodeRegistry } from "../nodes/TryCatchNode";
 import { NodeType } from "../nodes/typings";
 
-export interface BranchAdderProps extends FlowgramAdderProps {}
+export type BranchAdderProps = FlowgramAdderProps;
 
 const BranchAdder = ({ node }: BranchAdderProps) => {
   const { t } = useTranslation();

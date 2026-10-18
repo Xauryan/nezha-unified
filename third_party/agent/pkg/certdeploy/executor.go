@@ -62,10 +62,16 @@ func Validate(d agentproto.Deployment) error {
 	if t.OwnerUID != nil && *t.OwnerUID < 0 || t.OwnerGID != nil && *t.OwnerGID < 0 {
 		return ErrInvalid
 	}
-	if len(d.CertificatePEM) > 131072 || len(d.PrivateKeyPEM) > 32768 {
+	return ValidateCertificate(d.CertificatePEM, d.PrivateKeyPEM, d.Fingerprint, t.AllowedNames)
+}
+
+// ValidateCertificate checks the actual key, chain, validity and every SAN before
+// an Agent or cloud target can use certificate material.
+func ValidateCertificate(certificatePEM, privateKeyPEM, fingerprint string, allowedNames []string) error {
+	if len(certificatePEM) > 131072 || len(privateKeyPEM) > 32768 {
 		return ErrInvalid
 	}
-	pair, err := tls.X509KeyPair([]byte(d.CertificatePEM), []byte(d.PrivateKeyPEM))
+	pair, err := tls.X509KeyPair([]byte(certificatePEM), []byte(privateKeyPEM))
 	if err != nil || len(pair.Certificate) == 0 {
 		return ErrInvalid
 	}
@@ -77,13 +83,13 @@ func Validate(d agentproto.Deployment) error {
 		return ErrInvalid
 	}
 	hash := sha256.Sum256(leaf.Raw)
-	if d.Fingerprint != hex.EncodeToString(hash[:]) {
+	if fingerprint != hex.EncodeToString(hash[:]) {
 		return ErrInvalid
 	}
 	// Every actual SAN must be explicitly permitted. A literal wildcard does not
 	// silently confer permission to upload any other wildcard or base domain.
 	for _, name := range leaf.DNSNames {
-		if !slices.Contains(t.AllowedNames, strings.ToLower(strings.TrimSuffix(name, "."))) {
+		if !slices.Contains(allowedNames, strings.ToLower(strings.TrimSuffix(name, "."))) {
 			return ErrInvalid
 		}
 	}
@@ -427,6 +433,9 @@ func (e *Executor) verify(ctx context.Context, d agentproto.Deployment) error {
 	if err := e.run(ctx, d.Target.HealthCommand, filepath.Join(d.Target.BundlePath, "current")); err != nil {
 		return err
 	}
+	return e.verifyTLS(ctx, d)
+}
+func (e *Executor) verifyTLS(ctx context.Context, d agentproto.Deployment) error {
 	if d.Target.TLSAddress != "" {
 		dialer := tls.Dialer{NetDialer: &net.Dialer{Timeout: 10 * time.Second}, Config: &tls.Config{ServerName: d.Target.TLSServerName, MinVersion: tls.VersionTLS12}}
 		conn, err := dialer.DialContext(ctx, "tcp", d.Target.TLSAddress)
@@ -446,48 +455,32 @@ func (e *Executor) verify(ctx context.Context, d agentproto.Deployment) error {
 	return nil
 }
 
-// Reconcile only reads the journal, installed leaf and service health. It never
-// repeats check/reload scripts after an uncertain response or process restart.
+// Reconcile never repeats scripts. An interrupted transaction needs both a
+// matching installed pair and a freshly observed TLS leaf to become verified.
 func (e *Executor) Reconcile(ctx context.Context, d agentproto.Deployment) (agentproto.Receipt, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if !safeID.MatchString(d.OperationID) || !safeID.MatchString(d.Target.ID) || !e.allowed() {
-		return agentproto.Receipt{}, ErrInvalid
-	}
-	root := d.Target.BundlePath
-	if err := safeRoot(root); err != nil {
-		return agentproto.Receipt{}, err
-	}
-	j, err := loadJournal(root, d.OperationID)
+	r, err := e.inspectLocked(ctx, d)
 	if err != nil {
-		return j.Receipt, err
+		return r, err
 	}
-	if j.Receipt.TargetID != d.Target.ID || j.Receipt.TargetVersion != d.Target.Version || j.Receipt.Fingerprint != d.Fingerprint || j.Receipt.Sequence != d.Sequence {
-		return agentproto.Receipt{}, ErrInvalid
+	if r.Phase == "verified" || r.Phase == "rolled_back" || r.Phase == "failed" || r.Phase == "retired" {
+		return r, phaseError(r.Phase)
 	}
-	if j.Receipt.Phase == "verified" || j.Receipt.Phase == "rolled_back" || j.Receipt.Phase == "failed" {
-		return j.Receipt, phaseError(j.Receipt.Phase)
+	if d.Target.TLSAddress == "" || !r.CurrentPairValid || r.CurrentOperationID != d.OperationID || r.CurrentFingerprint != d.Fingerprint {
+		return r, phaseError("unknown")
 	}
-	installed, err := current(root)
+	if err = e.verifyTLS(ctx, d); err != nil {
+		return r, err
+	}
+	j, err := loadJournal(d.Target.BundlePath, d.OperationID)
 	if err != nil {
-		return j.Receipt, err
+		return r, err
 	}
-	if installed != filepath.Join("releases", d.OperationID) {
-		j.Receipt.Phase = "unknown"
-		j.Receipt.Code = "not_current"
-		_ = writeJournal(root, j)
-		return j.Receipt, phaseError("unknown")
-	}
-	if err = e.verify(ctx, d); err != nil {
-		j.Receipt.Phase = "unknown"
-		j.Receipt.Code = "health"
-		_ = writeJournal(root, j)
-		return j.Receipt, err
-	}
-	j.Receipt.Phase = "verified"
-	j.Receipt.Verified = true
-	j.Receipt.CertificateObserved = d.Target.TLSAddress != ""
-	j.Receipt.Code = ""
-	err = writeJournal(root, j)
-	return j.Receipt, err
+	r.Phase = "verified"
+	r.Verified = true
+	r.CertificateObserved = true
+	r.Code = ""
+	j.Receipt = r
+	return r, writeJournal(d.Target.BundlePath, j)
 }

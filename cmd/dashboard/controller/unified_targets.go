@@ -8,6 +8,22 @@ import (
 )
 
 func bindUnifiedTargetRoutes(r *gin.RouterGroup) {
+	r.POST("/deployments/:id/retire", func(c *gin.Context) {
+		id, ok := unifiedID(c)
+		if !ok {
+			return
+		}
+		var in struct {
+			Acknowledge bool   `json:"acknowledge_unknown"`
+			Fingerprint string `json:"expected_fingerprint"`
+		}
+		if c.ShouldBindJSON(&in) != nil {
+			unifiedResult(c, nil, embedded.ErrInvalid)
+			return
+		}
+		v, e := singleton.Unified.RetireDeployment(c.Request.Context(), unifiedPrincipal(c), id, in.Acknowledge, in.Fingerprint)
+		unifiedResult(c, v, e)
+	})
 	r.GET("/targets", func(c *gin.Context) {
 		v, e := singleton.Unified.Targets(c.Request.Context(), unifiedPrincipal(c))
 		unifiedResult(c, v, e)

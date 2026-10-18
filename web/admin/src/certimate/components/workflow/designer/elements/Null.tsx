@@ -4,7 +4,7 @@ export interface NullProps {
   node: FlowNodeEntity;
 }
 
-const Null = (_: NullProps) => {
+const Null = (_props: NullProps) => {
   return null;
 };
 

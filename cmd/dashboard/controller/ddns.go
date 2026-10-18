@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"slices"
 	"strconv"
 
@@ -33,6 +34,7 @@ func listDDNS(c *gin.Context) ([]*model.DDNSProfile, error) {
 	// 列表端点不回显写入态凭据：ddnsProfiles 是 copier 复制出的副本，置零安全，
 	// 不影响 singleton 内原始数据。
 	for _, p := range ddnsProfiles {
+		p.AccessID = ""
 		p.AccessSecret = ""
 		p.WebhookURL = ""
 		p.WebhookRequestBody = ""
@@ -91,8 +93,13 @@ func createDDNS(c *gin.Context) (uint64, error) {
 		p.Domains[n] = domainValid
 	}
 
-	if err := singleton.DB.Create(&p).Error; err != nil {
-		return 0, newGormError("%v", err)
+	if singleton.Unified == nil {
+		return 0, fmt.Errorf("unified credentials unavailable")
+	}
+	var saveErr error
+	p, saveErr = singleton.Unified.SaveLegacyDDNS(c.Request.Context(), unifiedPrincipal(c), p)
+	if saveErr != nil {
+		return 0, saveErr
 	}
 
 	singleton.DDNSShared.Update(&p)
@@ -138,30 +145,12 @@ func updateDDNS(c *gin.Context) (any, error) {
 	}
 
 	p.Name = df.Name
-	enableIPv4 := df.EnableIPv4
-	enableIPv6 := df.EnableIPv6
-	p.EnableIPv4 = &enableIPv4
-	p.EnableIPv6 = &enableIPv6
-	p.MaxRetries = df.MaxRetries
-	p.Provider = df.Provider
-	p.Domains = df.Domains
-	p.AccessID = df.AccessID
-	p.WebhookMethod = df.WebhookMethod
-	p.WebhookRequestType = df.WebhookRequestType
-
-	// 凭据在列表接口已脱敏，前端无法回填；空值视为"不修改"，保留旧值避免误清空。
-	if df.AccessSecret != "" {
-		p.AccessSecret = df.AccessSecret
-	}
-	if df.WebhookHeaders != "" {
-		p.WebhookHeaders = df.WebhookHeaders
-	}
-	if df.WebhookURL != "" {
-		p.WebhookURL = df.WebhookURL
-	}
-	if df.WebhookRequestBody != "" {
-		p.WebhookRequestBody = df.WebhookRequestBody
-	}
+	p.ConfigVersion = df.ConfigVersion
+	enableIPv4, enableIPv6 := df.EnableIPv4, df.EnableIPv6
+	p.EnableIPv4, p.EnableIPv6 = &enableIPv4, &enableIPv6
+	p.MaxRetries, p.Provider, p.Domains = df.MaxRetries, df.Provider, df.Domains
+	p.AccessID, p.AccessSecret, p.WebhookURL, p.WebhookRequestBody, p.WebhookHeaders = df.AccessID, df.AccessSecret, df.WebhookURL, df.WebhookRequestBody, df.WebhookHeaders
+	p.WebhookMethod, p.WebhookRequestType = df.WebhookMethod, df.WebhookRequestType
 
 	for n, domain := range p.Domains {
 		// IDN to ASCII
@@ -172,8 +161,12 @@ func updateDDNS(c *gin.Context) (any, error) {
 		p.Domains[n] = domainValid
 	}
 
-	if err = singleton.DB.Save(&p).Error; err != nil {
-		return nil, newGormError("%v", err)
+	if singleton.Unified == nil {
+		return nil, fmt.Errorf("unified credentials unavailable")
+	}
+	p, err = singleton.Unified.SaveLegacyDDNS(c.Request.Context(), unifiedPrincipal(c), p)
+	if err != nil {
+		return nil, err
 	}
 
 	singleton.DDNSShared.Update(&p)

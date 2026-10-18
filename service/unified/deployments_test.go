@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"github.com/certimate-go/certimate/pkg/embedded"
 	"github.com/nezhahq/nezha/model"
@@ -209,5 +210,128 @@ func TestDeploymentRevocationBeforeCommitStopsPermit(t *testing.T) {
 	out, err := s.processDeployment(context.Background(), d.ID, nil, false)
 	if err == nil || out.State != "unknown" || permits != 0 || cancels != 1 {
 		t.Fatalf("commit gate bypass: state=%s permits=%d cancels=%d error=%v", out.State, permits, cancels, err)
+	}
+}
+
+func TestDeploymentManualReceiptRecoveryUsesCurrentOperator(t *testing.T) {
+	s, creator, target, cert := deploymentFixture(t)
+	ctx := context.Background()
+	d, err := s.EnqueueDeployment(ctx, creator, target.ID, DeploymentInput{OperationID: "synthetic-restored", TargetVersion: target.Version, CertificateID: cert.ID})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = s.db.Model(&Deployment{}).Where("id = ?", d.ID).Updates(map[string]any{"state": "reconciliation_required", "code": "cancel_requested"}).Error; err != nil {
+		t.Fatal(err)
+	}
+	cancelled, err := s.CancelDeployment(ctx, creator, d.ID)
+	if err != nil || cancelled.State == "cancelled" {
+		t.Fatal("uncertain cancellation falsely unlocked target", err)
+	}
+	if _, err = s.SaveTarget(ctx, creator, target.ID, target); err == nil {
+		t.Fatal("uncertain task allowed target replacement")
+	}
+	if err = s.db.Create(&model.User{Common: model.Common{ID: 2}, Username: "synthetic-operator", Role: model.RoleAdmin, AgentSecret: "synthetic"}).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err = s.db.Model(&model.User{}).Where("id = ?", creator.UserID).Update("role", model.RoleMember).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err = s.db.Model(&ResourceBinding{}).Where("kind = ? AND resource_id = ?", "deployment_target", fmt.Sprint(target.ID)).Update("active", false).Error; err != nil {
+		t.Fatal(err)
+	}
+	var broker *agentcall.Broker
+	methods := []string{}
+	broker = agentcall.New(func(_ context.Context, server uint64, task *pb.Task) error {
+		var req agentproto.Request
+		_ = json.Unmarshal([]byte(task.Data), &req)
+		methods = append(methods, req.Method)
+		r := agentproto.Receipt{OperationID: d.OperationID, TargetID: fmt.Sprint(target.ID), TargetVersion: target.Version, Sequence: d.ID, Fingerprint: d.Fingerprint, Inspected: true, Phase: "unknown"}
+		if req.Method == "retire" {
+			r.Phase = "retired"
+		}
+		payload, _ := json.Marshal(r)
+		out, _ := json.Marshal(agentproto.Response{Protocol: 1, OperationID: d.OperationID, Final: true, Payload: payload})
+		broker.Deliver(server, &pb.TaskResult{Id: task.Id, Type: task.Type, Successful: true, Data: string(out)})
+		return nil
+	}, 4)
+	s.deployments = &deploymentRuntime{calls: broker, wake: make(chan struct{}, 1)}
+	operator := Principal{UserID: 2, Admin: true}
+	inspected, err := s.ReconcileDeployment(ctx, operator, d.ID)
+	if err != nil || inspected.State != "reconciliation_required" {
+		t.Fatal("current operator blocked by old run", err)
+	}
+	retired, err := s.RetireDeployment(ctx, operator, d.ID, true, d.Fingerprint)
+	if err != nil || retired.State != "retired" || retired.Receipt.Verified || retired.Receipt.RolledBack {
+		t.Fatal("retirement semantics", err)
+	}
+	if len(methods) != 2 || methods[0] != "inspect" || methods[1] != "retire" {
+		t.Fatal("manual recovery replayed side effects", methods)
+	}
+	if _, err = s.SaveTarget(ctx, operator, target.ID, target); err != nil {
+		t.Fatal("terminal retirement failed to unlock target", err)
+	}
+}
+
+func TestDeploymentUnresolvedTargetFencesNewOperations(t *testing.T) {
+	for _, kind := range []string{"nezha", "certimate"} {
+		for _, state := range []string{"dispatching", "staging", "validating", "applying", "unknown", "reconciling", "reconciliation_required"} {
+			t.Run(kind+"/"+state, func(t *testing.T) {
+				var s *Service
+				var p Principal
+				var target DeploymentTarget
+				var cert embedded.Resource
+				if kind == "certimate" {
+					s, p, target, cert, _ = cloudDeploymentFixture(t)
+				} else {
+					s, p, target, cert = deploymentFixture(t)
+				}
+				ctx := context.Background()
+				in := DeploymentInput{OperationID: "synthetic-unresolved", TargetVersion: target.Version, CertificateID: cert.ID}
+				first, err := s.EnqueueDeployment(ctx, p, target.ID, in)
+				if err != nil {
+					t.Fatal(err)
+				}
+				// This queue may already exist in an older or restored database when
+				// the earlier operation's remote result becomes uncertain.
+				queuedInput := in
+				queuedInput.OperationID = "synthetic-already-queued"
+				queued, err := s.EnqueueDeployment(ctx, p, target.ID, queuedInput)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err = s.db.Model(&Deployment{}).Where("id = ?", first.ID).Update("state", state).Error; err != nil {
+					t.Fatal(err)
+				}
+				replayed, err := s.EnqueueDeployment(ctx, p, target.ID, in)
+				if err != nil || replayed.ID != first.ID {
+					t.Fatal("fence broke exact-operation lookup", err)
+				}
+				freshInput := in
+				freshInput.OperationID = "synthetic-fence-bypass"
+				if _, err = s.EnqueueDeployment(ctx, p, target.ID, freshInput); !errors.Is(err, ErrTargetConflict) {
+					t.Fatal("fresh operation bypassed unresolved target fence", err)
+				}
+				var saved DeploymentTarget
+				if err = s.db.First(&saved, target.ID).Error; err != nil || saved.DesiredVersion != queued.ID {
+					t.Fatal("rejected enqueue changed desired version", err)
+				}
+				calls := 0
+				s.deployments = &deploymentRuntime{calls: agentcall.New(func(context.Context, uint64, *pb.Task) error { calls++; return nil }, 4), wake: make(chan struct{}, 1)}
+				blocked, err := s.processDeployment(ctx, queued.ID, nil, false)
+				if !errors.Is(err, ErrTargetConflict) || blocked.State != "queued" || calls != 0 {
+					t.Fatal("persisted queue bypassed unresolved target fence", err)
+				}
+				var original Deployment
+				if err = s.db.First(&original, first.ID).Error; err != nil || original.State != state {
+					t.Fatal("fence changed original unresolved outcome", err)
+				}
+				if err = s.db.Model(&Deployment{}).Where("id = ?", first.ID).Update("state", "retired").Error; err != nil {
+					t.Fatal(err)
+				}
+				if _, err = s.EnqueueDeployment(ctx, p, target.ID, freshInput); err != nil {
+					t.Fatal("terminal retirement did not release target", err)
+				}
+			})
+		}
 	}
 }

@@ -7,7 +7,7 @@ import {
   useBaseColor,
 } from "@flowgram.ai/fixed-layout-editor";
 
-export interface TryCatchCollapseProps extends CustomLabelProps {}
+export type TryCatchCollapseProps = CustomLabelProps;
 
 const TryCatchCollapse = ({ node, ...props }: TryCatchCollapseProps) => {
   const { baseColor, baseActivatedColor } = useBaseColor();

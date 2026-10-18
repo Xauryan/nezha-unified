@@ -37,11 +37,12 @@ The number of DNS-01 IDs differs from source directories because the original AP
 | Credential authority | Encrypted envelope/AAD, scoped resolver, current token/grant revocation, secret export separation tests | Actual provider credential validity |
 | Certificate assets | Synthetic X.509/key match/SAN checks, encrypted persistence and independently authorized public/private downloads | CA trust policy, real issuance/renewal/revocation |
 | Workflow runtime | Synthetic start/delay/end graph; authorization-before-run/node tests; startup/shutdown/restart/cancel tests; encrypted graph/run/output/log storage checks | Real ACME/HTTP/DNS challenge, cloud deployment and notification delivery |
-| Complete workflow UI | Retained 13 node kinds and all provider forms, adapted route/repository inventory, frontend test/build | Drag/drop, connection editing, modal state, deep links, back/forward, dark mode and mobile browser checks |
+| Complete workflow UI | Retained 13 node kinds and all provider forms, adapted route/repository inventory; 51 unit tests; full build; 12 browser cases for designer/publish/run/cancel, session, themes, deep links/mobile, CSRF and loopback Agent interactions | Live provider configuration and product-specific manual acceptance remain separate |
 | DNS scope | IDNA/label-boundary/root/wildcard/SAN tests; provider-fetched original-record and rename checks; scope-before-pagination, batch/export and unknown-result replay tests | Real Cloudflare, DNSPod and EdgeOne accounts/zones/records |
 | DNS provider contract | Loopback HTTP fixtures for Cloudflare pagination/provider fields, distinct Tencent/DNSPod authentication, large IDs and EO NS/SRV behavior | Quotas, service account permissions and actual remote record propagation |
-| DDNS | Change-only behavior, ownership, pause/revoke, exact device binding, IPv4/IPv6 and lifecycle tests | Agent IP reports/offline handling against the fixed agent baseline and public DNS propagation |
+| DDNS | Change-only behavior, ownership, pause/revoke, exact device binding, IPv4/IPv6 and lifecycle tests; legacy ID-preserving encrypted migration, optimistic versions and worker authorization | Agent IP reports/offline handling against the fixed agent baseline and public DNS propagation |
 | Agent certificate deployment | Local protocol and durable state tests must establish capability checks, staged files, supersession, leases, cancellation and unknown-result reconciliation | A real supported Agent and service proving the served certificate fingerprint after reload/rollback |
+| Shared cloud deployment targets | Encrypted version-bound configuration, exact credential/target/identity checks, API-acceptance versus served-fingerprint states, and no automatic replay after an uncertain mutation | Actual authorized provider upload/deployment and resulting service state |
 | Cross-store ownership | Intent/activation/idempotence/reopen repair tests and restored-reference validation | Existing-installation migration rehearsal against an authorized backup |
 | Backup/restore | Authenticated encrypted archive tests; fresh-directory restore; manifest/schema/reference checks; matching recovery key; offline rehearsal; explicit recovery fence and operation evidence | Current external side effects at the restored boundary; operator approval of each re-enabled automation |
 | Upstream/release | Fixed commits, source and config inventories, declared patches, standard `ubuntu-24.04` CI, unified admin build | Tagged release, published artifacts, deployment and customer/provider acceptance |
@@ -55,14 +56,17 @@ Run the pinned toolchain through Make:
 ```sh
 make check test
 make race
+make vet
+make test-agent build-agent
 make test-web
 make build
 python3 script/smoke-unified.py
+make test-e2e
 ```
 
-The smoke script launches a disposable loopback Dashboard. It uses synthetic credentials/certificates and a workflow containing no provider actions. It verifies scoped HTTP pagination/details/run history, revocation, encrypted graph persistence and certificate downloads. It never proves external provider success.
+The smoke script launches a disposable loopback Dashboard. It uses synthetic credentials/certificates and a workflow containing no provider actions. It verifies scoped HTTP pagination/details/run history, revocation, encrypted graph persistence, certificate downloads, legacy DDNS credential migration and encrypted shared-target configuration. After shutdown it exercises the single binary's backup create/rehearse/restore/inspect/reconcile commands and checks the restored automation quarantine. It never proves external provider success.
 
-Backup cryptographic/path/lifecycle contracts were run with the pinned Go 1.26.6 race detector during implementation. Dashboard backup adapters and the complete project require their own final exact-commit runs after all concurrent changes settle. See `backup.md` for the single-executable backup, restore, rehearsal and explicit reconciliation commands.
+The browser target depends on the full Dashboard and Agent builds, starts a disposable TLS Dashboard and real retained Agent, and runs all browser cases with one worker. Temporary data and processes are removed after success or failure. The HTTP smoke and backup tests use the retained GORM host schema so the legacy DDNS restore quarantine exercises the real `enable_d_dns` column. The local validation record is in `status.md`; exact-revision remote outcomes remain attached to the PR. See `backup.md` for offline commands and explicit reconciliation.
 
 ## Live provider and host record
 

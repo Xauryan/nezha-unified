@@ -163,6 +163,7 @@ func (e *Engine) CreateCredential(ctx context.Context, actor string, in Credenti
 type CertificateInput struct {
 	Certificate string `json:"certificate"`
 	PrivateKey  string `json:"private_key"`
+	OperationID string `json:"-"`
 }
 
 func (e *Engine) ImportCertificate(ctx context.Context, actor string, in CertificateInput) (Resource, error) {
@@ -206,6 +207,10 @@ func (e *Engine) ImportCertificate(ctx context.Context, actor string, in Certifi
 			return err
 		}
 		r := core.NewRecord(c)
+		if in.OperationID != "" {
+			r.Set("unified_operation_id", in.OperationID)
+			r.Set("unified_active", false)
+		}
 		r.Set("source", "upload")
 		r.Set("certificate", publicChain.String())
 		r.Set("subjectName", leaf.Subject.CommonName)

@@ -64,7 +64,7 @@ func New(db *gorm.DB, engine *embedded.Engine) (*Service, error) {
 	if err := db.AutoMigrate(&Grant{}, &Audit{}, &DNSAccount{}, &DNSZone{}, &DNSPolicy{}, &DNSOperation{}, &DDNSBinding{}, &DDNSDevice{}, &DDNSHostReport{}, &DeploymentTarget{}, &Deployment{}, &ResourceBinding{}, &WorkflowPolicy{}, &RunBinding{}, &ResourceIntent{}, &ScopedToken{}, &ServiceIdentity{}); err != nil {
 		return nil, err
 	}
-	s := &Service{db: db, engine: engine, dnsFactory: dnsprovider.New}
+	s := &Service{db: db, engine: engine, dnsFactory: dnsprovider.New, deployments: &deploymentRuntime{wake: make(chan struct{}, 1)}}
 	s.ddns = newDDNSWorker(s)
 	engine.SetCredentialAuthorizer(s.authorizeCredential)
 	return s, nil

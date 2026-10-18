@@ -100,7 +100,7 @@ const CAProviderSelect = ({ showAvailability, showDefault, onFilter, ...props }:
   };
 
   const handleChange = (value: string) => {
-    setValue((_) => (value !== "" ? value : void 0));
+    setValue(() => (value !== "" ? value : void 0));
   };
 
   return (

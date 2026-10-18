@@ -6,8 +6,12 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"sigs.k8s.io/yaml"
 	"testing"
+
+	"github.com/nezhahq/nezha/model"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"sigs.k8s.io/yaml"
 )
 
 func dashboardFixture(t *testing.T) string {
@@ -46,8 +50,28 @@ func dashboardFixture(t *testing.T) string {
 		"CREATE TABLE unified_workflow_policies (enabled BOOLEAN,workflow_id TEXT,version INTEGER,run_as_user_id INTEGER,service_id INTEGER,identity_version INTEGER,graph_digest TEXT,names TEXT,credentials TEXT,targets TEXT)", "INSERT INTO unified_workflow_policies (enabled) VALUES (1)",
 		"CREATE TABLE unified_ddns_bindings (enabled BOOLEAN,network_enabled BOOLEAN,id INTEGER,zone_id INTEGER,record_id TEXT,owner_id INTEGER,version INTEGER,host_id INTEGER)", "INSERT INTO unified_ddns_bindings (enabled,network_enabled) VALUES (1,1)",
 		"CREATE TABLE unified_deployment_targets (enabled BOOLEAN,id INTEGER,server_id INTEGER,version INTEGER,desired_version INTEGER,applied_version INTEGER)", "INSERT INTO unified_deployment_targets (enabled) VALUES (1)",
-		"CREATE TABLE servers (enable_ddns BOOLEAN)", "INSERT INTO servers VALUES (1)",
 	})
+	// Use the real host model so restore exercises GORM's retained acronym
+	// naming (EnableDDNS -> enable_d_dns), rather than a hand-written schema.
+	hostDB, err := gorm.Open(sqlite.Open(filepath.Join(root, "sqlite.db")), &gorm.Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	sqlDB, err := hostDB.DB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := hostDB.AutoMigrate(&model.Server{}); err != nil {
+		sqlDB.Close()
+		t.Fatal(err)
+	}
+	if err := hostDB.Create(&model.Server{EnableDDNS: true}).Error; err != nil {
+		sqlDB.Close()
+		t.Fatal(err)
+	}
+	if err := sqlDB.Close(); err != nil {
+		t.Fatal(err)
+	}
 	makeDB("certimate/data.db", []string{
 		"CREATE TABLE access (id TEXT)", "CREATE TABLE certificate (id TEXT)",
 		"CREATE TABLE workflow (id TEXT,enabled BOOLEAN)", "INSERT INTO workflow VALUES ('workflow1',1)",
@@ -124,6 +148,9 @@ func TestDashboardRestoreQuarantinesAndRequiresExactEvidence(t *testing.T) {
 	var enabled bool
 	if err := db.QueryRow("SELECT enabled FROM unified_ddns_bindings").Scan(&enabled); err != nil || enabled {
 		t.Fatalf("DDNS was not quarantined: %v", err)
+	}
+	if err := db.QueryRow("SELECT enable_d_dns FROM servers").Scan(&enabled); err != nil || enabled {
+		t.Fatalf("legacy host DDNS was not quarantined: %v", err)
 	}
 	db.Close()
 	evidence := RecoveryEvidence{ArchiveID: manifest.ID, ReferenceDigest: manifest.ReferenceDigest, BoundaryEvidence: "Synthetic fixture: inspected isolated simulated provider journal"}

@@ -21,7 +21,7 @@ const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {};
 };
 
-const getSchema = (_: { i18n?: ReturnType<typeof getI18n> }) => {
+const getSchema = (_props: { i18n?: ReturnType<typeof getI18n> }) => {
   return z.object({});
 };
 

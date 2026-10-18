@@ -31,7 +31,7 @@ type Binding = {
     state: string
     error: string
 }
-type Device = { id: number; binding_id: number; revoked_at?: string }
+type Device = { id: number; binding_id: number; enabled: boolean }
 const initial = {
     zone_id: "",
     record_id: "",
@@ -397,11 +397,11 @@ export default function DDNSBindings() {
                             >
                                 <span>
                                     {t("设备", "Device")} #{d.id} ·{" "}
-                                    {d.revoked_at ? t("已撤销", "Revoked") : t("有效", "Active")}
+                                    {!d.enabled ? t("已撤销", "Revoked") : t("有效", "Active")}
                                 </span>
                                 <Button
                                     variant="outline"
-                                    disabled={action.busy || !!d.revoked_at}
+                                    disabled={action.busy || !d.enabled}
                                     onClick={() =>
                                         void action.run(async () => {
                                             await fetcher(

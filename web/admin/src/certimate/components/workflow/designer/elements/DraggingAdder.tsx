@@ -1,7 +1,7 @@
 import { FlowDragLayer, type AdderProps as FlowgramAdderProps, usePlayground } from "@flowgram.ai/fixed-layout-editor";
 import { IconChevronsDown } from "@tabler/icons-react";
 
-export interface DraggingAdderProps extends FlowgramAdderProps {}
+export type DraggingAdderProps = FlowgramAdderProps;
 
 const DraggingAdder = ({ from }: DraggingAdderProps) => {
   const playground = usePlayground();

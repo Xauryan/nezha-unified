@@ -72,13 +72,13 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
   const { i18n, t } = useTranslation();
 
   const { accesses } = useAccessesStore(useZustandShallowSelector("accesses"));
-  const accessOptionFilter = (_: string, option: AccessModel) => {
+  const accessOptionFilter = (_props: string, option: AccessModel) => {
     if (option.reserve) return false;
     if (fieldChallengeType === CHALLENGE_TYPE_DNS01) return acmeDns01ProvidersMap.get(fieldProvider)?.provider === option.provider;
     if (fieldChallengeType === CHALLENGE_TYPE_HTTP01) return acmeHttp01ProvidersMap.get(fieldProvider)?.provider === option.provider;
     return false;
   };
-  const accessOptionFilterForCA = (_: string, option: AccessModel) => {
+  const accessOptionFilterForCA = (_props: string, option: AccessModel) => {
     if (option.reserve !== "ca") return false;
     return caProvidersMap.get(fieldCAProvider!)?.provider === option.provider;
   };

@@ -62,10 +62,16 @@ func Validate(d agentproto.Deployment) error {
 	if t.OwnerUID != nil && *t.OwnerUID < 0 || t.OwnerGID != nil && *t.OwnerGID < 0 {
 		return ErrInvalid
 	}
-	if len(d.CertificatePEM) > 131072 || len(d.PrivateKeyPEM) > 32768 {
+	return ValidateCertificate(d.CertificatePEM, d.PrivateKeyPEM, d.Fingerprint, t.AllowedNames)
+}
+
+// ValidateCertificate checks the actual key, chain, validity and every SAN before
+// an Agent or cloud target can use certificate material.
+func ValidateCertificate(certificatePEM, privateKeyPEM, fingerprint string, allowedNames []string) error {
+	if len(certificatePEM) > 131072 || len(privateKeyPEM) > 32768 {
 		return ErrInvalid
 	}
-	pair, err := tls.X509KeyPair([]byte(d.CertificatePEM), []byte(d.PrivateKeyPEM))
+	pair, err := tls.X509KeyPair([]byte(certificatePEM), []byte(privateKeyPEM))
 	if err != nil || len(pair.Certificate) == 0 {
 		return ErrInvalid
 	}
@@ -77,13 +83,13 @@ func Validate(d agentproto.Deployment) error {
 		return ErrInvalid
 	}
 	hash := sha256.Sum256(leaf.Raw)
-	if d.Fingerprint != hex.EncodeToString(hash[:]) {
+	if fingerprint != hex.EncodeToString(hash[:]) {
 		return ErrInvalid
 	}
 	// Every actual SAN must be explicitly permitted. A literal wildcard does not
 	// silently confer permission to upload any other wildcard or base domain.
 	for _, name := range leaf.DNSNames {
-		if !slices.Contains(t.AllowedNames, strings.ToLower(strings.TrimSuffix(name, "."))) {
+		if !slices.Contains(allowedNames, strings.ToLower(strings.TrimSuffix(name, "."))) {
 			return ErrInvalid
 		}
 	}
@@ -427,9 +433,9 @@ func (e *Executor) verify(ctx context.Context, d agentproto.Deployment) error {
 	if err := e.run(ctx, d.Target.HealthCommand, filepath.Join(d.Target.BundlePath, "current")); err != nil {
 		return err
 	}
-	return e.verifyTLS(ctx,d)
+	return e.verifyTLS(ctx, d)
 }
-func(e *Executor)verifyTLS(ctx context.Context,d agentproto.Deployment)error{
+func (e *Executor) verifyTLS(ctx context.Context, d agentproto.Deployment) error {
 	if d.Target.TLSAddress != "" {
 		dialer := tls.Dialer{NetDialer: &net.Dialer{Timeout: 10 * time.Second}, Config: &tls.Config{ServerName: d.Target.TLSServerName, MinVersion: tls.VersionTLS12}}
 		conn, err := dialer.DialContext(ctx, "tcp", d.Target.TLSAddress)
@@ -454,11 +460,27 @@ func(e *Executor)verifyTLS(ctx context.Context,d agentproto.Deployment)error{
 func (e *Executor) Reconcile(ctx context.Context, d agentproto.Deployment) (agentproto.Receipt, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	r,err:=e.inspectLocked(ctx,d);if err!=nil{return r,err}
-	if r.Phase=="verified"||r.Phase=="rolled_back"||r.Phase=="failed"||r.Phase=="retired"{return r,phaseError(r.Phase)}
-	if d.Target.TLSAddress==""||!r.CurrentPairValid||r.CurrentOperationID!=d.OperationID||r.CurrentFingerprint!=d.Fingerprint{return r,phaseError("unknown")}
-	if err=e.verifyTLS(ctx,d);err!=nil{return r,err}
-	j,err:=loadJournal(d.Target.BundlePath,d.OperationID);if err!=nil{return r,err}
-	r.Phase="verified";r.Verified=true;r.CertificateObserved=true;r.Code="";j.Receipt=r
-	return r,writeJournal(d.Target.BundlePath,j)
+	r, err := e.inspectLocked(ctx, d)
+	if err != nil {
+		return r, err
+	}
+	if r.Phase == "verified" || r.Phase == "rolled_back" || r.Phase == "failed" || r.Phase == "retired" {
+		return r, phaseError(r.Phase)
+	}
+	if d.Target.TLSAddress == "" || !r.CurrentPairValid || r.CurrentOperationID != d.OperationID || r.CurrentFingerprint != d.Fingerprint {
+		return r, phaseError("unknown")
+	}
+	if err = e.verifyTLS(ctx, d); err != nil {
+		return r, err
+	}
+	j, err := loadJournal(d.Target.BundlePath, d.OperationID)
+	if err != nil {
+		return r, err
+	}
+	r.Phase = "verified"
+	r.Verified = true
+	r.CertificateObserved = true
+	r.Code = ""
+	j.Receipt = r
+	return r, writeJournal(d.Target.BundlePath, j)
 }

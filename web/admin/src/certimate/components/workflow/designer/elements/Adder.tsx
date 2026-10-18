@@ -7,7 +7,7 @@ import { Button, Dropdown, type MenuProps } from "antd";
 
 import { getAllNodeRegistries } from "../nodes";
 
-export interface AdderProps extends FlowgramAdderProps {}
+export type AdderProps = FlowgramAdderProps;
 
 const Adder = ({ from, hoverActivated }: AdderProps) => {
   const { t } = useTranslation();

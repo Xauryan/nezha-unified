@@ -57,7 +57,7 @@ const useVersionChecker = () => {
         prerelease: boolean;
       };
 
-      let releases: ReleaseInfo[] = [];
+      let releases: ReleaseInfo[];
       try {
         // try to fetch from GitHub
         releases = await fetch("https://api.github.com/repos/certimate-go/certimate/releases").then((res) => {

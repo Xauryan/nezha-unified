@@ -49,9 +49,8 @@ jobs:
         with:
           node-version: '26.10.0'
           package-manager-cache: false
-      - run: make test-web build
+      - run: make test-web test-e2e
       - run: python3 script/smoke-unified.py
-      - run: make test-e2e
 
   agent:
     runs-on: ubuntu-24.04

@@ -73,6 +73,7 @@ func TestBeforeApplyPermissionAndRollback(t *testing.T) {
 	failHealth := false
 	e := Executor{Allowed: func() bool { return true }, Run: func(_ context.Context, args []string) error {
 		if failHealth && strings.HasSuffix(args[0], "health") {
+			failHealth = false
 			return errors.New("synthetic health fail")
 		}
 		return nil
@@ -118,11 +119,58 @@ func TestUnknownReconciliationDoesNotRepeatReload(t *testing.T) {
 	d.CertificatePEM = ""
 	d.PrivateKeyPEM = ""
 	r, err := e.Reconcile(context.Background(), d)
-	if err != nil || !r.Verified {
-		t.Fatal("reconcile", err)
+	if err == nil || r.Verified || !r.CurrentPairValid {
+		t.Fatal("unknown result verified without observed TLS", err, r)
 	}
-	if len(calls) != 1 || calls[0] != "/synthetic/health" {
-		t.Fatal("reconciliation repeated effect", calls)
+	if len(calls) != 0 {
+		t.Fatal("reconciliation repeated a script", calls)
+	}
+}
+
+func TestFirstDeploymentHealthFailureCannotClaimRollback(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "bundle")
+	d := fixture(t, root, "first", 1)
+	loaded := ""
+	e := Executor{Allowed: func() bool { return true }, Run: func(_ context.Context, args []string) error {
+		if strings.HasSuffix(args[0], "reload") {
+			loaded = d.Fingerprint
+		}
+		if strings.HasSuffix(args[0], "health") {
+			return errors.New("synthetic health failure")
+		}
+		return nil
+	}}
+	r, err := e.Execute(context.Background(), d, nil, allowApply)
+	if err == nil || r.RolledBack || r.Phase != "unknown" || loaded != d.Fingerprint {
+		t.Fatalf("false first-install rollback: %+v %v", r, err)
+	}
+	if _, err := os.Lstat(filepath.Join(root, "current")); !os.IsNotExist(err) {
+		t.Fatal("failed first install active file was not removed")
+	}
+	before := loaded
+	r, err = e.Inspect(context.Background(), d)
+	if err != nil || r.Phase != "unknown" || !r.Inspected || loaded != before {
+		t.Fatal("inspection changed service or claimed rollback")
+	}
+	r, err = e.Retire(context.Background(), d)
+	if err != nil || r.Phase != "retired" || r.Verified || r.RolledBack || loaded != before {
+		t.Fatal("retirement changed service or claimed success")
+	}
+}
+
+func TestInspectRejectsCorruptInstalledPair(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "bundle")
+	d := fixture(t, root, "first", 1)
+	e := Executor{Allowed: func() bool { return true }, Run: func(context.Context, []string) error { return nil }}
+	if _, err := e.Execute(context.Background(), d, nil, allowApply); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "current/private.key"), []byte("synthetic-corrupted-key"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	r, err := e.Inspect(context.Background(), d)
+	if err != nil || r.Phase != "unknown" || r.Verified || r.CurrentPairValid {
+		t.Fatal("corrupt installed key accepted as verified", r, err)
 	}
 }
 func TestNamesMismatchAndSymlinkRejected(t *testing.T) {

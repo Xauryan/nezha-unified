@@ -8,58 +8,51 @@ npx swagger-typescript-api -p http://localhost:8008/swagger/doc.json -o ./src/ty
 
 ## End-to-end tests
 
-Playwright suite lives in `tests/e2e/` and runs in CI via
-`.github/workflows/e2e.yml`. The workflow checks out the backend
-(`nezhahq/nezha` master), starts it on `127.0.0.1:8008`, then runs
-`npm run e2e` here.
+The complete Playwright suite lives in `tests/e2e/` and runs in the application
+job of `.github/workflows/ci.yml` on standard `ubuntu-24.04` runners.
 
-### Run locally
-
-First install browsers once:
+Run it from the repository root:
 
 ```bash
-npm run e2e:install
+make test-e2e
 ```
 
-Then start the backend separately. The shape the CI workflow uses is:
+This builds the current integrated application and local Agent, installs
+Chromium, and starts `script/e2e-unified.py`. The runner creates a private
+temporary directory, SQLite database and configuration, starts Dashboard on a
+random loopback port, waits for the Agent to register and report host state,
+then runs every test against the built management app. Both processes and the
+temporary directory are cleaned up on success or failure. Agent automatic
+updates, remote queries, NAT and external IP discovery are disabled. No
+production configuration or CA, DNS or cloud provider account is used.
+
+The suite contains real local session/password, scoped API token/MCP, CSRF,
+Agent-reporting/file-manager and guest-visibility checks. The certificate UI
+workflow, permission and mobile-layout tests use synthetic API responses; these
+checks establish browser behavior separately from real provider acceptance.
+
+To rerun after both binaries have already been built:
 
 ```bash
-# in a checkout of nezhahq/nezha
-mkdir -p cmd/dashboard/admin-dist cmd/dashboard/user-dist
-printf '<!doctype html><title>admin e2e</title>\n' > cmd/dashboard/admin-dist/index.html
-printf '<!doctype html><title>user e2e</title>\n' > cmd/dashboard/user-dist/index.html
-go install github.com/swaggo/swag/cmd/swag@latest
-"$(go env GOPATH)/bin/swag" init --pd -d cmd/dashboard -g main.go -o cmd/dashboard/docs
-go build -o /tmp/nezha-dashboard ./cmd/dashboard
-
-NZ_LISTENHOST=127.0.0.1 NZ_LISTENPORT=8008 \
-  NZ_JWTSECRETKEY=e2e-jwt-secret-key-min-32-chars-long-ok \
-  NZ_AGENTSECRETKEY=e2e-agent-secret-32-bytes-long-ok \
-  NZ_SITENAME=nezha-e2e GIN_MODE=release \
-  /tmp/nezha-dashboard -c data/config.yaml -db data/sqlite.db
+python3 script/e2e-unified.py
 ```
 
-Then back in this repo:
+To use an existing compatible local test stack, start Vite separately and run:
 
 ```bash
-npm run e2e            # Vite dev server starts automatically
-npm run e2e -- --ui    # interactive runner for debugging
+cd web/admin
+E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:5173 \
+  E2E_AGENT_UUID=<connected-agent-uuid> E2E_AGENT_SERVER_ID=<connected-server-id> \
+  npm run e2e
 ```
 
-### Reusing a running stack
+`E2E_ADMIN_USER` and `E2E_ADMIN_PASS` select the disposable test account when
+reusing a local stack; the defaults are `admin` and `admin`. These tests change
+and restore that account's password and create/revoke scoped API tokens.
+`E2E_CHROMIUM_EXECUTABLE` can select an already installed Chromium executable.
+The isolated certificate UI suite can run without Dashboard or Agent using
+`npm run e2e -- tests/e2e/unified-ui.spec.ts`; Playwright starts Vite for it.
 
-If you already have Vite (`npm run dev`) and the backend up:
-
-```bash
-E2E_SKIP_WEBSERVER=1 E2E_BASE_URL=http://localhost:5173 npm run e2e
-```
-
-Override credentials for a non-default admin account with `E2E_ADMIN_USER`
-and `E2E_ADMIN_PASS`.
-
-### Triaging a CI failure
-
-The workflow uploads two artifacts on failure:
-
-- `playwright-report` — HTML report; open `index.html` locally.
-- `dashboard-log` — full backend stdout/stderr for the test run.
+When `CI` is set, Playwright writes an HTML report and retains traces, screenshots
+and videos for failed tests. The temporary Dashboard and Agent logs are private
+fixture data and are not published as CI artifacts.

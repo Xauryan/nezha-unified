@@ -6,6 +6,7 @@ secrets remain in memory. Set --keep to keep a local test server for browser QA.
 """
 import argparse
 import base64
+import hashlib
 import http.cookiejar
 import io
 import json
@@ -80,8 +81,15 @@ with tempfile.TemporaryDirectory(prefix="nezha-unified-smoke-") as tmp:
                     time.sleep(0.25)
             else:
                 raise RuntimeError("Dashboard startup timeout")
-            for path in ["/dashboard/credentials", "/dashboard/certificates", "/dashboard/certificates/workflows", "/dashboard/certificates/presets", "/dashboard/dns", "/dashboard/ddns", "/dashboard/targets", "/dashboard/permissions", "/"]:
+            for path in ["/dashboard/credentials", "/dashboard/certificates", "/dashboard/certificates/workflows", "/dashboard/certificates/presets", "/dashboard/dns", "/dashboard/ddns", "/dashboard/targets", "/dashboard/identities", "/dashboard/runs", "/dashboard/permissions", "/"]:
                 assert b"<html" in anonymous.request(path).lower(), f"No built frontend for {path}"
+            # Vite may create chunks beginning with an underscore; verify the
+            # complete built asset tree is included by the binary's go:embed.
+            for asset in sorted((root / "web/admin/dist/assets").rglob("*")):
+                if asset.is_file():
+                    path = "/dashboard/" + asset.relative_to(root / "web/admin/dist").as_posix()
+                    observed = anonymous.request(urllib.parse.quote(path, safe="/"))
+                    assert hashlib.sha256(observed).digest() == hashlib.sha256(asset.read_bytes()).digest(), f"Built asset mismatch: {path}"
             # Nezha's shared authentication middleware uses a 200/false error
             # envelope. Preserve that contract; resource handlers use HTTP 4xx.
             anonymous.request("/api/v1/unified/credentials", success=False)
@@ -135,6 +143,13 @@ with tempfile.TemporaryDirectory(prefix="nezha-unified-smoke-") as tmp:
             with zipfile.ZipFile(io.BytesIO(base64.b64decode(exported["zipBytes"]))) as bundle:
                 material = b"\n".join(bundle.read(name) for name in bundle.namelist())
                 assert b"BEGIN CERTIFICATE" in material and b"PRIVATE KEY" in material
+            for file_format in ("PFX", "JKS"):
+                converted = admin.request(native + f"/certificates/{cert['id']}/download", {
+                    "fileFormat": file_format, "pfxPassword": "synthetic-export-password",
+                    "jksAlias": "synthetic", "jksKeypass": "synthetic-export-password",
+                    "jksStorepass": "synthetic-export-password"})
+                with zipfile.ZipFile(io.BytesIO(base64.b64decode(converted["zipBytes"]))) as bundle:
+                    assert bundle.namelist() and all(bundle.read(name) for name in bundle.namelist())
             # Exercise the real embedded dispatcher with a graph having no
             # network, CA, DNS, host or provider side effects.
             graph = {"nodes": [
@@ -179,6 +194,18 @@ with tempfile.TemporaryDirectory(prefix="nezha-unified-smoke-") as tmp:
                 assert secret not in " ".join(raw) and raw[1].startswith("v1:")
                 raw_graph = db.execute("SELECT graphContent FROM workflow WHERE id = ?", (workflow_id,)).fetchone()[0]
                 assert "synthetic-start" not in raw_graph, "Workflow graph was stored without encryption"
+            legacy_id = admin.request("/api/v1/ddns", {"name": "Synthetic legacy DDNS",
+                "provider": "cloudflare", "access_secret": "synthetic-legacy-http-secret",
+                "domains": ["legacy.example.test"], "max_retries": 3, "enable_ipv4": True})
+            legacy = next(item for item in admin.request("/api/v1/ddns") if item["id"] == legacy_id)
+            assert legacy["credential_id"] and "synthetic-legacy-http-secret" not in json.dumps(legacy)
+            with sqlite3.connect(cwd / "sqlite.db") as db:
+                assert db.execute("SELECT access_secret FROM ddns WHERE id=?", (legacy_id,)).fetchone()[0] == ""
+            target = admin.request("/api/v1/unified/targets", {"name": "Synthetic shared cloud target", "kind": "certimate",
+                "provider": "cloudflare-pages", "credential_id": resource["id"], "credential_version": resource["version"],
+                "allowed_names": ["smoke.example.test"], "enabled": False, "config": {"syntheticSetting": "synthetic-private-target-setting"}})
+            assert target["configured"] and "config" not in target and "configuration_envelope" not in target
+            member.request(f"/api/v1/unified/targets/{target['id']}", expected=403)
             print("PASS: built frontend routes, single login, no PocketBase API, CSRF, encrypted credential/workflow, scoped pagination/detail/run history, immediate revoke, certificate import and separate public/private downloads, and successful embedded workflow execution without external providers")
             if args.keep:
                 print(f"Browser QA server: {base}/dashboard/ (disposable admin/admin)", flush=True)
@@ -191,3 +218,30 @@ with tempfile.TemporaryDirectory(prefix="nezha-unified-smoke-") as tmp:
             except subprocess.TimeoutExpired:
                 process.kill()
                 process.wait(timeout=5)
+
+    with tempfile.TemporaryDirectory(prefix="nezha-unified-recovery-smoke-") as recovery_tmp:
+        recovery = Path(recovery_tmp)
+        key = recovery / "independent.key"
+        key.write_bytes(secrets.token_bytes(32))
+        key.chmod(0o600)
+        archive = recovery / "synthetic.nzb"
+        restored = recovery / "restored"
+        binary = str(root / "bin/nezha-unified")
+        def offline(*arguments):
+            result = subprocess.run([binary, *map(str, arguments)], cwd=cwd, capture_output=True, timeout=45)
+            assert result.returncode == 0, "offline backup/recovery command failed"
+            return result.stdout
+        offline("--backup-create", archive, "-db", cwd / "sqlite.db", "-c", config, "--backup-key-file", key)
+        offline("--backup-rehearse", archive, "--backup-key-file", key)
+        offline("--backup-restore", archive, "--backup-destination", restored, "--backup-key-file", key)
+        report = json.loads(offline("--backup-inspect-recovery", restored))
+        evidence = recovery / "evidence.json"
+        evidence.write_text(json.dumps({"archive_id": report["archive_id"], "reference_digest": report["reference_digest"],
+            "boundary_evidence": "Disposable synthetic fixture; no external provider operations occurred.",
+            "operations": [{"kind": op["kind"], "id": op["id"], "outcome": "retired_without_replay",
+                "evidence": "Synthetic operation retired without contacting any provider."} for op in report["operations"]]}))
+        offline("--backup-reconcile", restored, "--backup-evidence", evidence)
+        with sqlite3.connect(restored / "sqlite.db") as db:
+            assert db.execute("SELECT count(*) FROM unified_deployment_targets WHERE enabled=1").fetchone()[0] == 0
+            assert db.execute("SELECT count(*) FROM unified_workflow_policies WHERE enabled=1").fetchone()[0] == 0
+        print("PASS: offline CLI backup, independent-key rehearsal, restore fence and exact operation reconciliation without provider replay")

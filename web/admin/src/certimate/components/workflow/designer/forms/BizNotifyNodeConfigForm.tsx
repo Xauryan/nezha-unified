@@ -36,7 +36,7 @@ const BizNotifyNodeConfigForm = ({ node, ...props }: BizNotifyNodeConfigFormProp
   const { i18n, t } = useTranslation();
 
   const { accesses } = useAccessesStore(useZustandShallowSelector("accesses"));
-  const accessOptionFilter = (_: string, option: AccessModel) => {
+  const accessOptionFilter = (_props: string, option: AccessModel) => {
     if (option.reserve !== "notif") return false;
     return notificationProvidersMap.get(fieldProvider)?.provider === option.provider;
   };

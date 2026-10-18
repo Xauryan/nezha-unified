@@ -25,6 +25,13 @@ func InitUnified(dir string) error {
 		_ = engine.Close()
 		return err
 	}
+	if err := service.MigrateLegacyDDNS(context.Background()); err != nil {
+		_ = engine.Close()
+		return err
+	}
+	if DDNSShared != nil {
+		DDNSShared = NewDDNSClass()
+	}
 	Unified = service
 	return nil
 }

@@ -162,9 +162,10 @@ func dashboardIntegrity(ctx context.Context, root, nezhaPath, certimatePath stri
 		"unified_service_identities": "SELECT id,owner_id,active,version,scopes FROM unified_service_identities ORDER BY id",
 		"unified_workflow_policies":  "SELECT workflow_id,version,run_as_user_id,service_id,identity_version,enabled,graph_digest,names,credentials,targets FROM unified_workflow_policies ORDER BY workflow_id",
 		"unified_dns_policies":       "SELECT * FROM unified_dns_policies ORDER BY id",
+		"ddns":                       "SELECT * FROM ddns ORDER BY id",
 		"unified_ddns_bindings":      "SELECT id,zone_id,record_id,owner_id,version,host_id,enabled,network_enabled FROM unified_ddns_bindings ORDER BY id",
-		"unified_deployment_targets": "SELECT id,server_id,version,enabled,desired_version,applied_version FROM unified_deployment_targets ORDER BY id",
-		"unified_deployments":        "SELECT id,operation_id,target_id,target_version,certificate_id,certificate_version,workflow_run_id,actor_id,state FROM unified_deployments ORDER BY id",
+		"unified_deployment_targets": "SELECT * FROM unified_deployment_targets ORDER BY id",
+		"unified_deployments":        "SELECT * FROM unified_deployments ORDER BY id",
 	}
 	for table, query := range queries {
 		if tableExists(ctx, nezha, table) {
@@ -285,7 +286,7 @@ func PrepareDashboardRecovery(ctx context.Context, root string, m Manifest) erro
 		type mutation struct{ table, kind, id, state, where, update string }
 		mutations := []mutation{
 			{"unified_dns_operations", "dns", "id", "state", "state NOT IN ('succeeded','failed','cancelled')", "state='reconciliation_required',error='restore_requires_reconciliation'"},
-			{"unified_deployments", "deployment", "id", "state", "state NOT IN ('verified','failed','rolled_back','cancelled','superseded')", "state='reconciliation_required'"},
+			{"unified_deployments", "deployment", "id", "state", "state NOT IN ('verified','applied','failed','rolled_back','cancelled','superseded','retired')", "state='reconciliation_required'"},
 			{"unified_resource_intents", "resource_intent", "operation_id", "state", "state NOT IN ('active','committed','completed','failed')", "state='reconciliation_required'"},
 		}
 		if store.cert {
@@ -330,7 +331,7 @@ func PrepareDashboardRecovery(ctx context.Context, root string, m Manifest) erro
 				return err
 			}
 		}
-		disables := map[string]string{"unified_workflow_policies": "enabled=0", "unified_ddns_bindings": "enabled=0,network_enabled=0", "unified_deployment_targets": "enabled=0", "unified_run_bindings": "revoked=1", "servers": "enable_ddns=0"}
+		disables := map[string]string{"unified_workflow_policies": "enabled=0", "unified_ddns_bindings": "enabled=0,network_enabled=0", "unified_deployment_targets": "enabled=0", "unified_run_bindings": "revoked=1", "servers": "enable_d_dns=0"}
 		if store.cert {
 			disables = map[string]string{"workflow": "enabled=0"}
 		}

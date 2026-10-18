@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -54,7 +55,7 @@ var (
 	// The process owns this lock until exit, including any legacy goroutine that
 	// outlives HTTP shutdown. Offline maintenance must never overlap those writes.
 	dashboardDataUnlock func() error
-	//go:embed *-dist
+	//go:embed all:*-dist
 	frontendDist embed.FS
 )
 
@@ -263,6 +264,7 @@ func runDashboard() error {
 	muxServerHTTP := &http.Server{
 		Handler:           muxHandler,
 		ReadHeaderTimeout: time.Second * 5,
+		ConnState:         clearHeaderReadDeadline,
 	}
 	muxServerHTTP.Protocols = new(http.Protocols)
 	muxServerHTTP.Protocols.SetHTTP1(true)
@@ -274,6 +276,7 @@ func runDashboard() error {
 			Addr:              fmt.Sprintf("%s:%d", singleton.Conf.ListenHost, singleton.Conf.HTTPS.ListenPort),
 			Handler:           muxHandler,
 			ReadHeaderTimeout: time.Second * 5,
+			ConnState:         clearHeaderReadDeadline,
 			TLSConfig: &tls.Config{
 				InsecureSkipVerify: singleton.Conf.HTTPS.InsecureTLS,
 			},
@@ -372,4 +375,13 @@ func newHTTPandGRPCMux(httpHandler http.Handler, grpcHandler http.Handler) http.
 		}
 		httpHandler.ServeHTTP(w, r)
 	})
+}
+
+// The pinned toolchain leaves the initial ReadHeaderTimeout deadline on native
+// unencrypted HTTP/2 connections when ReadTimeout is zero. Once the protocol
+// has read its headers/preface, streaming RPCs must outlive that deadline.
+func clearHeaderReadDeadline(conn net.Conn, state http.ConnState) {
+	if state == http.StateActive {
+		_ = conn.SetReadDeadline(time.Time{})
+	}
 }

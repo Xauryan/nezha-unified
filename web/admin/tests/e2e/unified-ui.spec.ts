@@ -1,7 +1,7 @@
 import { type Page, type Route, expect, test } from "@playwright/test"
 
 // Synthetic application transport; this suite never calls a CA or DNS provider.
-async function nativeFixture(page: Page, role = 0) {
+async function nativeFixture(page: Page, baseURL: string, role = 0) {
     const writes: { path: string; body: any; method: string }[] = []
     const requests: string[] = []
     const workflow: any = {
@@ -21,7 +21,7 @@ async function nativeFixture(page: Page, role = 0) {
     })
     await page
         .context()
-        .addCookies([{ name: "nz-csrf", value: "synthetic-csrf", url: "http://localhost:5173" }])
+        .addCookies([{ name: "nz-csrf", value: "synthetic-csrf", url: baseURL }])
     await page.route("**/api/v1/**", async (route: Route) => {
         const request = route.request(),
             path = new URL(request.url()).pathname
@@ -94,8 +94,9 @@ async function nativeFixture(page: Page, role = 0) {
 
 test("native workflow create, node configuration, publish, execute and cancel", async ({
     page,
+    baseURL,
 }, testInfo) => {
-    const fixture = await nativeFixture(page)
+    const fixture = await nativeFixture(page, baseURL!)
     const errors: string[] = []
     page.on("pageerror", (error) => errors.push(error.message))
     await page.goto("/dashboard/certificates/workflows/new")
@@ -155,8 +156,9 @@ test("native workflow create, node configuration, publish, execute and cancel", 
 
 test("certificate permission denial retains Nezha session and scoped dark theme", async ({
     page,
+    baseURL,
 }) => {
-    const fixture = await nativeFixture(page, 1)
+    const fixture = await nativeFixture(page, baseURL!, 1)
     fixture.deny()
     await page.addInitScript(() => localStorage.setItem("vite-ui-theme", "dark"))
     await page.goto("/dashboard/certificates")
@@ -171,8 +173,8 @@ test("certificate permission denial retains Nezha session and scoped dark theme"
     await expect(page).not.toHaveURL(/login/)
 })
 
-test("native management deep links render on mobile", async ({ page }) => {
-    await nativeFixture(page)
+test("native management deep links render on mobile", async ({ page, baseURL }) => {
+    await nativeFixture(page, baseURL!)
     await page.setViewportSize({ width: 390, height: 844 })
     for (const [route, title] of [
         ["dns", "DNS management"],

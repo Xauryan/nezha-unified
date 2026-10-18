@@ -26,6 +26,10 @@ type DDNSProfile struct {
 	Provider           string   `json:"provider"`
 	AccessID           string   `json:"access_id,omitempty"`
 	AccessSecret       string   `json:"access_secret,omitempty"`
+	CredentialID       string   `json:"credential_id,omitempty"`
+	CredentialVersion  int      `json:"credential_version,omitempty"`
+	CredentialState    string   `json:"credential_state,omitempty"`
+	ConfigVersion      uint64   `json:"config_version"`
 	WebhookURL         string   `json:"webhook_url,omitempty"`
 	WebhookMethod      uint8    `json:"webhook_method,omitempty"`
 	WebhookRequestType uint8    `json:"webhook_request_type,omitempty"`

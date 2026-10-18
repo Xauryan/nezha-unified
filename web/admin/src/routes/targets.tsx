@@ -8,12 +8,14 @@ import {
     Panel,
     UnifiedNav,
     parseArray,
+    parseObject,
     useAction,
     useText,
 } from "@/components/unified/common"
 import { useMainStore } from "@/hooks/useMainStore"
 import { useState } from "react"
 import useSWR from "swr"
+import { deploymentProvidersMap } from "@cert/domain/provider"
 
 type Target = {
     id: number
@@ -34,6 +36,10 @@ type Target = {
     enabled: boolean
     desired_version: number
     applied_version: number
+    provider?: string
+    credential_id?: string
+    credential_version?: number
+    config?: Record<string, unknown>
 }
 type Deployment = {
     id: number
@@ -53,6 +59,11 @@ type Deployment = {
     }
 }
 const initial = {
+    kind: "nezha",
+    provider: "",
+    credential_id: "",
+    credential_version: "1",
+    config: "{}",
     name: "",
     server_id: "",
     allowed_names: "",
@@ -85,12 +96,19 @@ export default function TargetsPage() {
         online: boolean
         protocol: number
         certificate_deploy: boolean
-    }>(selected ? `/api/v1/unified/targets/${selected.id}/capabilities` : null, swrFetcher)
+    }>(selected?.kind === "nezha" ? `/api/v1/unified/targets/${selected.id}/capabilities` : null, swrFetcher)
     const field = (name: keyof typeof initial, value: string | boolean) =>
         setForm((p) => ({ ...p, [name]: value }))
-    function startEdit(target: Target) {
+    async function startEdit(row: Target) {
+        const target = row.kind === "certimate"
+            ? await fetcher<Target>(M.GET, `/api/v1/unified/targets/${row.id}`) : row
         setEdit(target)
         setForm({
+            kind: target.kind,
+            provider: target.provider || "",
+            credential_id: target.credential_id || "",
+            credential_version: String(target.credential_version || 1),
+            config: "",
             name: target.name,
             server_id: String(target.server_id),
             allowed_names: target.allowed_names.join("\n"),
@@ -136,7 +154,11 @@ export default function TargetsPage() {
                                     `/api/v1/unified/targets${edit ? "/" + edit.id : ""}`,
                                     {
                                         ...form,
-                                        kind: "nezha",
+                                        kind: form.kind,
+                                        provider: form.kind === "certimate" ? form.provider : undefined,
+                                        credential_id: form.kind === "certimate" ? form.credential_id : undefined,
+                                        credential_version: form.kind === "certimate" ? Number(form.credential_version) : undefined,
+                                        config: form.kind === "certimate" && form.config.trim() ? parseObject(form.config) : undefined,
                                         server_id: Number(form.server_id),
                                         file_mode: Number(form.file_mode),
                                         owner_uid:
@@ -163,6 +185,7 @@ export default function TargetsPage() {
                             })
                         }}
                     >
+                        <label className="space-y-2"><span className="block">{t("部署方式", "Deployment method")}</span><select className="h-11 w-full rounded-md border bg-background px-3" value={form.kind} onChange={e=>setForm({...initial,name:form.name,allowed_names:form.allowed_names,kind:e.target.value})}><option value="nezha">Nezha Agent</option><option value="certimate">{t("云服务 / 面板 / SSH", "Cloud / panel / SSH")}</option></select></label>
                         <Field
                             id="target-name"
                             label={t("名称", "Name")}
@@ -170,7 +193,7 @@ export default function TargetsPage() {
                             onChange={(v) => field("name", v)}
                             required
                         />
-                        <Field
+                        {form.kind === "nezha" && <Field
                             id="target-server"
                             label={t("主机 ID", "Host ID")}
                             type="number"
@@ -178,7 +201,7 @@ export default function TargetsPage() {
                             value={form.server_id}
                             onChange={(v) => field("server_id", v)}
                             required
-                        />
+                        />}
                         <Field
                             id="target-names"
                             label={t("允许的证书名称", "Allowed certificate names")}
@@ -190,7 +213,7 @@ export default function TargetsPage() {
                                 "Comma-separated; wildcard names must be explicitly listed.",
                             )}
                         />
-                        <Field
+                        {form.kind === "nezha" && <><Field
                             id="target-bundle"
                             label={t("部署目录", "Deployment directory")}
                             value={form.bundle_path}
@@ -229,11 +252,6 @@ export default function TargetsPage() {
                             value={form.owner_gid}
                             onChange={(v) => field("owner_gid", v)}
                         />
-                        <Check
-                            label={t("启用", "Enabled")}
-                            checked={form.enabled}
-                            onChange={(v) => field("enabled", v)}
-                        />
                         {(["check_command", "reload_command", "health_command"] as const).map(
                             (name, index) => (
                                 <JSONField
@@ -267,7 +285,14 @@ export default function TargetsPage() {
                             label="TLS SNI"
                             value={form.tls_server_name}
                             onChange={(v) => field("tls_server_name", v)}
-                        />
+                        /></>}
+                        {form.kind === "certimate" && <>
+                            <label className="space-y-2"><span className="block">{t("部署提供商", "Deployment provider")}</span><select required className="h-11 w-full rounded-md border bg-background px-3" value={form.provider} onChange={e=>field("provider",e.target.value)}><option value="">{t("选择提供商", "Choose provider")}</option>{Array.from(deploymentProvidersMap.values()).filter(p=>p.type!=="nezha-agent").map(p=><option key={p.type} value={p.type}>{p.type}</option>)}</select></label>
+                            <Field id="target-credential" label={t("凭据 ID", "Credential ID")} value={form.credential_id} onChange={v=>field("credential_id",v)} required/>
+                            <Field id="target-credential-version" label={t("固定的凭据版本", "Pinned credential version")} type="number" min={1} value={form.credential_version} onChange={v=>field("credential_version",v)} required/>
+                            <div className="sm:col-span-2"><JSONField id="target-provider-config" label={t("提供商配置", "Provider configuration")} value={form.config} onChange={v=>field("config",v)} help={t("使用该提供商工作流部署节点的完整 providerConfig 字段，服务端加密保存。", "Use the provider's complete workflow deployment providerConfig fields; stored encrypted by the server.")}/></div>
+                        </>}
+                        <Check label={t("启用", "Enabled")} checked={form.enabled} onChange={v=>field("enabled",v)}/>
                         <div className="flex gap-2 sm:col-span-2">
                             <Button disabled={action.busy}>{t("保存", "Save")}</Button>
                             {edit && (
@@ -302,7 +327,7 @@ export default function TargetsPage() {
                                     <span className="text-muted-foreground">#{target.id}</span>
                                 </h2>
                                 <p className="mt-1 text-sm text-muted-foreground">
-                                    {t("主机", "Host")} #{target.server_id} · {t("版本", "Version")}{" "}
+                                    {target.kind === "nezha" ? `${t("主机", "Host")} #${target.server_id}` : target.provider} · {t("版本", "Version")}{" "}
                                     {target.version} ·{" "}
                                     {target.enabled ? t("启用", "Enabled") : t("停用", "Disabled")}
                                 </p>
@@ -320,7 +345,7 @@ export default function TargetsPage() {
                                 </Button>
                                 {admin && (
                                     <>
-                                        <Button variant="outline" onClick={() => startEdit(target)}>
+                                        <Button variant="outline" disabled={action.busy} onClick={() => void action.run(()=>startEdit(target))}>
                                             {t("编辑", "Edit")}
                                         </Button>
                                         <Button
@@ -354,7 +379,7 @@ export default function TargetsPage() {
                     </h2>
                     <ErrorNotice error={capabilityError} />
                     <p role="status">
-                        {!capabilities
+                        {selected.kind === "certimate" ? t("通过提供商 API 部署；API 接受不代表站点已呈现新证书。", "Deploy via the provider API. API acceptance does not prove the site serves the new certificate.") : !capabilities
                             ? t("正在检查 Agent…", "Checking Agent…")
                             : !capabilities.online
                               ? t("Agent 离线", "Agent offline")
@@ -393,8 +418,7 @@ export default function TargetsPage() {
                         <Button
                             disabled={
                                 action.busy ||
-                                !capabilities?.online ||
-                                !capabilities.certificate_deploy ||
+                                (selected.kind === "nezha" && (!capabilities?.online || !capabilities.certificate_deploy)) ||
                                 !selected.enabled
                             }
                         >
@@ -437,6 +461,11 @@ export default function TargetsPage() {
                                             : t("核验结果", "Reconcile")}
                                     </Button>
                                 ))}
+                                {admin && ["unknown", "reconciliation_required"].includes(d.state) && <Button variant="outline" disabled={action.busy} onClick={()=>{
+                                    const fingerprint=window.prompt(t("此操作仅关闭未知状态记录，不声明回滚或部署成功。请输入期望指纹确认：", "This retires the unknown operation without claiming rollback or deployment success. Enter its expected fingerprint:"), "")
+                                    if(fingerprint===null)return
+                                    void action.run(async()=>{await fetcher(M.POST,`/api/v1/unified/deployments/${d.id}/retire`,{acknowledge_unknown:true,expected_fingerprint:fingerprint});await refreshDeployments()})
+                                }}>{t("关闭未知操作", "Retire unknown operation")}</Button>}
                             </div>
                         </div>
                         {d.code && <p className="text-destructive">{d.code}</p>}

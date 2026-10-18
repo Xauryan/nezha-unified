@@ -37,7 +37,7 @@ const BizDeployNodeConfigForm = ({ node, ...props }: BizDeployNodeConfigFormProp
   const { token: themeToken } = theme.useToken();
 
   const { accesses } = useAccessesStore(useZustandShallowSelector("accesses"));
-  const accessOptionFilter = (_: string, option: AccessModel) => {
+  const accessOptionFilter = (_props: string, option: AccessModel) => {
     if (option.reserve) return false;
     return deploymentProvidersMap.get(fieldProvider)?.provider === option.provider;
   };

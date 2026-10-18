@@ -4,7 +4,7 @@ export const isBrowserHappy = () => {
     if (typeof Promise.try !== "function") return false;
     if (typeof CSS.supports !== "function") return false;
     if (!CSS.supports("color", "oklch(0 0 0)")) return false;
-  } catch (_) {
+  } catch {
     return false;
   }
 

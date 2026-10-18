@@ -1,6 +1,7 @@
 package model
 
 type DDNSForm struct {
+	ConfigVersion      uint64   `json:"config_version,omitempty" validate:"optional"`
 	MaxRetries         uint64   `json:"max_retries,omitempty" default:"3"`
 	EnableIPv4         bool     `json:"enable_ipv4,omitempty" validate:"optional"`
 	EnableIPv6         bool     `json:"enable_ipv6,omitempty" validate:"optional"`

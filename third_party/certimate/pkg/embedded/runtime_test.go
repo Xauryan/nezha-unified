@@ -31,6 +31,9 @@ func runtimeTestWorkflow(t *testing.T, e *Engine, wait int) string {
 		{Id: "delay", Type: domain.WorkflowNodeTypeDelay, Data: domain.WorkflowNodeData{Name: "delay", Config: domain.WorkflowNodeConfig{"wait": wait}}},
 		{Id: "end", Type: domain.WorkflowNodeTypeEnd, Data: domain.WorkflowNodeData{Name: "end"}},
 	}
+	if err := embedcrypto.SetJSON(e.app, r, "graphDraft", &domain.WorkflowGraph{Nodes: nodes}); err != nil {
+		t.Fatal(err)
+	}
 	if err := embedcrypto.SetJSON(e.app, r, "graphContent", &domain.WorkflowGraph{Nodes: nodes}); err != nil {
 		t.Fatal(err)
 	}

@@ -41,7 +41,7 @@ const AppLocaleDropdown = ({ children, trigger = ["click"] }: AppLocaleDropdownP
   );
 };
 
-export interface AppLocaleIconProps extends IconProps {}
+export type AppLocaleIconProps = IconProps;
 
 const AppLocaleIcon = (props: AppLocaleIconProps) => {
   const { i18n } = useTranslation();

@@ -1,8 +1,8 @@
 import { type CollapseProps as FlowgramCollapseProps } from "@flowgram.ai/fixed-layout-editor";
 
-export interface CollapseProps extends FlowgramCollapseProps {}
+export type CollapseProps = FlowgramCollapseProps;
 
-const Collapse = (_: CollapseProps) => {
+const Collapse = (_props: CollapseProps) => {
   return null;
 };
 

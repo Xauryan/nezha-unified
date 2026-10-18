@@ -40,8 +40,8 @@ const WorkflowDetail = () => {
   const divHeaderSize = useSize(divHeaderRef);
 
   const tabs = [
-    ["design", "workflow.detail.design.tab", <IconRobot size="1em" />],
-    ["runs", "workflow.detail.runs.tab", <IconHistory size="1em" />],
+    ["design", "workflow.detail.design.tab", <IconRobot key="IconRobot" size="1em" />],
+    ["runs", "workflow.detail.runs.tab", <IconHistory key="IconHistory" size="1em" />],
   ] satisfies [string, string, React.ReactElement][];
   const [tabValue, setTabValue] = useState<string>(() => location.pathname.replace("/dashboard/certificates", "").split("/")[3]);
   useEffect(() => {

@@ -75,7 +75,7 @@ func (f *fakeDNS) Delete(context.Context, dnsprovider.Zone, string) error {
 	f.writes++
 	return nil
 }
-func ddnsFixture(t *testing.T) (*Service, *fakeDNS, Principal, Principal, DNSZone, DNSPolicy, model.Server) {
+func ddnsFixture(t *testing.T) (*Service, *fakeDNS, Principal, Principal, DNSZone, DNSPolicy, *model.Server) {
 	t.Helper()
 	ctx := context.Background()
 	dir := t.TempDir()
@@ -127,7 +127,7 @@ func ddnsFixture(t *testing.T) (*Service, *fakeDNS, Principal, Principal, DNSZon
 	s.ddns.source = func(context.Context, uint64) (DDNSHostSnapshot, error) {
 		return DDNSHostSnapshot{OwnerID: m.ID, Online: true, ObservedAt: time.Now(), IPv4: "192.0.2.9"}, nil
 	}
-	return s, f, admin, member, zones[0], g, host
+	return s, f, admin, member, zones[0], g, &host
 }
 func TestDNSAuthorizationPaginationRenameAndUnknownReplay(t *testing.T) {
 	s, f, admin, member, z, g, _ := ddnsFixture(t)

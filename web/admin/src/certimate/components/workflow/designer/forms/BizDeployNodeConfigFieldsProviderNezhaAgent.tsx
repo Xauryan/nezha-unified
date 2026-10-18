@@ -7,6 +7,8 @@ type Target = {
     id: number
     name: string
     server_id: number
+    kind: string
+    provider?: string
     version: number
     enabled: boolean
     allowed_names: string[]
@@ -17,19 +19,19 @@ export default function NezhaAgentTargetFields() {
     const form = Form.useFormInstance()
     const selected = Form.useWatch("providerAccessId", form)
     const { data: targets, error } = useSWR<Target[]>("/api/v1/unified/targets", swrFetcher)
+    const target = targets?.find((item) => String(item.id) === selected)
     const { data: capability, error: capabilityError } = useSWR<{
         online: boolean
         certificate_deploy: boolean
     }>(
-        selected ? `/api/v1/unified/targets/${encodeURIComponent(selected)}/capabilities` : null,
+        target?.kind === "nezha" ? `/api/v1/unified/targets/${encodeURIComponent(selected)}/capabilities` : null,
         swrFetcher,
     )
-    const target = targets?.find((item) => String(item.id) === selected)
     return (
         <>
             <Form.Item
                 name="providerAccessId"
-                label={zh ? "哪吒部署目标" : "Nezha deployment target"}
+                label={zh ? "统一部署目标" : "Shared deployment target"}
                 rules={[{ required: true }]}
             >
                 <Select
@@ -38,7 +40,7 @@ export default function NezhaAgentTargetFields() {
                     loading={!targets && !error}
                     options={targets?.map((item) => ({
                         value: String(item.id),
-                        label: `${item.name} · Host #${item.server_id} · v${item.version}`,
+                        label: `${item.name} · ${item.kind === "nezha" ? `Host #${item.server_id}` : item.provider} · v${item.version}`,
                         disabled: !item.enabled,
                     }))}
                     onChange={(id) =>
@@ -62,6 +64,7 @@ export default function NezhaAgentTargetFields() {
             {(error || capabilityError) && (
                 <Alert type="warning" title={String(error?.message || capabilityError?.message)} />
             )}
+            {target?.kind === "certimate" && <Alert type="info" title={zh ? "使用管理员保存的云目标配置；API 接受与站点证书验证分别记录。" : "Uses the saved cloud target configuration. API acceptance and served certificate verification are recorded separately."} />}
             {capability && (
                 <Alert
                     className="mb-4"

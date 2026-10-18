@@ -22,6 +22,7 @@ type CredentialUse struct {
 	ResourceID   string `json:"resource_id"`
 	WorkflowID   string `json:"workflow_id,omitempty"`
 	RunID        string `json:"run_id,omitempty"`
+	OperationID  string `json:"operation_id,omitempty"`
 }
 
 type CredentialAuthorizer func(context.Context, CredentialUse) error
@@ -30,6 +31,7 @@ func (e *Engine) SetCredentialAuthorizer(authorize CredentialAuthorizer) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.authorizeCredential = authorize
+	e.authorizerVersion++
 }
 
 func (e *Engine) unseal(aad, value string) ([]byte, error) {
@@ -44,15 +46,28 @@ func (e *Engine) unseal(aad, value string) ([]byte, error) {
 // authorization decision, active state, exact purpose/target and current version.
 func (e *Engine) ResolveCredential(ctx context.Context, use CredentialUse) (map[string]any, error) {
 	e.mu.RLock()
+	if err := e.check(ctx); err != nil {
+		e.mu.RUnlock()
+		return nil, err
+	}
+	authorize, authorizerVersion := e.authorizeCredential, e.authorizerVersion
+	e.mu.RUnlock()
+	if authorize == nil || use.ActorID == 0 || use.Version < 1 || use.Purpose == "" || use.ResourceKind == "" || use.ResourceID == "" {
+		return nil, errors.New("credential execution context is incomplete")
+	}
+	// Host authorization may read engine metadata. Do not hold an engine read
+	// lock across that callback: a concurrent Close waiting for its write lock
+	// would otherwise deadlock a nested metadata read.
+	if err := authorize(ctx, use); err != nil {
+		return nil, err
+	}
+	e.mu.RLock()
 	defer e.mu.RUnlock()
 	if err := e.check(ctx); err != nil {
 		return nil, err
 	}
-	if e.authorizeCredential == nil || use.ActorID == 0 || use.Version < 1 || use.Purpose == "" || use.ResourceKind == "" || use.ResourceID == "" {
-		return nil, errors.New("credential execution context is incomplete")
-	}
-	if err := e.authorizeCredential(ctx, use); err != nil {
-		return nil, err
+	if e.authorizerVersion != authorizerVersion {
+		return nil, errors.New("credential authorizer changed")
 	}
 	r, err := e.app.FindRecordById("access", use.CredentialID)
 	if err != nil || !nativeActive(r) || !r.GetDateTime("deleted").IsZero() {

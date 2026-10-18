@@ -5,9 +5,9 @@ import { useDesignerContext } from "./_context";
 import { NodeRenderContextProvider } from "./NodeRenderContext";
 import { type NodeRegistry } from "./nodes/typings";
 
-export interface NodeProps extends NodeRenderProps {}
+export type NodeProps = NodeRenderProps;
 
-const Node = (_: NodeProps) => {
+const Node = (_props: NodeProps) => {
   const ctx = useClientContext();
 
   const refresh = useRefresh();

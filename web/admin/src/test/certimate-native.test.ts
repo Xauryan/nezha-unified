@@ -1,4 +1,7 @@
 import { getNativeClient } from "@cert/repository/_native"
+import { remove as removeCredential } from "@cert/repository/access"
+import { useMainStore } from "@/hooks/useMainStore"
+import { type ModelProfile } from "@/types"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 describe("Nezha certificate transport", () => {
@@ -10,6 +13,7 @@ describe("Nezha certificate transport", () => {
         await client.collection("workflow").unsubscribe()
         vi.useRealTimers()
         vi.unstubAllGlobals()
+        useMainStore.getState().setProfile(undefined)
     })
     it("uses the current Nezha session and adds CSRF only to mutations", async () => {
         const fetchMock = vi
@@ -45,6 +49,23 @@ describe("Nezha certificate transport", () => {
             response: { message: "Resource access denied" },
         })
         expect(document.cookie).toContain("nz-csrf=synthetic-csrf")
+    })
+    it("uses DELETE for credential deletion instead of mutating metadata", async () => {
+        const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ success: true, data: true }) })
+        vi.stubGlobal("fetch", fetchMock)
+        await removeCredential({ id: "fixture" })
+        expect(fetchMock.mock.calls[0][1].method).toBe("DELETE")
+        expect(fetchMock.mock.calls[0][1].body).toBeUndefined()
+    })
+    it("discards an old identity's pending response after login changes", async () => {
+        useMainStore.getState().setProfile({ id: 1, username: "first", role: 0 } as ModelProfile)
+        let complete!: (response: unknown) => void
+        vi.stubGlobal("fetch", vi.fn().mockImplementation(() => new Promise(resolve => { complete = resolve })))
+        const pending = client.collection("access").getOne("fixture")
+        const rejected = expect(pending).rejects.toMatchObject({ isAbort: true })
+        useMainStore.getState().setProfile({ id: 2, username: "second", role: 1 } as ModelProfile)
+        complete({ ok: true, json: async () => ({ success: true, data: { id: "fixture" } }) })
+        await rejected
     })
     it("stops delivery from an outstanding poll after route disposal", async () => {
         vi.useFakeTimers()

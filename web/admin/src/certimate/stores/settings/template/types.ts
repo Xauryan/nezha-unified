@@ -18,7 +18,7 @@ export interface NotifyTemplatesActions {
   removeTemplateByName: (name: string) => Promise<void>;
 }
 
-export interface NotifyTemplatesStore extends NotifyTemplatesState, NotifyTemplatesActions {}
+export type NotifyTemplatesStore = NotifyTemplatesState & NotifyTemplatesActions;
 
 type ScriptTemplate = {
   name: string;
@@ -39,4 +39,4 @@ export interface ScriptTemplatesActions {
   removeTemplateByName: (name: string) => Promise<void>;
 }
 
-export interface ScriptTemplatesStore extends ScriptTemplatesState, ScriptTemplatesActions {}
+export type ScriptTemplatesStore = ScriptTemplatesState & ScriptTemplatesActions;

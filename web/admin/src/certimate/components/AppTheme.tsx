@@ -13,9 +13,9 @@ export const useAppThemeMenuItems = () => {
 
   const items = (
     [
-      ["light", "common.theme.light", <IconSun size="1em" />],
-      ["dark", "common.theme.dark", <IconMoon size="1em" />],
-      ["system", "common.theme.system", <IconSunMoon size="1em" />],
+      ["light", "common.theme.light", <IconSun key="IconSun" size="1em" />],
+      ["dark", "common.theme.dark", <IconMoon key="IconMoon" size="1em" />],
+      ["system", "common.theme.system", <IconSunMoon key="IconSunMoon" size="1em" />],
     ] satisfies Array<[string, string, React.ReactNode]>
   ).map(([key, label, icon]) => {
     return {
@@ -49,7 +49,7 @@ const AppThemeDropdown = ({ children, trigger = ["click"] }: AppThemeDropdownPro
   );
 };
 
-export interface AppThemeIconProps extends IconProps {}
+export type AppThemeIconProps = IconProps;
 
 const AppThemeIcon = (props: AppThemeIconProps) => {
   const { theme } = useBrowserTheme();

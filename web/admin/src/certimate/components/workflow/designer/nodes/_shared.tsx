@@ -389,7 +389,7 @@ export const BaseNode = ({ className, style, children, description }: BaseNodePr
   );
 };
 
-export interface BranchNodeProps extends BaseNodeProps {}
+export type BranchNodeProps = BaseNodeProps;
 
 export const BranchNode = ({ className, style, children, description }: BranchNodeProps) => {
   const ctx = useClientContext();

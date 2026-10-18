@@ -32,6 +32,8 @@ type Engine struct {
 	runtimeMu           sync.Mutex
 	runtime             *runtimeState
 	authorizeCredential CredentialAuthorizer
+	authorizerVersion   uint64
+	effects             sync.WaitGroup
 }
 
 // Open uses a dedicated directory. A missing key on an existing database is a
@@ -145,6 +147,7 @@ func (e *Engine) Close() error {
 	if e.closed {
 		return nil
 	}
+	e.effects.Wait()
 	e.closed = true
 	return e.app.ResetBootstrapState()
 }

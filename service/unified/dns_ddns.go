@@ -798,7 +798,8 @@ func (s *Service) legacyDDNSOwnsName(ctx context.Context, name, typ string) bool
 	if s.db.WithContext(ctx).Where(&model.Server{EnableDDNS: true}).Find(&hosts).Error != nil {
 		return true
 	}
-	for _, host := range hosts {
+	for i := range hosts {
+		host := &hosts[i]
 		for _, id := range host.DDNSProfiles {
 			var profile model.DDNSProfile
 			if s.db.WithContext(ctx).First(&profile, id).Error != nil {

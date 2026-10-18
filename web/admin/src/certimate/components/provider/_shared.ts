@@ -14,6 +14,7 @@ const isProviderAccessSatisfied = <T extends Provider>(provider: T, accesses: { 
   if ("accessOptional" in provider && provider.accessOptional) return true;
   if ("builtin" in provider && provider.builtin) return true;
   return accesses.some((access) => {
+    if ("unified_enabled" in access && access.unified_enabled === false) return false;
     if ("provider" in provider) return access.provider === provider.provider;
     return access.provider === provider.type;
   });

@@ -51,6 +51,7 @@ interface DDNSCardProps {
 }
 
 const ddnsFormSchema = z.object({
+    config_version: z.number().optional(),
     max_retries: z.coerce.number().int().min(1),
     enable_ipv4: asOptionalField(z.boolean()),
     enable_ipv6: asOptionalField(z.boolean()),
@@ -71,11 +72,12 @@ type DDNSFormInput = z.input<typeof ddnsFormSchema>
 type DDNSFormData = z.output<typeof ddnsFormSchema>
 
 export const DDNSCard: React.FC<DDNSCardProps> = ({ data, providers, mutate }) => {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const form = useForm<DDNSFormInput, unknown, DDNSFormData>({
         resolver: zodResolver(ddnsFormSchema),
         defaultValues: data
             ? {
+                  config_version: data.config_version,
                   max_retries: data.max_retries ?? 3,
                   enable_ipv4: data.enable_ipv4 ?? false,
                   enable_ipv6: data.enable_ipv6 ?? false,
@@ -83,13 +85,13 @@ export const DDNSCard: React.FC<DDNSCardProps> = ({ data, providers, mutate }) =
                   provider: data.provider ?? "dummy",
                   domains: data.domains ?? [],
                   domains_raw: conv.arrToStr(data.domains ?? []),
-                  access_id: data.access_id ?? "",
-                  access_secret: data.access_secret ?? "",
-                  webhook_url: data.webhook_url ?? "",
+                  access_id: "",
+                  access_secret: "",
+                  webhook_url: "",
                   webhook_method: data.webhook_method,
                   webhook_request_type: data.webhook_request_type,
-                  webhook_request_body: data.webhook_request_body ?? "",
-                  webhook_headers: data.webhook_headers ?? "",
+                  webhook_request_body: "",
+                  webhook_headers: "",
               }
             : {
                   max_retries: 3,
@@ -117,6 +119,9 @@ export const DDNSCard: React.FC<DDNSCardProps> = ({ data, providers, mutate }) =
     const onSubmit = async (values: DDNSFormData) => {
         try {
             values.domains = conv.strToArr(values.domains_raw)
+            for (const key of ["access_id", "access_secret", "webhook_url", "webhook_request_body", "webhook_headers"] as const) {
+                if (!values[key]) delete values[key]
+            }
             if (data?.id) {
                 await updateDDNSProfile(data.id, values)
             } else {
@@ -135,7 +140,7 @@ export const DDNSCard: React.FC<DDNSCardProps> = ({ data, providers, mutate }) =
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={next => { setOpen(next); if (!next) form.reset() }}>
             <DialogTrigger asChild>
                 {data ? <IconButton variant="outline" icon="edit" /> : <IconButton icon="plus" />}
             </DialogTrigger>
@@ -146,6 +151,10 @@ export const DDNSCard: React.FC<DDNSCardProps> = ({ data, providers, mutate }) =
                             <DialogTitle>{data ? t("EditDDNS") : t("CreateDDNS")}</DialogTitle>
                             <DialogDescription />
                         </DialogHeader>
+                        {data?.credential_id && <div className="my-3 space-y-1 rounded-md border p-3 text-sm">
+                            <p>{t("Credential")}: <span className="font-mono">{data.credential_id}</span> · v{data.credential_version} · {data.credential_state}</p>
+                            <p className="text-muted-foreground">{i18n.language.startsWith("zh") ? "凭据和 Webhook 材料留空会保留已保存的内容。更换提供商时必须提供新材料。" : "Leave credential and webhook material blank to keep saved values. Changing providers requires new material."}</p>
+                        </div>}
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 my-2">
                                 <FormField
@@ -210,7 +219,7 @@ export const DDNSCard: React.FC<DDNSCardProps> = ({ data, providers, mutate }) =
                                         <FormItem>
                                             <FormLabel>{t("Credential")} 1</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Token ID" {...field} />
+                                                <Input placeholder="Token ID" autoComplete="off" type="password" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -223,7 +232,7 @@ export const DDNSCard: React.FC<DDNSCardProps> = ({ data, providers, mutate }) =
                                         <FormItem>
                                             <FormLabel>{t("Credential")} 2</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Token Secret" {...field} />
+                                                <Input placeholder="Token Secret" autoComplete="new-password" type="password" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

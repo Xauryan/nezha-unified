@@ -11,4 +11,4 @@ export interface PersistenceSettingsActions {
   saveSettings: (settings: PersistenceSettingsContent) => Promise<void>;
 }
 
-export interface PersistenceSettingsStore extends PersistenceSettingsState, PersistenceSettingsActions {}
+export type PersistenceSettingsStore = PersistenceSettingsState & PersistenceSettingsActions;

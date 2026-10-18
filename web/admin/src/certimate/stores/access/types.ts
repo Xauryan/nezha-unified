@@ -13,4 +13,4 @@ export interface AccessesActions {
   deleteAccess: (access: MaybeModelRecordWithId<AccessModel> | MaybeModelRecordWithId<AccessModel>[]) => Promise<AccessModel>;
 }
 
-export interface AccessesStore extends AccessesState, AccessesActions {}
+export type AccessesStore = AccessesState & AccessesActions;
