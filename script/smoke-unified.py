@@ -86,6 +86,8 @@ with tempfile.TemporaryDirectory(prefix="nezha-unified-smoke-") as tmp:
             admin.request("/api/v1/profile")
             status = admin.request("/api/v1/unified/status")
             assert status["storage"] == "ready" and status["workflow_execution"] is False
+            for kind in ["credentials", "certificates", "workflows"]:
+                assert admin.request(f"/api/v1/unified/{kind}")["total"] == 0
             secret = secrets.token_urlsafe(32)
             credential = {"name": "Smoke credential", "provider": "cloudflare", "config": {"apiToken": secret}}
             admin.request("/api/v1/unified/credentials", credential, expected=403, csrf=False)

@@ -36,6 +36,12 @@ func TestEmbeddedLifecycleAndNoSecondIdentity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	for kind := range collections {
+		page, err := e.List(context.Background(), kind, nil, true, 1, 20)
+		if err != nil || page.Total != 0 || len(page.Items) != 0 {
+			t.Fatalf("fresh %s inventory: %#v %v", kind, page, err)
+		}
+	}
 	users, err := e.app.FindAllRecords(core.CollectionNameSuperusers)
 	if err != nil || len(users) != 0 {
 		t.Fatalf("unexpected superusers: %d, %v", len(users), err)

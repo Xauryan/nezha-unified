@@ -74,7 +74,12 @@ func (e *Engine) List(ctx context.Context, kind string, ids []string, all bool, 
 	if !all && len(ids) == 0 {
 		return result, nil
 	}
-	query := e.app.RecordQuery(collection).WithContext(ctx).AndWhere(dbx.HashExp{"deleted": ""})
+	query := e.app.RecordQuery(collection).WithContext(ctx)
+	// Certimate access/certificate records are soft-deleted; workflow records
+	// are hard-deleted and do not have a deleted column in the upstream schema.
+	if kind != "workflow" {
+		query.AndWhere(dbx.HashExp{"deleted": ""})
+	}
 	if !all {
 		query.AndWhere(dbx.In("id", slicesToAny(ids)...))
 	}
@@ -108,7 +113,7 @@ func (e *Engine) Exists(ctx context.Context, kind, id string) bool {
 		return false
 	}
 	r, err := e.app.FindRecordById(collection, id)
-	return err == nil && r.GetDateTime("deleted").IsZero()
+	return err == nil && (kind == "workflow" || r.GetDateTime("deleted").IsZero())
 }
 
 type CredentialInput struct {

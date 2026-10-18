@@ -2,7 +2,7 @@
 
 All paths begin `/api/v1/unified`. They inherit Nezha session authentication and CSRF protection. Cookie-based writes require `X-CSRF-Token` matching `nz-csrf`; the normal frontend API helper supplies it. PATs are rejected until dedicated resource-scoped claims exist. Responses are never cacheable.
 
-JSON responses use the existing `{ "success": true, "data": ... }` envelope. Resource handler errors use HTTP 400/403/404/500/503 and `{ "success": false, "error": ... }`, without raw SQL, provider secrets or private keys. Authentication failure retains Nezha's HTTP 200 / `success: false` / `ApiErrorUnauthorized` contract. JSON bodies are limited to 256 KiB.
+JSON responses use the existing `{ "success": true, "data": ... }` envelope. Resource handler errors use HTTP 400/403/404/500/503 and the upstream error envelope `{ "error": ... }` (`success` is omitted when false), without raw SQL, provider secrets or private keys. Authentication failure retains Nezha's HTTP 200 / missing-or-false `success` / `ApiErrorUnauthorized` contract. JSON bodies are limited to 256 KiB.
 
 | Method/path | Access | Behavior |
 |---|---|---|
