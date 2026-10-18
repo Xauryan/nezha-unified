@@ -1,0 +1,296 @@
+package tencentcloudecdn
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"strings"
+
+	"github.com/samber/lo"
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
+
+	tccdn "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdn/v20180606"
+
+	"github.com/certimate-go/certimate/pkg/core"
+	cmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
+	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
+	xloop "github.com/certimate-go/certimate/pkg/utils/loop"
+	xtencentcloud "github.com/certimate-go/certimate/pkg/utils/third-party/tencentcloud"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
+)
+
+type DeployerConfig struct {
+	// 腾讯云 SecretId。
+	SecretId string `json:"secretId"`
+	// 腾讯云 SecretKey。
+	SecretKey string `json:"secretKey"`
+	// 腾讯云项目 ID。
+	ProjectId int64 `json:"projectId,omitempty"`
+	// 腾讯云接口端点。
+	Endpoint string `json:"endpoint,omitempty"`
+	// 域名匹配模式。
+	// 零值时默认值 [DOMAIN_MATCH_PATTERN_EXACT]。
+	DomainMatchPattern string `json:"domainMatchPattern,omitempty"`
+	// 加速域名（支持泛域名）。
+	Domain string `json:"domain"`
+}
+
+type Deployer struct {
+	config     *DeployerConfig
+	logger     *slog.Logger
+	sdkClient  *tccdn.Client
+	sdkCertmgr core.Certmgr
+}
+
+var _ Provider = (*Deployer)(nil)
+
+func NewDeployer(config *DeployerConfig) (*Deployer, error) {
+	if config == nil {
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
+	}
+
+	client, err := createSDKClient(config.SecretId, config.SecretKey, config.Endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("could not create client: %w", err)
+	}
+
+	pcertmgr, err := cmgrimpl.NewCertmgr(&cmgrimpl.CertmgrConfig{
+		SecretId:  config.SecretId,
+		SecretKey: config.SecretKey,
+		ProjectId: config.ProjectId,
+		Endpoint:  lo.Ternary(xtencentcloud.IsIntlAPIEndpoint(config.Endpoint), "ssl.intl.tencentcloudapi.com", ""),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
+	}
+
+	return &Deployer{
+		config:     config,
+		logger:     slog.Default(),
+		sdkClient:  client,
+		sdkCertmgr: pcertmgr,
+	}, nil
+}
+
+func (d *Deployer) SetLogger(logger *slog.Logger) {
+	if logger == nil {
+		d.logger = slog.New(slog.DiscardHandler)
+	} else {
+		d.logger = logger
+	}
+
+	d.sdkCertmgr.SetLogger(logger)
+}
+
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
+	// 上传证书
+	upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
+	} else {
+		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
+	}
+
+	// 获取待部署的 ECDN 实例
+	domains := make([]string, 0)
+	switch d.config.DomainMatchPattern {
+	case "", DOMAIN_MATCH_PATTERN_EXACT:
+		{
+			if d.config.Domain == "" {
+				return nil, fmt.Errorf("config `domain` is required")
+			}
+
+			domains = []string{d.config.Domain}
+		}
+
+	case DOMAIN_MATCH_PATTERN_WILDCARD:
+		{
+			if d.config.Domain == "" {
+				return nil, fmt.Errorf("config `domain` is required")
+			}
+
+			if strings.HasPrefix(d.config.Domain, "*.") {
+				domainCandidates, err := d.getMatchedDomainsByWildcard(ctx, d.config.Domain)
+				if err != nil {
+					return nil, err
+				}
+
+				domains = domainCandidates
+			} else {
+				domains = []string{d.config.Domain}
+			}
+		}
+
+	case DOMAIN_MATCH_PATTERN_CERTSAN:
+		{
+			domainCandidates, err := d.getMatchedDomainsByCertId(ctx, upres.CertId)
+			if err != nil {
+				return nil, err
+			}
+
+			domains = domainCandidates
+		}
+
+	default:
+		return nil, fmt.Errorf("unsupported domain match pattern: '%s'", d.config.DomainMatchPattern)
+	}
+
+	// 批量更新域名证书
+	if len(domains) == 0 {
+		d.logger.Info("no ecdn domains to deploy")
+	} else {
+		d.logger.Info("found ecdn domains to deploy", slog.Any("domains", domains))
+
+		if err := xloop.ForRangeAllWithContext(ctx, domains, func(ctx context.Context, domain string, _ int) error {
+			return d.updateDomainCertificate(ctx, domain, upres.CertId)
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	return &DeployResult{}, nil
+}
+
+func (d *Deployer) getMatchedDomainsByWildcard(ctx context.Context, wildcardDomain string) ([]string, error) {
+	domains := make([]string, 0)
+
+	// 查询域名基本信息，获取匹配的域名
+	// REF: https://cloud.tencent.com/document/api/228/41118
+	describeDomainsOffset := 0
+	describeDomainsLimit := 100
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
+		describeDomainsReq := tccdn.NewDescribeDomainsRequest()
+		describeDomainsReq.Filters = []*tccdn.DomainFilter{
+			{
+				Name:  common.StringPtr("domain"),
+				Value: common.StringPtrs([]string{strings.TrimPrefix(wildcardDomain, "*.")}),
+				Fuzzy: common.BoolPtr(true),
+			},
+		}
+		describeDomainsReq.Offset = common.Int64Ptr(int64(describeDomainsOffset))
+		describeDomainsReq.Limit = common.Int64Ptr(int64(describeDomainsLimit))
+		describeDomainsResp, err := d.sdkClient.DescribeDomainsWithContext(ctx, describeDomainsReq)
+		d.logger.Debug("sdk request 'cdn.DescribeDomains'", slog.Any("request", describeDomainsReq), slog.Any("response", describeDomainsResp))
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute sdk request 'cdn.DescribeDomains': %w", err)
+		}
+
+		if describeDomainsResp.Response == nil {
+			break
+		}
+
+		for _, domainItem := range describeDomainsResp.Response.Domains {
+			if lo.FromPtr(domainItem.Product) == "ecdn" && xcerthostname.IsMatch(wildcardDomain, lo.FromPtr(domainItem.Domain)) {
+				domains = append(domains, *domainItem.Domain)
+			}
+		}
+
+		if len(describeDomainsResp.Response.Domains) < describeDomainsLimit {
+			break
+		}
+
+		describeDomainsOffset += describeDomainsLimit
+	}
+
+	return domains, nil
+}
+
+func (d *Deployer) getMatchedDomainsByCertId(ctx context.Context, cloudCertId string) ([]string, error) {
+	// 获取证书中的可用域名
+	// REF: https://cloud.tencent.com/document/api/228/42491
+	describeCertDomainsReq := tccdn.NewDescribeCertDomainsRequest()
+	describeCertDomainsReq.CertId = common.StringPtr(cloudCertId)
+	describeCertDomainsReq.Product = common.StringPtr("ecdn")
+	describeCertDomainsResp, err := d.sdkClient.DescribeCertDomainsWithContext(ctx, describeCertDomainsReq)
+	d.logger.Debug("sdk request 'cdn.DescribeCertDomains'", slog.Any("request", describeCertDomainsReq), slog.Any("response", describeCertDomainsResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'cdn.DescribeCertDomains': %w", err)
+	}
+
+	domains := make([]string, 0)
+	if describeCertDomainsResp.Response.Domains != nil {
+		for _, domain := range describeCertDomainsResp.Response.Domains {
+			domains = append(domains, *domain)
+		}
+	}
+
+	return domains, nil
+}
+
+func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, cloudCertId string) error {
+	// 查询域名详细配置
+	// REF: https://cloud.tencent.com/document/api/228/41117
+	describeDomainsConfigReq := tccdn.NewDescribeDomainsConfigRequest()
+	describeDomainsConfigReq.Filters = []*tccdn.DomainFilter{
+		{
+			Name:  common.StringPtr("domain"),
+			Value: common.StringPtrs([]string{domain}),
+		},
+	}
+	describeDomainsConfigReq.Offset = common.Int64Ptr(0)
+	describeDomainsConfigReq.Limit = common.Int64Ptr(1)
+	describeDomainsConfigResp, err := d.sdkClient.DescribeDomainsConfigWithContext(ctx, describeDomainsConfigReq)
+	d.logger.Debug("sdk request 'cdn.DescribeDomainsConfig'", slog.Any("request", describeDomainsConfigReq), slog.Any("response", describeDomainsConfigResp))
+	if err != nil {
+		return fmt.Errorf("failed to execute sdk request 'cdn.DescribeDomainsConfig': %w", err)
+	} else if len(describeDomainsConfigResp.Response.Domains) == 0 {
+		return fmt.Errorf("could not find domain '%s'", domain)
+	}
+
+	domainConfig := describeDomainsConfigResp.Response.Domains[0]
+	if domainConfig.Https != nil && domainConfig.Https.CertInfo != nil && domainConfig.Https.CertInfo.CertId != nil && *domainConfig.Https.CertInfo.CertId == cloudCertId {
+		// 已部署过，直接返回
+		return nil
+	}
+
+	// 更新加速域名配置
+	// REF: https://cloud.tencent.com/document/api/228/41116
+	updateDomainConfigReq := tccdn.NewUpdateDomainConfigRequest()
+	updateDomainConfigReq.ProjectId = lo.EmptyableToPtr(d.config.ProjectId)
+	updateDomainConfigReq.Domain = common.StringPtr(domain)
+	updateDomainConfigReq.Https = domainConfig.Https
+	if updateDomainConfigReq.Https == nil {
+		updateDomainConfigReq.Https = &tccdn.Https{
+			Switch: common.StringPtr("on"),
+		}
+	} else {
+		updateDomainConfigReq.Https.SslStatus = nil
+	}
+	updateDomainConfigReq.Https.CertInfo = &tccdn.ServerCert{
+		CertId: common.StringPtr(cloudCertId),
+	}
+	updateDomainConfigResp, err := d.sdkClient.UpdateDomainConfigWithContext(ctx, updateDomainConfigReq)
+	d.logger.Debug("sdk request 'cdn.UpdateDomainConfig'", slog.Any("request", updateDomainConfigReq), slog.Any("response", updateDomainConfigResp))
+	if err != nil {
+		return fmt.Errorf("failed to execute sdk request 'cdn.UpdateDomainConfig': %w", err)
+	}
+
+	return nil
+}
+
+func createSDKClient(secretId, secretKey, endpoint string) (*tccdn.Client, error) {
+	credential := common.NewCredential(secretId, secretKey)
+
+	cpf := profile.NewClientProfile()
+	if endpoint != "" {
+		cpf.HttpProfile.Endpoint = endpoint
+	}
+
+	client, err := tccdn.NewClient(credential, "", cpf)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}

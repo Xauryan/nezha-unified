@@ -1,0 +1,265 @@
+package aliyuncdn
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"strconv"
+	"strings"
+
+	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
+	"github.com/alibabacloud-go/tea/tea"
+	"github.com/samber/lo"
+
+	alicdn "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/alibabacloud-go/cdn-20180510/v10/client"
+
+	"github.com/certimate-go/certimate/pkg/core"
+	cmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas"
+	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
+	xloop "github.com/certimate-go/certimate/pkg/utils/loop"
+	xalibabacloud "github.com/certimate-go/certimate/pkg/utils/third-party/alibabacloud"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
+)
+
+type DeployerConfig struct {
+	// 阿里云 AccessKeyId。
+	AccessKeyId string `json:"accessKeyId"`
+	// 阿里云 AccessKeySecret。
+	AccessKeySecret string `json:"accessKeySecret"`
+	// 阿里云资源组 ID。
+	ResourceGroupId string `json:"resourceGroupId,omitempty"`
+	// 阿里云地域。
+	Region string `json:"region"`
+	// 域名匹配模式。
+	// 零值时默认值 [DOMAIN_MATCH_PATTERN_EXACT]。
+	DomainMatchPattern string `json:"domainMatchPattern,omitempty"`
+	// 加速域名（支持泛域名）。
+	Domain string `json:"domain"`
+}
+
+type Deployer struct {
+	config     *DeployerConfig
+	logger     *slog.Logger
+	sdkClient  *alicdn.Client
+	sdkCertmgr core.Certmgr
+}
+
+var _ Provider = (*Deployer)(nil)
+
+func NewDeployer(config *DeployerConfig) (*Deployer, error) {
+	if config == nil {
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
+	}
+
+	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
+	if err != nil {
+		return nil, fmt.Errorf("could not create client: %w", err)
+	}
+
+	pcertmgr, err := cmgrimpl.NewCertmgr(&cmgrimpl.CertmgrConfig{
+		AccessKeyId:     config.AccessKeyId,
+		AccessKeySecret: config.AccessKeySecret,
+		ResourceGroupId: config.ResourceGroupId,
+		Region:          lo.Ternary(xalibabacloud.IsIntlRegion(config.Region), "ap-southeast-1", ""),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
+	}
+
+	return &Deployer{
+		config:     config,
+		logger:     slog.Default(),
+		sdkClient:  client,
+		sdkCertmgr: pcertmgr,
+	}, nil
+}
+
+func (d *Deployer) SetLogger(logger *slog.Logger) {
+	if logger == nil {
+		d.logger = slog.New(slog.DiscardHandler)
+	} else {
+		d.logger = logger
+	}
+
+	d.sdkCertmgr.SetLogger(logger)
+}
+
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
+	// 上传证书
+	upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
+	} else {
+		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
+	}
+
+	// 获取待部署的域名列表
+	var domains []string
+	switch d.config.DomainMatchPattern {
+	case "", DOMAIN_MATCH_PATTERN_EXACT:
+		{
+			domain := normalizeDomain(d.config.Domain)
+			if domain == "" {
+				return nil, fmt.Errorf("config `domain` is required")
+			}
+
+			domains = []string{domain}
+		}
+
+	case DOMAIN_MATCH_PATTERN_WILDCARD:
+		{
+			if d.config.Domain == "" {
+				return nil, fmt.Errorf("config `domain` is required")
+			}
+
+			if strings.HasPrefix(d.config.Domain, "*.") {
+				domainCandidates, err := d.getAllDomains(ctx)
+				if err != nil {
+					return nil, err
+				}
+
+				domains = lo.Filter(domainCandidates, func(domain string, _ int) bool {
+					return xcerthostname.IsMatch(d.config.Domain, domain)
+				})
+				if len(domains) == 0 {
+					return nil, fmt.Errorf("could not find any domains matched by wildcard")
+				}
+			} else {
+				domains = []string{d.config.Domain}
+			}
+		}
+
+	case DOMAIN_MATCH_PATTERN_CERTSAN:
+		{
+			domainCandidates, err := d.getAllDomains(ctx)
+			if err != nil {
+				return nil, err
+			}
+
+			domains = lo.Filter(domainCandidates, func(domain string, _ int) bool {
+				return xcerthostname.IsMatchByCertificatePEM(certPEM, domain)
+			})
+			if len(domains) == 0 {
+				return nil, fmt.Errorf("could not find any domains matched by certificate")
+			}
+		}
+
+	default:
+		return nil, fmt.Errorf("unsupported domain match pattern: '%s'", d.config.DomainMatchPattern)
+	}
+
+	// 批量更新域名证书
+	if len(domains) == 0 {
+		d.logger.Info("no cdn domains to deploy")
+	} else {
+		d.logger.Info("found cdn domains to deploy", slog.Any("domains", domains))
+
+		certIdentifier := upres.ExtendedData["CertIdWithRegion"].(string)
+		certIdentifierSeps := strings.SplitN(certIdentifier, "-", 2)
+		certId, _ := strconv.ParseInt(certIdentifierSeps[0], 10, 64)
+		certRegion := certIdentifierSeps[1]
+
+		if err := xloop.ForRangeAllWithContext(ctx, domains, func(ctx context.Context, domain string, _ int) error {
+			return d.updateDomainCertificate(ctx, domain, certId, certRegion)
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	return &DeployResult{}, nil
+}
+
+func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
+	domains := make([]string, 0)
+
+	// 查询域名列表
+	// REF: https://help.aliyun.com/zh/cdn/developer-reference/api-cdn-2018-05-10-describeuserdomains
+	describeUserDomainsPageNumber := 1
+	describeUserDomainsPageSize := 500
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
+		describeUserDomainsReq := &alicdn.DescribeUserDomainsRequest{
+			ResourceGroupId: lo.EmptyableToPtr(d.config.ResourceGroupId),
+			PageNumber:      tea.Int32(int32(describeUserDomainsPageNumber)),
+			PageSize:        tea.Int32(int32(describeUserDomainsPageSize)),
+		}
+		describeUserDomainsResp, err := d.sdkClient.DescribeUserDomainsWithContext(ctx, describeUserDomainsReq, &dara.RuntimeOptions{})
+		d.logger.Debug("sdk request 'cdn.DescribeUserDomains'", slog.Any("request", describeUserDomainsReq), slog.Any("response", describeUserDomainsResp))
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute sdk request 'cdn.DescribeUserDomains': %w", err)
+		}
+
+		if describeUserDomainsResp.Body == nil || describeUserDomainsResp.Body.Domains == nil {
+			break
+		}
+
+		ignoredStatuses := []string{"offline", "checking", "check_failed", "stopping", "deleting"}
+		for _, domainItem := range describeUserDomainsResp.Body.Domains.PageData {
+			if lo.Contains(ignoredStatuses, tea.StringValue(domainItem.DomainStatus)) {
+				continue
+			}
+
+			domains = append(domains, tea.StringValue(domainItem.DomainName))
+		}
+
+		if len(describeUserDomainsResp.Body.Domains.PageData) < describeUserDomainsPageSize {
+			break
+		}
+
+		describeUserDomainsPageNumber++
+	}
+
+	return domains, nil
+}
+
+func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, cloudCertId int64, cloudCertRegion string) error {
+	// 设置 CDN 域名域名证书
+	// REF: https://help.aliyun.com/zh/cdn/developer-reference/api-cdn-2018-05-10-setcdndomainsslcertificate
+	setCdnDomainSSLCertificateReq := &alicdn.SetCdnDomainSSLCertificateRequest{
+		DomainName:  tea.String(domain),
+		CertType:    tea.String("cas"),
+		CertId:      tea.Int64(cloudCertId),
+		CertRegion:  tea.String(cloudCertRegion),
+		SSLProtocol: tea.String("on"),
+	}
+	setCdnDomainSSLCertificateResp, err := d.sdkClient.SetCdnDomainSSLCertificateWithContext(ctx, setCdnDomainSSLCertificateReq, &dara.RuntimeOptions{})
+	d.logger.Debug("sdk request 'cdn.SetCdnDomainSSLCertificate'", slog.Any("request", setCdnDomainSSLCertificateReq), slog.Any("response", setCdnDomainSSLCertificateResp))
+	if err != nil {
+		return fmt.Errorf("failed to execute sdk request 'cdn.SetCdnDomainSSLCertificate': %w", err)
+	}
+
+	return nil
+}
+
+func createSDKClient(accessKeyId, accessKeySecret string) (*alicdn.Client, error) {
+	config := &aliopen.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+		Endpoint:        tea.String("cdn.aliyuncs.com"),
+	}
+
+	client, err := alicdn.NewClient(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
+func normalizeDomain(domain string) string {
+	// "*.example.com" → ".example.com"，适配阿里云 CDN 的泛域名参数要求
+	if strings.HasPrefix(domain, "*.") {
+		return strings.TrimPrefix(domain, "*")
+	}
+	return domain
+}

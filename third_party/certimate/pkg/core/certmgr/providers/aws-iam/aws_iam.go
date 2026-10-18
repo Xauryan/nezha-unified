@@ -1,0 +1,222 @@
+package awsiam
+
+import (
+	"cmp"
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"time"
+
+	aws "github.com/aws/aws-sdk-go-v2/aws"
+	awscfg "github.com/aws/aws-sdk-go-v2/config"
+	awscred "github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/credentials/ec2rolecreds"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/smithy-go"
+	"github.com/samber/lo"
+
+	"github.com/certimate-go/certimate/pkg/core"
+	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
+)
+
+type CertmgrConfig struct {
+	// AWS API 认证方式。
+	// 可取值 "accesskey"、"imds"。
+	// 零值时默认值 [AUTH_METHOD_ACCESSKEY]。
+	AuthMethod string `json:"authMethod,omitempty"`
+	// AWS AccessKeyId。
+	AccessKeyId string `json:"accessKeyId"`
+	// AWS SecretAccessKey。
+	SecretAccessKey string `json:"secretAccessKey"`
+	// AWS 区域。
+	Region string `json:"region"`
+	// IAM 证书路径。
+	// 选填。
+	CertificatePath string `json:"certificatePath,omitempty"`
+}
+
+type Certmgr struct {
+	config    *CertmgrConfig
+	logger    *slog.Logger
+	sdkClient *iam.Client
+}
+
+var _ Provider = (*Certmgr)(nil)
+
+func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
+	if config == nil {
+		return nil, fmt.Errorf("the configuration of the certmgr provider is nil")
+	}
+
+	client, err := createSDKClient(config.AuthMethod, config.AccessKeyId, config.SecretAccessKey, config.Region)
+	if err != nil {
+		return nil, fmt.Errorf("could not create client: %w", err)
+	}
+
+	return &Certmgr{
+		config:    config,
+		logger:    slog.Default(),
+		sdkClient: client,
+	}, nil
+}
+
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
+	if logger == nil {
+		c.logger = slog.New(slog.DiscardHandler)
+	} else {
+		c.logger = logger
+	}
+}
+
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
+	// 解析证书内容
+	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
+	if err != nil {
+		return nil, err
+	}
+
+	// 提取服务器证书和中间证书
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract certs: %w", err)
+	}
+
+	// 获取证书列表，避免重复上传
+	// REF: https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListServerCertificates.html
+	// REF: https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetServerCertificate.html
+	listServerCertificatesMarker := (*string)(nil)
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
+		listServerCertificatesReq := &iam.ListServerCertificatesInput{
+			PathPrefix: lo.EmptyableToPtr(c.config.CertificatePath),
+			Marker:     listServerCertificatesMarker,
+			MaxItems:   aws.Int32(1000),
+		}
+		listServerCertificatesResp, err := c.sdkClient.ListServerCertificates(ctx, listServerCertificatesReq)
+		c.logger.Debug("sdk request 'iam.ListServerCertificates'", slog.Any("request", listServerCertificatesReq), slog.Any("response", listServerCertificatesResp))
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute sdk request 'iam.ListServerCertificates': %w", err)
+		}
+
+		for _, certItem := range listServerCertificatesResp.ServerCertificateMetadataList {
+			// 对比证书路径
+			if c.config.CertificatePath != "" && aws.ToString(certItem.Path) != c.config.CertificatePath {
+				continue
+			}
+
+			// 对比证书有效期
+			if certItem.Expiration == nil || !certX509.NotAfter.Equal(*certItem.Expiration) {
+				continue
+			}
+
+			// 对比证书内容
+			getServerCertificateReq := &iam.GetServerCertificateInput{
+				ServerCertificateName: certItem.ServerCertificateName,
+			}
+			getServerCertificateResp, err := c.sdkClient.GetServerCertificate(ctx, getServerCertificateReq)
+			if err != nil {
+				var sdkErr smithy.APIError
+				if errors.As(err, &sdkErr) {
+					if sdkErrCode := sdkErr.ErrorCode(); sdkErrCode == "NoSuchEntity" {
+						continue
+					}
+				}
+
+				return nil, fmt.Errorf("failed to execute sdk request 'iam.GetServerCertificate': %w", err)
+			} else {
+				if !xcert.EqualCertificatesFromPEM(certPEM, aws.ToString(getServerCertificateResp.ServerCertificate.CertificateBody)) {
+					continue
+				}
+			}
+
+			// 如果以上信息都一致，则视为已存在相同证书，直接返回
+			c.logger.Info("ssl certificate already exists")
+			return &UploadResult{
+				CertId:   aws.ToString(certItem.ServerCertificateId),
+				CertName: aws.ToString(certItem.ServerCertificateName),
+				ExtendedData: map[string]any{
+					"Arn":  aws.ToString(certItem.Arn),
+					"Path": aws.ToString(certItem.Path),
+				},
+			}, nil
+		}
+
+		if len(listServerCertificatesResp.ServerCertificateMetadataList) == 0 || listServerCertificatesResp.Marker == nil {
+			break
+		}
+
+		listServerCertificatesMarker = listServerCertificatesResp.Marker
+	}
+
+	// 生成新证书名（需符合 AWS IAM 命名规则）
+	certName := fmt.Sprintf("certimate-%d", time.Now().UnixMilli())
+
+	// 导入证书
+	// REF: https://docs.aws.amazon.com/IAM/latest/APIReference/API_UploadServerCertificate.html
+	uploadServerCertificateReq := &iam.UploadServerCertificateInput{
+		ServerCertificateName: aws.String(certName),
+		Path:                  aws.String(cmp.Or(c.config.CertificatePath, "/")),
+		CertificateBody:       aws.String(serverCertPEM),
+		CertificateChain:      aws.String(issuerCertPEM),
+		PrivateKey:            aws.String(privkeyPEM),
+	}
+	uploadServerCertificateResp, err := c.sdkClient.UploadServerCertificate(ctx, uploadServerCertificateReq)
+	c.logger.Debug("sdk request 'iam.UploadServerCertificate'", slog.Any("request", uploadServerCertificateReq), slog.Any("response", uploadServerCertificateResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'iam.UploadServerCertificate': %w", err)
+	}
+
+	return &UploadResult{
+		CertId:   aws.ToString(uploadServerCertificateResp.ServerCertificateMetadata.ServerCertificateId),
+		CertName: aws.ToString(uploadServerCertificateResp.ServerCertificateMetadata.ServerCertificateName),
+		ExtendedData: map[string]any{
+			"Arn":  aws.ToString(uploadServerCertificateResp.ServerCertificateMetadata.Arn),
+			"Path": aws.ToString(uploadServerCertificateResp.ServerCertificateMetadata.Path),
+		},
+	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
+	return nil, core.ErrUnsupported
+}
+
+func createSDKClient(authMethod, accessKeyId, secretAccessKey, region string) (*iam.Client, error) {
+	opts := []func(options *awscfg.LoadOptions) error{
+		awscfg.WithRegion(region),
+	}
+
+	staticCredsProvider := awscred.NewStaticCredentialsProvider(accessKeyId, secretAccessKey, "")
+	imdsCredsProvider := aws.NewCredentialsCache(ec2rolecreds.New())
+	switch authMethod {
+	case "":
+		if accessKeyId != "" && secretAccessKey != "" {
+			opts = append(opts, awscfg.WithCredentialsProvider(staticCredsProvider))
+		}
+	case AUTH_METHOD_ACCESSKEY:
+		opts = append(opts, awscfg.WithCredentialsProvider(staticCredsProvider))
+	case AUTH_METHOD_IMDS:
+		opts = append(opts, awscfg.WithCredentialsProvider(imdsCredsProvider))
+	default:
+		return nil, fmt.Errorf("unsupported auth method '%s'", authMethod)
+	}
+
+	cfg, err := awscfg.LoadDefaultConfig(context.Background(), opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	client := iam.NewFromConfig(cfg)
+	return client, nil
+}

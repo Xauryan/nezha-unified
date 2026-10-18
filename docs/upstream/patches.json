@@ -1,0 +1,16 @@
+[
+  ".gitignore",
+  "cmd/dashboard/controller/controller.go",
+  "cmd/dashboard/main.go",
+  "go.mod",
+  "go.sum",
+  "script/fetch-frontends.sh",
+  "web/admin/src/components/header.tsx",
+  "web/admin/src/locales/en/translation.json",
+  "web/admin/src/locales/zh-CN/translation.json",
+  "web/admin/src/main.tsx",
+  "third_party/certimate/migrations/1757476801_initialize_v0.4.0.go",
+  "integration/agentcompat/internal/workflowpolicy/quality_workflow_test.go",
+  "integration/agentcompat/internal/workflowpolicy/execution.go",
+  "integration/agentcompat/internal/workflowpolicy/runner.go"
+]

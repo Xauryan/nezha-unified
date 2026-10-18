@@ -1,0 +1,93 @@
+package awsacm
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+
+	"github.com/certimate-go/certimate/pkg/core"
+	cmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aws-acm"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
+)
+
+type DeployerConfig struct {
+	// AWS API 认证方式。
+	// 可取值 "accesskey"、"imds"。
+	// 零值时默认值 [AUTH_METHOD_ACCESSKEY]。
+	AuthMethod string `json:"authMethod,omitempty"`
+	// AWS AccessKeyId。
+	AccessKeyId string `json:"accessKeyId"`
+	// AWS SecretAccessKey。
+	SecretAccessKey string `json:"secretAccessKey"`
+	// AWS 区域。
+	Region string `json:"region"`
+	// ACM 证书 ARN。
+	// 选填。零值时表示新建证书；否则表示更新证书。
+	CertificateArn string `json:"certificateArn,omitempty"`
+}
+
+type Deployer struct {
+	config     *DeployerConfig
+	logger     *slog.Logger
+	sdkCertmgr core.Certmgr
+}
+
+var _ Provider = (*Deployer)(nil)
+
+func NewDeployer(config *DeployerConfig) (*Deployer, error) {
+	if config == nil {
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
+	}
+
+	pcertmgr, err := cmgrimpl.NewCertmgr(&cmgrimpl.CertmgrConfig{
+		AuthMethod:      config.AuthMethod,
+		AccessKeyId:     config.AccessKeyId,
+		SecretAccessKey: config.SecretAccessKey,
+		Region:          config.Region,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
+	}
+
+	return &Deployer{
+		config:     config,
+		logger:     slog.Default(),
+		sdkCertmgr: pcertmgr,
+	}, nil
+}
+
+func (d *Deployer) SetLogger(logger *slog.Logger) {
+	if logger == nil {
+		d.logger = slog.New(slog.DiscardHandler)
+	} else {
+		d.logger = logger
+	}
+
+	d.sdkCertmgr.SetLogger(logger)
+}
+
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
+	if d.config.CertificateArn == "" {
+		// 上传证书
+		upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload certificate file: %w", err)
+		} else {
+			d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
+		}
+	} else {
+		// 替换证书
+		rplres, err := d.sdkCertmgr.Replace(ctx, d.config.CertificateArn, certPEM, privkeyPEM)
+		if err != nil {
+			return nil, fmt.Errorf("failed to replace certificate file: %w", err)
+		} else {
+			d.logger.Info("ssl certificate replaced", slog.Any("result", rplres))
+		}
+	}
+
+	return &DeployResult{}, nil
+}

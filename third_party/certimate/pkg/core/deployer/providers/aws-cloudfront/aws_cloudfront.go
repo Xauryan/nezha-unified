@@ -1,0 +1,195 @@
+package awscloudfront
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+
+	aws "github.com/aws/aws-sdk-go-v2/aws"
+	awscfg "github.com/aws/aws-sdk-go-v2/config"
+	awscred "github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/credentials/ec2rolecreds"
+	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
+	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
+
+	"github.com/certimate-go/certimate/pkg/core"
+	cmgrimplacm "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aws-acm"
+	cmgrimpliam "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aws-iam"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
+)
+
+type DeployerConfig struct {
+	// AWS API 认证方式。
+	// 可取值 "accesskey"、"imds"。
+	// 零值时默认值 [AUTH_METHOD_ACCESSKEY]。
+	AuthMethod string `json:"authMethod,omitempty"`
+	// AWS AccessKeyId。
+	AccessKeyId string `json:"accessKeyId"`
+	// AWS SecretAccessKey。
+	SecretAccessKey string `json:"secretAccessKey"`
+	// AWS 区域。
+	Region string `json:"region"`
+	// AWS CloudFront 分配 ID。
+	DistributionId string `json:"distributionId"`
+	// AWS CloudFront 证书来源。
+	// 可取值 "ACM"、"IAM"。
+	CertificateSource string `json:"certificateSource"`
+}
+
+type Deployer struct {
+	config     *DeployerConfig
+	logger     *slog.Logger
+	sdkClient  *cloudfront.Client
+	sdkCertmgr core.Certmgr
+}
+
+var _ Provider = (*Deployer)(nil)
+
+func NewDeployer(config *DeployerConfig) (*Deployer, error) {
+	if config == nil {
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
+	}
+
+	client, err := createSDKClient(config.AuthMethod, config.AccessKeyId, config.SecretAccessKey, config.Region)
+	if err != nil {
+		return nil, fmt.Errorf("could not create client: %w", err)
+	}
+
+	var pcertmgr core.Certmgr
+	switch config.CertificateSource {
+	case CERTIFICATE_SOURCE_ACM:
+		pcertmgr, err = cmgrimplacm.NewCertmgr(&cmgrimplacm.CertmgrConfig{
+			AuthMethod:      config.AuthMethod,
+			AccessKeyId:     config.AccessKeyId,
+			SecretAccessKey: config.SecretAccessKey,
+			Region:          config.Region,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("could not create certmgr: %w", err)
+		}
+
+	case CERTIFICATE_SOURCE_IAM:
+		pcertmgr, err = cmgrimpliam.NewCertmgr(&cmgrimpliam.CertmgrConfig{
+			AuthMethod:      config.AuthMethod,
+			AccessKeyId:     config.AccessKeyId,
+			SecretAccessKey: config.SecretAccessKey,
+			Region:          config.Region,
+			CertificatePath: "/cloudfront/",
+		})
+		if err != nil {
+			return nil, fmt.Errorf("could not create certmgr: %w", err)
+		}
+
+	default:
+		return nil, fmt.Errorf("unsupported certificate source: '%s'", config.CertificateSource)
+	}
+
+	return &Deployer{
+		config:     config,
+		logger:     slog.Default(),
+		sdkClient:  client,
+		sdkCertmgr: pcertmgr,
+	}, nil
+}
+
+func (d *Deployer) SetLogger(logger *slog.Logger) {
+	if logger == nil {
+		d.logger = slog.New(slog.DiscardHandler)
+	} else {
+		d.logger = logger
+	}
+
+	d.sdkCertmgr.SetLogger(logger)
+}
+
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
+	if d.config.DistributionId == "" {
+		return nil, fmt.Errorf("config `distributionId` is required")
+	}
+
+	// 上传证书
+	upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
+	} else {
+		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
+	}
+
+	// 获取分配配置
+	// REF: https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_GetDistributionConfig.html
+	getDistributionConfigReq := &cloudfront.GetDistributionConfigInput{
+		Id: aws.String(d.config.DistributionId),
+	}
+	getDistributionConfigResp, err := d.sdkClient.GetDistributionConfig(ctx, getDistributionConfigReq)
+	d.logger.Debug("sdk request 'cloudfront.GetDistributionConfig'", slog.Any("request", getDistributionConfigReq), slog.Any("response", getDistributionConfigResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'cloudfront.GetDistributionConfig': %w", err)
+	}
+
+	// 更新分配配置
+	// REF: https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_UpdateDistribution.html
+	updateDistributionReq := &cloudfront.UpdateDistributionInput{
+		Id:                 aws.String(d.config.DistributionId),
+		DistributionConfig: getDistributionConfigResp.DistributionConfig,
+		IfMatch:            getDistributionConfigResp.ETag,
+	}
+	if updateDistributionReq.DistributionConfig.ViewerCertificate == nil {
+		updateDistributionReq.DistributionConfig.ViewerCertificate = &types.ViewerCertificate{}
+	}
+	updateDistributionReq.DistributionConfig.ViewerCertificate.CloudFrontDefaultCertificate = aws.Bool(false)
+	switch d.config.CertificateSource {
+	case CERTIFICATE_SOURCE_ACM:
+		updateDistributionReq.DistributionConfig.ViewerCertificate.ACMCertificateArn = aws.String(upres.CertId)
+		updateDistributionReq.DistributionConfig.ViewerCertificate.IAMCertificateId = nil
+
+	case CERTIFICATE_SOURCE_IAM:
+		updateDistributionReq.DistributionConfig.ViewerCertificate.ACMCertificateArn = nil
+		updateDistributionReq.DistributionConfig.ViewerCertificate.IAMCertificateId = aws.String(upres.CertId)
+		if updateDistributionReq.DistributionConfig.ViewerCertificate.MinimumProtocolVersion == "" {
+			updateDistributionReq.DistributionConfig.ViewerCertificate.MinimumProtocolVersion = types.MinimumProtocolVersionTLSv122018
+		}
+		if updateDistributionReq.DistributionConfig.ViewerCertificate.SSLSupportMethod == "" {
+			updateDistributionReq.DistributionConfig.ViewerCertificate.SSLSupportMethod = types.SSLSupportMethodSniOnly
+		}
+	}
+	updateDistributionResp, err := d.sdkClient.UpdateDistribution(ctx, updateDistributionReq)
+	d.logger.Debug("sdk request 'cloudfront.UpdateDistribution'", slog.Any("request", updateDistributionReq), slog.Any("response", updateDistributionResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'cloudfront.UpdateDistribution': %w", err)
+	}
+
+	return &DeployResult{}, nil
+}
+
+func createSDKClient(authMethod, accessKeyId, secretAccessKey, region string) (*cloudfront.Client, error) {
+	opts := []func(options *awscfg.LoadOptions) error{
+		awscfg.WithRegion(region),
+	}
+
+	staticCredsProvider := awscred.NewStaticCredentialsProvider(accessKeyId, secretAccessKey, "")
+	imdsCredsProvider := aws.NewCredentialsCache(ec2rolecreds.New())
+	switch authMethod {
+	case "":
+		if accessKeyId != "" && secretAccessKey != "" {
+			opts = append(opts, awscfg.WithCredentialsProvider(staticCredsProvider))
+		}
+	case AUTH_METHOD_ACCESSKEY:
+		opts = append(opts, awscfg.WithCredentialsProvider(staticCredsProvider))
+	case AUTH_METHOD_IMDS:
+		opts = append(opts, awscfg.WithCredentialsProvider(imdsCredsProvider))
+	default:
+		return nil, fmt.Errorf("unsupported auth method '%s'", authMethod)
+	}
+
+	cfg, err := awscfg.LoadDefaultConfig(context.Background(), opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	client := cloudfront.NewFromConfig(cfg)
+	return client, nil
+}

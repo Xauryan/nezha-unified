@@ -1,0 +1,329 @@
+package tencentcloudeo
+
+import (
+	"context"
+	"crypto/x509"
+	"fmt"
+	"log/slog"
+	"strings"
+	"time"
+
+	"github.com/samber/lo"
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
+
+	tceo "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/teo/v20220901"
+
+	"github.com/certimate-go/certimate/pkg/core"
+	cmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
+	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
+	xcertkey "github.com/certimate-go/certimate/pkg/utils/cert/key"
+	xloop "github.com/certimate-go/certimate/pkg/utils/loop"
+	xtencentcloud "github.com/certimate-go/certimate/pkg/utils/third-party/tencentcloud"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
+)
+
+type DeployerConfig struct {
+	// 腾讯云 SecretId。
+	SecretId string `json:"secretId"`
+	// 腾讯云 SecretKey。
+	SecretKey string `json:"secretKey"`
+	// 腾讯云项目 ID。
+	ProjectId int64 `json:"projectId,omitempty"`
+	// 腾讯云接口端点。
+	Endpoint string `json:"endpoint,omitempty"`
+	// 站点 ID。
+	ZoneId string `json:"zoneId"`
+	// 域名匹配模式。
+	// 零值时默认值 [DOMAIN_MATCH_PATTERN_EXACT]。
+	DomainMatchPattern string `json:"domainMatchPattern,omitempty"`
+	// 加速域名列表（支持泛域名）。
+	Domains []string `json:"domains"`
+	// 是否启用多证书模式。
+	EnableMultipleSSL bool `json:"enableMultipleSSL,omitempty"`
+}
+
+type Deployer struct {
+	config     *DeployerConfig
+	logger     *slog.Logger
+	sdkClient  *tceo.Client
+	sdkCertmgr core.Certmgr
+}
+
+var _ Provider = (*Deployer)(nil)
+
+func NewDeployer(config *DeployerConfig) (*Deployer, error) {
+	if config == nil {
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
+	}
+
+	client, err := createSDKClient(config.SecretId, config.SecretKey, config.Endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("could not create client: %w", err)
+	}
+
+	pcertmgr, err := cmgrimpl.NewCertmgr(&cmgrimpl.CertmgrConfig{
+		SecretId:  config.SecretId,
+		SecretKey: config.SecretKey,
+		ProjectId: config.ProjectId,
+		Endpoint:  lo.Ternary(xtencentcloud.IsIntlAPIEndpoint(config.Endpoint), "ssl.intl.tencentcloudapi.com", ""),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
+	}
+
+	return &Deployer{
+		config:     config,
+		logger:     slog.Default(),
+		sdkClient:  client,
+		sdkCertmgr: pcertmgr,
+	}, nil
+}
+
+func (d *Deployer) SetLogger(logger *slog.Logger) {
+	if logger == nil {
+		d.logger = slog.New(slog.DiscardHandler)
+	} else {
+		d.logger = logger
+	}
+
+	d.sdkCertmgr.SetLogger(logger)
+}
+
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
+	if d.config.ZoneId == "" {
+		return nil, fmt.Errorf("config `zoneId` is required")
+	}
+
+	// 上传证书
+	upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
+	} else {
+		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
+	}
+
+	// 获取全部可部署的域名列表
+	domainsInZone, err := d.getAllDomainsInZone(ctx, d.config.ZoneId)
+	if err != nil {
+		return nil, err
+	}
+	if len(domainsInZone) == 0 {
+		return nil, fmt.Errorf("could not find domains in zone '%s'", d.config.ZoneId)
+	}
+
+	// 获取待部署的域名列表
+	var domains []string
+	switch d.config.DomainMatchPattern {
+	case "", DOMAIN_MATCH_PATTERN_EXACT:
+		{
+			if len(d.config.Domains) == 0 {
+				return nil, fmt.Errorf("config `domains` is required")
+			}
+
+			domains = d.config.Domains
+		}
+
+	case DOMAIN_MATCH_PATTERN_WILDCARD:
+		{
+			if len(d.config.Domains) == 0 {
+				return nil, fmt.Errorf("config `domains` is required")
+			}
+
+			domainCandidates := lo.Map(domainsInZone, func(domainInfo *tceo.AccelerationDomain, _ int) string {
+				return lo.FromPtr(domainInfo.DomainName)
+			})
+			domains = lo.Filter(domainCandidates, func(domain string, _ int) bool {
+				for _, configDomain := range d.config.Domains {
+					if xcerthostname.IsMatch(configDomain, domain) {
+						return true
+					}
+				}
+				return false
+			})
+			if len(domains) == 0 {
+				return nil, fmt.Errorf("could not find any domains matched by wildcard")
+			}
+		}
+
+	case DOMAIN_MATCH_PATTERN_CERTSAN:
+		{
+			domainCandidates := lo.Map(domainsInZone, func(domainInfo *tceo.AccelerationDomain, _ int) string {
+				return lo.FromPtr(domainInfo.DomainName)
+			})
+			domains = lo.Filter(domainCandidates, func(domain string, _ int) bool {
+				return xcerthostname.IsMatchByCertificatePEM(certPEM, domain)
+			})
+			if len(domains) == 0 {
+				return nil, fmt.Errorf("could not find any domains matched by certificate")
+			}
+		}
+
+	default:
+		return nil, fmt.Errorf("unsupported domain match pattern: '%s'", d.config.DomainMatchPattern)
+	}
+
+	// 批量更新域名证书
+	if len(domains) == 0 {
+		d.logger.Info("no edgeone domains to deploy")
+	} else {
+		d.logger.Info("found edgeone domains to deploy", slog.Any("domains", domains))
+
+		// 跳过已部署过的域名
+		domains = lo.Filter(domains, func(domain string, _ int) bool {
+			var deployed bool
+
+			domainInfo, _ := lo.Find(domainsInZone, func(domainInfo *tceo.AccelerationDomain) bool {
+				return domain == lo.FromPtr(domainInfo.DomainName)
+			})
+			if domainInfo != nil && domainInfo.Certificate != nil {
+				deployed = lo.SomeBy(domainInfo.Certificate.List, func(certInfo *tceo.CertificateInfo) bool {
+					return upres.CertId == lo.FromPtr(certInfo.CertId)
+				})
+			}
+
+			return !deployed
+		})
+		if len(domains) == 0 {
+			d.logger.Info("no need to deploy edgeone custom domain certificate")
+			return &DeployResult{}, nil
+		}
+
+		// 配置域名证书
+		// REF: https://cloud.tencent.com/document/api/1552/80764
+		requests := make([]*tceo.ModifyHostsCertificateRequest, 0)
+		if d.config.EnableMultipleSSL {
+			const algRSA = "RSA"
+			const algECC = "ECC"
+
+			privkey, err := xcert.ParsePrivateKeyFromPEM(privkeyPEM)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse private key: %w", err)
+			}
+
+			privkeyAlg, _, _ := xcertkey.GetPrivateKeyAlgorithm(privkey)
+			privkeyAlgStr := ""
+			switch privkeyAlg {
+			case x509.RSA:
+				privkeyAlgStr = algRSA
+			case x509.ECDSA:
+				privkeyAlgStr = algECC
+			}
+
+			for _, domain := range domains {
+				modifyHostsCertificateReq := tceo.NewModifyHostsCertificateRequest()
+				modifyHostsCertificateReq.ZoneId = common.StringPtr(d.config.ZoneId)
+				modifyHostsCertificateReq.Mode = common.StringPtr("sslcert")
+				modifyHostsCertificateReq.Hosts = common.StringPtrs([]string{domain})
+				modifyHostsCertificateReq.ServerCertInfo = []*tceo.ServerCertInfo{{CertId: common.StringPtr(upres.CertId)}}
+
+				domainInfo, _ := lo.Find(domainsInZone, func(domainInfo *tceo.AccelerationDomain) bool {
+					return domain == lo.FromPtr(domainInfo.DomainName)
+				})
+				if domainInfo != nil && domainInfo.Certificate != nil {
+					for _, certInfo := range domainInfo.Certificate.List {
+						if lo.FromPtr(certInfo.CertId) == upres.CertId {
+							continue
+						}
+
+						if strings.Split(lo.FromPtr(certInfo.SignAlgo), " ")[0] == privkeyAlgStr {
+							continue
+						}
+
+						certExpireTime, _ := time.Parse(time.RFC3339, lo.FromPtr(certInfo.ExpireTime))
+						if certExpireTime.Before(time.Now()) {
+							continue
+						}
+
+						modifyHostsCertificateReq.ServerCertInfo = append(modifyHostsCertificateReq.ServerCertInfo, &tceo.ServerCertInfo{CertId: certInfo.CertId})
+					}
+				}
+
+				requests = append(requests, modifyHostsCertificateReq)
+			}
+		} else {
+			modifyHostsCertificateReq := tceo.NewModifyHostsCertificateRequest()
+			modifyHostsCertificateReq.ZoneId = common.StringPtr(d.config.ZoneId)
+			modifyHostsCertificateReq.Mode = common.StringPtr("sslcert")
+			modifyHostsCertificateReq.Hosts = common.StringPtrs(domains)
+			modifyHostsCertificateReq.ServerCertInfo = []*tceo.ServerCertInfo{{CertId: common.StringPtr(upres.CertId)}}
+
+			requests = append(requests, modifyHostsCertificateReq)
+		}
+
+		if err := xloop.ForRangeAllWithContext(ctx, requests, func(ctx context.Context, modifyHostsCertificateReq *tceo.ModifyHostsCertificateRequest, _ int) error {
+			modifyHostsCertificateResp, err := d.sdkClient.ModifyHostsCertificateWithContext(ctx, modifyHostsCertificateReq)
+			d.logger.Debug("sdk request 'teo.ModifyHostsCertificate'", slog.Any("request", modifyHostsCertificateReq), slog.Any("response", modifyHostsCertificateResp))
+			if err != nil {
+				return fmt.Errorf("failed to execute sdk request 'teo.ModifyHostsCertificate': %w", err)
+			}
+
+			return nil
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	return &DeployResult{}, nil
+}
+
+func (d *Deployer) getAllDomainsInZone(ctx context.Context, zoneId string) ([]*tceo.AccelerationDomain, error) {
+	var domainsInZone []*tceo.AccelerationDomain
+
+	const pageSize = 200
+	for offset := 0; ; offset += pageSize {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
+		// 查询加速域名列表
+		// REF: https://cloud.tencent.com/document/api/1552/86336
+		describeAccelerationDomainsReq := tceo.NewDescribeAccelerationDomainsRequest()
+		describeAccelerationDomainsReq.Limit = common.Int64Ptr(pageSize)
+		describeAccelerationDomainsReq.Offset = common.Int64Ptr(int64(offset))
+		describeAccelerationDomainsReq.ZoneId = common.StringPtr(zoneId)
+		describeAccelerationDomainsResp, err := d.sdkClient.DescribeAccelerationDomainsWithContext(ctx, describeAccelerationDomainsReq)
+		d.logger.Debug("sdk request 'teo.DescribeAccelerationDomains'", slog.Any("request", describeAccelerationDomainsReq), slog.Any("response", describeAccelerationDomainsResp))
+		if err != nil {
+			return nil, fmt.Errorf("failed to execute sdk request 'teo.DescribeAccelerationDomains': %w", err)
+		}
+
+		ignoredStatuses := []string{"offline", "forbidden", "init"}
+		for _, domainItem := range describeAccelerationDomainsResp.Response.AccelerationDomains {
+			if lo.Contains(ignoredStatuses, lo.FromPtr(domainItem.DomainStatus)) {
+				continue
+			}
+
+			domainsInZone = append(domainsInZone, domainItem)
+		}
+
+		if len(describeAccelerationDomainsResp.Response.AccelerationDomains) < pageSize {
+			break
+		}
+	}
+
+	return domainsInZone, nil
+}
+
+func createSDKClient(secretId, secretKey, endpoint string) (*tceo.Client, error) {
+	credential := common.NewCredential(secretId, secretKey)
+
+	cpf := profile.NewClientProfile()
+	if endpoint != "" {
+		cpf.HttpProfile.Endpoint = endpoint
+	}
+
+	client, err := tceo.NewClient(credential, "", cpf)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}

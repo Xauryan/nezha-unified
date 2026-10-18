@@ -1,0 +1,186 @@
+package repository
+
+import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+
+	"github.com/certimate-go/certimate/internal/app"
+	"github.com/certimate-go/certimate/internal/domain"
+	"github.com/pocketbase/dbx"
+	"github.com/pocketbase/pocketbase/core"
+)
+
+type CertificateRepository struct{}
+
+func NewCertificateRepository() *CertificateRepository {
+	return &CertificateRepository{}
+}
+
+func (r *CertificateRepository) GetById(ctx context.Context, id string) (*domain.Certificate, error) {
+	record, err := app.GetApp().FindRecordById(domain.CollectionNameCertificate, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	if !record.GetDateTime("deleted").Time().IsZero() {
+		return nil, domain.ErrRecordNotFound
+	}
+
+	return r.castRecordToModel(record)
+}
+
+func (r *CertificateRepository) GetByWorkflowIdAndNodeId(ctx context.Context, workflowId string, workflowNodeId string) (*domain.Certificate, error) {
+	records, err := app.GetApp().FindRecordsByFilter(
+		domain.CollectionNameCertificate,
+		"workflowRef={:workflowId} && workflowNodeId={:workflowNodeId} && deleted=null",
+		"-created",
+		1, 0,
+		dbx.Params{"workflowId": workflowId},
+		dbx.Params{"workflowNodeId": workflowNodeId},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(records) == 0 {
+		return nil, domain.ErrRecordNotFound
+	}
+
+	return r.castRecordToModel(records[0])
+}
+
+func (r *CertificateRepository) GetByWorkflowRunIdAndNodeId(ctx context.Context, workflowRunId string, workflowNodeId string) (*domain.Certificate, error) {
+	records, err := app.GetApp().FindRecordsByFilter(
+		domain.CollectionNameCertificate,
+		"workflowRunRef={:workflowRunId} && workflowNodeId={:workflowNodeId} && deleted=null",
+		"-created",
+		1, 0,
+		dbx.Params{"workflowRunId": workflowRunId},
+		dbx.Params{"workflowNodeId": workflowNodeId},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(records) == 0 {
+		return nil, domain.ErrRecordNotFound
+	}
+
+	return r.castRecordToModel(records[0])
+}
+
+func (r *CertificateRepository) Save(ctx context.Context, certificate *domain.Certificate) (*domain.Certificate, error) {
+	collection, err := app.GetApp().FindCollectionByNameOrId(domain.CollectionNameCertificate)
+	if err != nil {
+		return certificate, err
+	}
+
+	var record *core.Record
+	if certificate.Id == "" {
+		record = core.NewRecord(collection)
+	} else {
+		record, err = app.GetApp().FindRecordById(collection, certificate.Id)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return certificate, domain.ErrRecordNotFound
+			}
+			return certificate, err
+		}
+	}
+
+	record.Set("source", certificate.Source.String())
+	record.Set("certificate", certificate.Certificate)
+	record.Set("privateKey", certificate.PrivateKey)
+	record.Set("serialNumber", certificate.SerialNumber)
+	record.Set("subjectName", certificate.SubjectName)
+	record.Set("subjectAltNames", certificate.SubjectAltNames)
+	record.Set("issuerOrg", certificate.IssuerOrg)
+	record.Set("issuerName", certificate.IssuerName)
+	record.Set("issuerCertificate", certificate.IssuerCertificate)
+	record.Set("keyAlgorithm", certificate.KeyAlgorithm.String())
+	record.Set("validationPolicy", certificate.ValidationPolicy.String())
+	record.Set("validityNotBefore", certificate.ValidityNotBefore)
+	record.Set("validityNotAfter", certificate.ValidityNotAfter)
+	record.Set("validityInterval", certificate.ValidityInterval)
+	record.Set("ca", certificate.CA)
+	record.Set("acmeAcctUrl", certificate.ACMEAccountUrl)
+	record.Set("acmeCertUrl", certificate.ACMECertificateUrl)
+	record.Set("isRenewed", certificate.IsRenewed)
+	record.Set("isRevoked", certificate.IsRevoked)
+	record.Set("workflowRef", certificate.WorkflowId)
+	record.Set("workflowRunRef", certificate.WorkflowRunId)
+	record.Set("workflowNodeId", certificate.WorkflowNodeId)
+	if err := app.GetApp().Save(record); err != nil {
+		return certificate, err
+	}
+
+	certificate.Id = record.Id
+	certificate.CreatedAt = record.GetDateTime("created").Time()
+	certificate.UpdatedAt = record.GetDateTime("updated").Time()
+	return certificate, nil
+}
+
+func (r *CertificateRepository) DeleteWithExprs(ctx context.Context, exprs ...dbx.Expression) (int, error) {
+	records, err := app.GetApp().FindAllRecords(domain.CollectionNameCertificate, exprs...)
+	if err != nil {
+		return 0, nil
+	}
+
+	var ret int
+	var errs []error
+	for _, record := range records {
+		if err := app.GetApp().Delete(record); err != nil {
+			errs = append(errs, err)
+		} else {
+			ret++
+		}
+	}
+
+	if len(errs) > 0 {
+		return ret, errors.Join(errs...)
+	}
+
+	return ret, nil
+}
+
+func (r *CertificateRepository) castRecordToModel(record *core.Record) (*domain.Certificate, error) {
+	if record == nil {
+		return nil, fmt.Errorf("the record is nil")
+	}
+
+	certificate := &domain.Certificate{
+		Meta: domain.Meta{
+			Id:        record.Id,
+			CreatedAt: record.GetDateTime("created").Time(),
+			UpdatedAt: record.GetDateTime("updated").Time(),
+		},
+		Source:             domain.CertificateSourceType(record.GetString("source")),
+		Certificate:        record.GetString("certificate"),
+		PrivateKey:         record.GetString("privateKey"),
+		SerialNumber:       record.GetString("serialNumber"),
+		SubjectName:        record.GetString("subjectName"),
+		SubjectAltNames:    record.GetString("subjectAltNames"),
+		IssuerName:         record.GetString("issuerName"),
+		IssuerOrg:          record.GetString("issuerOrg"),
+		IssuerCertificate:  record.GetString("issuerCertificate"),
+		KeyAlgorithm:       domain.CertificateKeyAlgorithmType(record.GetString("keyAlgorithm")),
+		ValidationPolicy:   domain.CertificateValidationPolicyType(record.GetString("validationPolicy")),
+		ValidityNotBefore:  record.GetDateTime("validityNotBefore").Time(),
+		ValidityNotAfter:   record.GetDateTime("validityNotAfter").Time(),
+		ValidityInterval:   int32(record.GetInt("validityInterval")),
+		CA:                 record.GetString("ca"),
+		ACMEAccountUrl:     record.GetString("acmeAcctUrl"),
+		ACMECertificateUrl: record.GetString("acmeCertUrl"),
+		IsRenewed:          record.GetBool("isRenewed"),
+		IsRevoked:          record.GetBool("isRevoked"),
+		WorkflowId:         record.GetString("workflowRef"),
+		WorkflowRunId:      record.GetString("workflowRunRef"),
+		WorkflowNodeId:     record.GetString("workflowNodeId"),
+	}
+	return certificate, nil
+}

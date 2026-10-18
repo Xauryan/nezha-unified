@@ -1,0 +1,71 @@
+import path from "node:path";
+
+import tailwindcssPlugin from "@tailwindcss/vite";
+import legacyPlugin from "@vitejs/plugin-legacy";
+import reactPlugin from "@vitejs/plugin-react";
+import fs from "fs-extra";
+import { defineConfig } from "vite";
+
+import preserveFilesPlugin from "./scripts/vite/plugins/preserve-files-plugin";
+
+export default defineConfig(({ command }) => {
+  let appVersion = undefined;
+  try {
+    const content = fs.readFileSync(path.resolve(import.meta.dirname, "../internal/app/app.go"), "utf-8");
+    const matches = content.match(/AppVersion\s+=\s+"(.+?)"/);
+    if (matches) {
+      appVersion = matches[1];
+      if (command === "serve") {
+        appVersion += "-dev";
+      }
+      console.info("[certimate] AppVersion is " + appVersion);
+    } else {
+      throw new Error("`AppVersion` not found in '/internal/app/app.go'");
+    }
+  } catch (err) {
+    throw new Error("Could not read app version: " + (err as Error).message);
+  }
+
+  return {
+    base: "./",
+    define: {
+      __APP_VERSION__: JSON.stringify(appVersion),
+    },
+    build: {
+      rolldownOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("/src/i18n/")) {
+              return "locales";
+            }
+          },
+        },
+      },
+    },
+    plugins: [
+      reactPlugin({}),
+      legacyPlugin({
+        targets: ["defaults", "not IE 11"],
+        modernTargets: "chrome>=111, firefox>=113, safari>=15.4",
+        polyfills: true,
+        modernPolyfills: true,
+        renderLegacyChunks: false,
+        renderModernChunks: true,
+      }),
+      tailwindcssPlugin({}),
+      preserveFilesPlugin({
+        files: ["dist/.gitkeep"],
+      }),
+    ],
+    resolve: {
+      alias: {
+        "@": path.resolve(import.meta.dirname, "./src"),
+      },
+    },
+    server: {
+      proxy: {
+        "/api": "http://127.0.0.1:8090",
+      },
+    },
+  };
+});

@@ -1,0 +1,15 @@
+.git
+.github
+.vscode
+.idea
+
+vendor
+node_modules
+
+build
+pb_data
+
+.tmp*
+*.tmp
+*.bak
+*.log
